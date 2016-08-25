@@ -1,0 +1,34 @@
+{
+	"mapdata":
+	{
+		"minRooms": 6,
+		"maxRooms": 7,
+		"minRoomWidth": 3,
+		"maxRoomWidth": 5,
+		"minRoomHeight": 3,
+		"maxRoomHeight": 5,
+		"minWidth": 10,
+		"maxWidth": 15,
+		"minHeight": 10,
+		"maxHeight": 15,
+	},
+
+	"droprate":
+	{
+		
+		"MichaelJacksonsHandschuh": 10,
+		"KoboldTreter": 5,
+		"Orkrüstung": 3,
+		
+		"AliBabasSäbel": 30,
+		"DIESpitzhacke": 15,
+		"MorgensternDesSchrecklichenSvens": 2,
+		
+		"ChiquitaBanane": 50,
+		"HerrHolsteinsHerz": 20,
+		
+		"Hehlerware": 2,
+		
+		
+	},
+}

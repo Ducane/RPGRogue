@@ -1,0 +1,33 @@
+{
+	"mapdata":
+	{
+		"minRooms": 6,
+		"maxRooms": 7,
+		"minRoomWidth": 3,
+		"maxRoomWidth": 5,
+		"minRoomHeight": 3,
+		"maxRoomHeight": 5,
+		"minWidth": 10,
+		"maxWidth": 15,
+		"minHeight": 10,
+		"maxHeight": 15,
+	},
+
+
+	"droprate":
+	{
+		"StabileRuestung": 10,
+		"RuestungDerRitterDerKokosnuss": 5,
+		"BurgerKingKrone": 3,
+		
+		"AxtVonJackNicholson": 30,
+		"DieMiniLanze": 15,
+		"EinGescheitesSchwert": 2,
+		
+		"ScharfesRadischen": 50,
+		"VitaminreicherApfel": 20,
+		
+		"KetteDesZeitreisenden": 2,
+	},
+	
+}

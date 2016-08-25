@@ -1,0 +1,34 @@
+{
+	"mapdata":
+	{
+		"minRooms": 6,
+		"maxRooms": 7,
+		"minRoomWidth": 2,
+		"maxRoomWidth": 4,
+		"minRoomHeight": 2,
+		"maxRoomHeight": 4,
+		"minWidth": 10,
+		"maxWidth": 15,
+		"minHeight": 10,
+		"maxHeight": 15,
+	},
+
+	"droprate":
+	{
+		"Lederkutte": 10,
+		"Moenchskutte": 5,
+		"DeutscheSandale": 3,
+		
+		"Holzknueppel": 30,
+		"Holzsense": 15,
+		"SelteneSchaufelDesTotengraebers": 2,
+		
+		"Pilz": 50,
+		"LeichtesWaesserchen": 20,
+		
+		"OmasErbstueck": 2,
+		
+	},
+	
+	"monsters": [ "Schleim" ],
+}
