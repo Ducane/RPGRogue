@@ -1,0 +1,83 @@
+{
+	"window":
+	{
+		"fps": 24,
+		"resizable": true,
+		"scale": 0.6,
+		"title": "Roguelike - RPG",
+	},
+
+	"gui":
+	{
+		"crossfade_switch": 0.5,
+		
+		"menu":
+		{
+			"background_color": "#000000",
+
+			"background_deco_color": "#FFFFFF",
+			"background_deco_y_offset": 0.02,
+			
+			"button_labels": [ "Start", "Beenden" ],
+			
+			"button_color_label": "#FFFFFF",
+			"button_color_border": "#FFFFFF",
+
+			"button_x": 0.35,
+			"button_y": 0.6,
+			"button_dy": 0.125,
+			"button_width": 0.3,
+			"button_height": 0.1,
+
+			"button_font_name": "R.P.G.",
+			"button_font_size": 0.05,
+			"button_font_style": 0,
+
+			"button_border_thickness": 0.002,
+			"button_border_thickness_selected": 0.005,
+
+			"cursor_speed": 4.0,
+			"cursor_color": "#FFFFFF",
+			"cursor_color_border": "#FFFFD8",
+			
+			"cursor_border_thickness" 0.008,
+			
+			"return_time": 15,
+			
+			"title_x": 0.2,
+			"title_y": 0.2,
+			"title_width": 0.6,
+			"title_height": 0.3,
+		},
+		
+		"intro"
+		{
+			"background_color": "#000000",
+			"font_color": "#FFFFFF",
+			
+			"char_speed": 15.0,
+			"image_speed": 0.4,
+			
+			"text":
+			[
+				"Vor langer Zeit gab es eine Gilde, in der die stärksten Abenteurer der ganzen Welt vertreten waren. Ihr Name war in aller Munde.\nTERRA.",				
+				"Man sagt, dass sie nur kühne Abenteurer aufnahm, welche wahre Meister der Kampfkunst waren.\nSogar Drachentöter und meisterhafte Magier wurden abgelehnt.",
+				"Doch eine Aufgabe wurde sogar von den Mitgliedern TERRAs gefürchtet.\nDas Amulett von YENDOR.",			
+				"Dieses befindet sich auf der 20. Ebene des Gildenverließes.\nUnglaubliche Kreaturen sollen sich dort befinden...\nBist du dieser Aufgabe gewachsen?"
+			],
+			
+			"text_dx": 0.025,
+			"text_font_name": "Determination Mono",
+			"text_font_size": 0.045,
+			"text_font_style": 0,
+		}
+	},
+
+	"level":
+	{
+		"tile":
+		{
+			"tile_size": 32,
+		},
+	},
+}
