@@ -16,22 +16,21 @@ public final class LevelGenerator {
   }
   
   private static void addIfAdjacentWall( final TileType[][] types, final List<Point> neighbours,
-      final Point neighbourRight ) {
-    if ( checkBounds( types, neighbourRight )
-        && getType( types, neighbourRight ) == TileType.WALL ) {
-      neighbours.add( neighbourRight );
+      final Point pos ) {
+    if ( checkBounds( types, pos ) && types[ pos.y ][ pos.x ] == TileType.WALL ) {
+      neighbours.add( pos );
     }
   }
   
-  private static boolean checkBounds( final TileType[][] types, final Point neighbour ) {
-    return neighbour.x >= 0 && neighbour.x < types[ 0 ].length
-        && neighbour.y >= 0 && neighbour.y < types.length;
+  private static boolean checkBounds( final TileType[][] types, final Point pos ) {
+    return pos.x >= 0 && pos.x < types[ 0 ].length
+        && pos.y >= 0 && pos.y < types.length;
   }
   
-  private static Point entryPoint( final TileType[][] tileTypes ) {
-    for ( int y = 0; y < tileTypes.length; y += 2 ) {
-      for ( int x = 0; x < tileTypes[ 0 ].length; x += 2 ) {
-        if ( tileTypes[ y ][ x ] == TileType.WALL ) {
+  private static Point entryPoint( final TileType[][] types ) {
+    for ( int y = 0; y < types.length; y += 2 ) {
+      for ( int x = 0; x < types[ 0 ].length; x += 2 ) {
+        if ( types[ y ][ x ] == TileType.WALL ) {
           return new Point( x, y );
         }
       }
@@ -47,9 +46,8 @@ public final class LevelGenerator {
     
     final Map<String, Float> droprates = new HashMap<>();
     
-    droprateData.forEach( ( type, rate ) -> {
-      droprates.put( (String) type, ( (Number) rate ).floatValue() );
-    } );
+    droprateData.forEach( ( type, rate ) -> droprates.put(
+        (String) type, ( (Number) rate ).floatValue() ) );
     
     final JSONObject mapData = (JSONObject) data.get( "mapdata" );
     
@@ -71,8 +69,8 @@ public final class LevelGenerator {
     final int height = minHeight + random.nextInt( maxHeight - minHeight + 1 );
     
     final TileType[][] types = new TileType[ height * 2 - 1 ][ width * 2 - 1 ];
-    final List<Rectangle> rooms = generateRooms( minRoomWidth, maxRoomWidth, minRoomHeight,
-        maxRoomHeight, random, nRooms, width, height, types );
+    final List<Rectangle> rooms = generateRooms( minRoomWidth, maxRoomWidth,
+        minRoomHeight, maxRoomHeight, random, nRooms, width, height, types );
     generateBlueprint( types, width, height, rooms, random );
     final Dimension size = new Dimension( types[ 0 ].length, types.length );
     final Level level = new Level( screen, size, rooms, monsters );
@@ -97,20 +95,19 @@ public final class LevelGenerator {
     generatePath( tileTypes, entry, width, height );
     
     for ( final Rectangle room : rooms ) {
-      int x;
-      int y;
+      final int x;
+      final int y;
       
       final boolean sign = random.nextBoolean();
       
       if ( random.nextBoolean() ) {
-        x = room.x != 0 && ( room.x + room.width == width || sign ) ? room.x * 2 - 1
-            : ( room.x + room.width - 1 ) * 2 + 1;
+        x = room.x != 0 && ( room.x + room.width == width || sign )
+            ? room.x * 2 - 1 : ( room.x + room.width - 1 ) * 2 + 1;
         y = ( room.y + random.nextInt( room.height ) ) * 2;
       } else {
-        y = room.y != 0 && ( room.y + room.height == height || sign ) ? room.y * 2 - 1
-            : ( room.y + room.height - 1 ) * 2 + 1;
+        y = room.y != 0 && ( room.y + room.height == height || sign )
+            ? room.y * 2 - 1 : ( room.y + room.height - 1 ) * 2 + 1;
         x = ( room.x + random.nextInt( room.width ) ) * 2;
-        
       }
       
       tileTypes[ y ][ x ] = TileType.DOOR;
@@ -181,44 +178,39 @@ public final class LevelGenerator {
       addIfAdjacentWall( types, neighbours, new Point( current.x, current.y + 2 ) );
       addIfAdjacentWall( types, neighbours, new Point( current.x, current.y - 2 ) );
       
-      if ( hasNotVisitedNeighbours( neighbours, types ) ) {
-        Point unvisitedNeighbour = null;
+      if ( hasUnvisitedNeighbours( neighbours, types ) ) {
+        Point neighbour = null;
         
-        final float randomFloat = (float) Math.random();
+        final float chance = (float) Math.random();
         final Point sameDirectionPoint = lastDirection == null ? null
             : new Point( current.x + lastDirection.x, current.y + lastDirection.y );
         
         if ( sameDirectionPoint == null || !neighbours.contains( sameDirectionPoint )
-            || randomFloat < 0.25f ) {
-          unvisitedNeighbour = neighbours.get( random.nextInt( neighbours.size() ) );
+            || chance < 0.25f ) {
+          neighbour = neighbours.get( random.nextInt( neighbours.size() ) );
         } else {
-          unvisitedNeighbour = sameDirectionPoint;
+          neighbour = sameDirectionPoint;
         }
         
         deque.push( current );
         
-        final Point between = pointBetween( current, unvisitedNeighbour );
+        final Point between = pointBetween( current, neighbour );
         types[ between.y ][ between.x ] = TileType.FLOOR;
-        lastDirection = new Point( unvisitedNeighbour.x - current.x,
-            unvisitedNeighbour.y - current.y );
-        current = unvisitedNeighbour;
-        types[ unvisitedNeighbour.y ][ unvisitedNeighbour.x ] = TileType.FLOOR;
+        lastDirection = new Point( neighbour.x - current.x, neighbour.y - current.y );
+        current = neighbour;
+        types[ neighbour.y ][ neighbour.x ] = TileType.FLOOR;
       } else if ( !deque.isEmpty() ) {
         current = deque.pop();
       }
     }
   }
   
-  private static TileType getType( final TileType[][] types, final Point neighbour ) {
-    return types[ neighbour.y ][ neighbour.x ];
-  }
-  
-  private static boolean hasNotVisitedNeighbours( final List<Point> neighbours,
+  private static boolean hasUnvisitedNeighbours( final List<Point> neighbours,
       final TileType[][] types ) {
     for ( int i = 0; i < neighbours.size(); i++ ) {
-      final Point neighbour = neighbours.get( i );
+      final Point pos = neighbours.get( i );
       
-      if ( getType( types, neighbour ) == TileType.WALL ) {
+      if ( types[ pos.y ][ pos.y ] == TileType.WALL ) {
         return true;
       }
     }
@@ -277,7 +269,7 @@ public final class LevelGenerator {
       final int x = random.nextInt( level.size.width );
       final int y = random.nextInt( level.size.height );
       up = new Point( x, y );
-    } while ( !level.getTile( up ).data.name.equals( "granite" )
+    } while ( !"granite".equals( level.getTile( up ).data.name )
         || level.getTile( up ).getItem() != null );
     
     level.setUpStairsPos( up );
@@ -288,8 +280,8 @@ public final class LevelGenerator {
       final int x = random.nextInt( level.size.width );
       final int y = random.nextInt( level.size.height );
       down = new Point( x, y );
-    } while ( !level.getTile( down ).data.name.equals( "granite" )
-        || level.getTile( down ).getItem() != null || down.x == up.x && down.y == up.y );
+    } while ( !"granite".equals( level.getTile( down ).data.name )
+        || level.getTile( down ).getItem() != null || down.equals( up ) );
     
     level.setDownStairsPos( down );
   }
@@ -298,11 +290,11 @@ public final class LevelGenerator {
     return new Point( ( a.x + b.x ) / 2, ( a.y + b.y ) / 2 );
   }
   
-  private static void translate( final Level level, final TileType[][] tileTypes ) {
-    for ( int y = 0; y < tileTypes.length; y++ ) {
-      for ( int x = 0; x < tileTypes[ y ].length; x++ ) {
+  private static void translate( final Level level, final TileType[][] types ) {
+    for ( int y = 0; y < types.length; y++ ) {
+      for ( int x = 0; x < types[ y ].length; x++ ) {
         final Point pos = new Point( x, y );
-        final String name = tileTypes[ y ][ x ].name;
+        final String name = types[ y ][ x ].name;
         level.setTile( pos, Tiles.create( name ) );
       }
     }
