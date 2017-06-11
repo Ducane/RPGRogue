@@ -1,16 +1,17 @@
 package de.ducane.roguelike.screen;
 
+// import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.game.*;
 import de.androbin.gfx.transition.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 
-public class NewGameScreen extends Screen {
+public final class NewGameScreen extends Screen {
   private final StringBuilder name;
   private FontMetrics fm;
   
-  private Rectangle2D buttonBounds;
+  private Rectangle2D.Float buttonBounds;
   private boolean buttonSelection;
   
   public NewGameScreen( final Game game ) {
@@ -64,8 +65,7 @@ public class NewGameScreen extends Screen {
         fm.getAscent() + (int) ( 0.1f * getHeight() ) );
     
     g.setColor( buttonSelection ? Color.YELLOW : Color.WHITE );
-    // g.drawRect( (int) button_bounds.getX(), (int) button_bounds.getY(), (int)
-    // button_bounds.getWidth(), (int) button_bounds.getHeight() );
+    // drawRect( g, buttonBounds );
     g.drawString( "OK", (int) buttonBounds.getX(), (int) ( buttonBounds.getY()
         + ( buttonBounds.getHeight() - fm.getAscent() - fm.getLeading() ) / 2 + fm.getAscent() ) );
     

@@ -21,7 +21,6 @@ public final class PlayScreen extends RPGScreen {
   private final String name;
   
   private Level level;
-  
   private int floor;
   
   private Blackout blackout;
@@ -30,45 +29,26 @@ public final class PlayScreen extends RPGScreen {
   private Rectangle room;
   
   private BufferedImage barImage;
-  
-  private int barX;
-  private int barY;
-  private int barWidth;
-  private int barHeight;
+  private Rectangle2D.Float barBounds;
   
   private State state;
   
-  private float statX;
-  private float statY;
-  private float statWidth;
-  private float statHeight;
-  private float statImageX;
-  private float statImageY;
-  private float statImageWidth;
-  private float statImageHeight;
+  private Rectangle2D.Float statBounds;
+  private Rectangle2D.Float statImageBounds;
   
   private Stroke menuStroke;
-  private float menuX;
-  private float menuY;
-  private float menuWidth;
-  private float menuHeight;
+  private Rectangle2D.Float menuBounds;
   private Stroke menuButtonStroke;
   
   private static final String[] MENU_BUTTON_LABELS = { "Inventar", "Beenden" };
   
   private Stroke inventoryStroke;
-  private float inventoryX;
-  private float inventoryY;
-  private float inventoryWidth;
-  private float inventoryHeight;
+  private Rectangle2D.Float inventoryBounds;
   private Stroke inventoryButtonStroke;
-  private float inventoryButtonDy;
+  private float inventoryButtonDY;
   
   private Stroke itemSelectStroke;
-  private float itemSelectX;
-  private float itemSelectY;
-  private float itemSelectWidth;
-  private float itemSelectHeight;
+  private Rectangle2D.Float itemSelectBounds;
   
   private String[] itemSelectButtonLabels = new String[ 2 ];
   
@@ -136,83 +116,67 @@ public final class PlayScreen extends RPGScreen {
   
   @ Override
   public void onResized( final int width, final int height ) {
-    barX = (int) ( 0.2f * width );
-    barY = (int) ( 0.05f * height );
-    barWidth = (int) ( 0.4f * width );
-    barHeight = (int) ( 0.025f * height );
+    barBounds = new Rectangle2D.Float(
+        0.2f * width, 0.05f * height, 0.4f * width, 0.025f * height );
     
-    statX = (int) ( 0.1f * width );
-    statY = (int) ( 0.1f * height );
-    statWidth = (int) ( 0.2f * width );
-    statHeight = (int) ( 0.25f * height );
-    statImageX = (int) ( 0.15f * width );
-    statImageY = (int) ( 0.15f * height );
-    statImageWidth = (int) ( 0.1f * width );
-    statImageHeight = (int) ( 0.15f * height );
+    statBounds = new Rectangle2D.Float(
+        0.1f * width, 0.1f * height, 0.2f * width, 0.25f * height );
+    statImageBounds = new Rectangle2D.Float(
+        0.15f * width, 0.15f * height, 0.1f * width, 0.15f * height );
     
-    menuX = (int) ( 0.1f * width );
-    menuY = (int) ( 0.4f * height );
-    menuWidth = (int) ( 0.2f * width );
-    menuHeight = (int) ( 0.4f * height );
+    menuBounds = new Rectangle2D.Float(
+        0.1f * width, 0.4f * height, 0.2f * width, 0.4f * height );
     menuStroke = new BasicStroke( 0.005f * getWidth() );
     menuButtonStroke = new BasicStroke( 0f );
     
-    final float menuButtonX = 0.125f * width;
-    final float menuButtonY = 0.45f * height;
-    final float menuButtonWidth = 0.15f * width;
-    final float menuButtonHeight = 0.05f * height;
-    final float menuButtonDy = 0.075f * height;
+    final Rectangle2D.Float menuButtonBounds = new Rectangle2D.Float(
+        0.125f * width, 0.45f * height, 0.15f * width, 0.05f * height );
+    final float menuButtonDY = 0.075f * height;
     
     State.Menu.buttonBounds = new Rectangle2D.Float[ MENU_BUTTON_LABELS.length ];
     
     for ( int i = 0; i < State.Menu.buttonBounds.length; i++ ) {
-      State.Menu.buttonBounds[ i ] = new Rectangle2D.Float( menuButtonX,
-          menuButtonY + menuButtonDy * i, menuButtonWidth, menuButtonHeight );
+      State.Menu.buttonBounds[ i ] = new Rectangle2D.Float(
+          menuButtonBounds.x, menuButtonBounds.y + menuButtonDY * i,
+          menuButtonBounds.width, menuButtonBounds.height );
     }
     
     inventoryStroke = new BasicStroke( 0.005f * getWidth() );
-    inventoryX = (int) ( 0.35f * width );
-    inventoryY = (int) ( 0.1f * height );
-    inventoryWidth = (int) ( 0.25f * width );
-    inventoryHeight = (int) ( 0.7f * height );
+    inventoryBounds = new Rectangle2D.Float(
+        0.35f * width, 0.1f * height, 0.25f * width, 0.7f * height );
     inventoryButtonStroke = new BasicStroke( 0f );
     
-    final float inventoryButtonX = 0.4f * width;
-    final float inventoryButtonY = 0.125f * height;
-    final float inventoryButtonWidth = 0.15f * width;
-    final float inventoryButtonHeight = 0.05f * height;
+    final Rectangle2D.Float inventoryButtonBounds = new Rectangle2D.Float(
+        0.4f * width, 0.125f * height, 0.15f * width, 0.05f * height );
     
-    inventoryButtonDy = (int) ( 0.075f * height );
+    inventoryButtonDY = (int) ( 0.075f * height );
     State.Inventory.buttonBounds = new Rectangle2D.Float[ 8 ];
     
     for ( int i = 0; i < State.Inventory.buttonBounds.length; i++ ) {
-      State.Inventory.buttonBounds[ i ] = new Rectangle2D.Float( inventoryButtonX,
-          inventoryButtonY + inventoryButtonDy * i, inventoryButtonWidth, inventoryButtonHeight );
+      State.Inventory.buttonBounds[ i ] = new Rectangle2D.Float(
+          inventoryButtonBounds.x, inventoryButtonBounds.y + inventoryButtonDY * i,
+          inventoryButtonBounds.width, inventoryButtonBounds.height );
     }
     
-    pageCursorLeft = new Rectangle( (int) ( inventoryX + ( 0.1f * inventoryWidth ) ),
-        (int) ( inventoryY + ( 0.95f * inventoryHeight ) ), 10, 10 );
-    pageCursorRight = new Rectangle( (int) ( inventoryX + ( 0.9f * inventoryWidth ) ),
-        (int) ( inventoryY + ( 0.95f * inventoryHeight ) ), 10, 10 );
+    pageCursorLeft = new Rectangle( (int) ( inventoryBounds.x + ( 0.1f * inventoryBounds.width ) ),
+        (int) ( inventoryBounds.y + ( 0.95f * inventoryBounds.height ) ), 10, 10 );
+    pageCursorRight = new Rectangle( (int) ( inventoryBounds.x + ( 0.9f * inventoryBounds.width ) ),
+        (int) ( inventoryBounds.y + ( 0.95f * inventoryBounds.height ) ), 10, 10 );
     
     itemSelectStroke = new BasicStroke( 0.005f * getWidth() );
-    itemSelectX = (int) ( 0.65f * width );
-    itemSelectY = (int) ( 0.15f * height );
-    itemSelectWidth = (int) ( 0.2f * width );
-    itemSelectHeight = (int) ( 0.25f * height );
+    itemSelectBounds = new Rectangle2D.Float(
+        0.65f * width, 0.15f * height, 0.2f * width, 0.25f * height );
     
-    final float itemSelectButtonX = 0.675f * width;
-    final float itemSelectButtonY = 0.175f * height;
-    final float itemSelectButtonWidth = 0.15f * width;
-    final float itemSelectButtonHeight = 0.05f * height;
+    final Rectangle2D.Float itemSelectButtonBounds = new Rectangle2D.Float(
+        0.675f * width, 0.175f * height, 0.15f * width, 0.05f * height );
     final float itemSelectButtonDy = 0.075f * height;
     
     State.ItemSelect.buttonBounds = new Rectangle2D.Float[ 2 ];
     
     for ( int i = 0; i < State.ItemSelect.buttonBounds.length; i++ ) {
-      State.ItemSelect.buttonBounds[ i ] = new Rectangle2D.Float( itemSelectButtonX,
-          itemSelectButtonY + itemSelectButtonDy * i, itemSelectButtonWidth,
-          itemSelectButtonHeight );
+      State.ItemSelect.buttonBounds[ i ] = new Rectangle2D.Float(
+          itemSelectButtonBounds.x, itemSelectButtonBounds.y + itemSelectButtonDy * i,
+          itemSelectButtonBounds.width, itemSelectButtonBounds.height );
     }
   }
   
@@ -249,19 +213,20 @@ public final class PlayScreen extends RPGScreen {
     
     final Player player = getPlayer();
     g.setFont( new Font( "Determination Mono", 0, (int) ( 0.04 * getHeight() ) ) );
-    g.drawString( "Lv " + player.getStage(), barX - (int) ( 0.1f * getWidth() ), barY );
-    g.drawString( "E" + floor, barX - 0.175f * getWidth(), barY );
-    g.drawString( "HP " + player.getHp() + "/" + player.getMaxHp(), barX,
-        barY - 0.01f * getHeight() );
+    g.drawString( "Lv " + player.getStage(),
+        barBounds.x - (int) ( 0.1f * getWidth() ), barBounds.y );
+    g.drawString( "E" + floor, barBounds.x - 0.175f * getWidth(), barBounds.y );
+    g.drawString( "HP " + player.getHp() + "/" + player.getMaxHp(),
+        barBounds.x, barBounds.y - 0.01f * getHeight() );
     
     final FontMetrics fm = g.getFontMetrics();
     
     if ( state != null ) {
       g.setColor( Color.BLACK );
-      fillRect( g, menuX, menuY, menuWidth, menuHeight );
+      fillRect( g, menuBounds );
       g.setStroke( menuStroke );
       g.setColor( Color.WHITE );
-      drawRect( g, menuX, menuY, menuWidth, menuHeight );
+      drawRect( g, menuBounds );
       
       g.setStroke( menuButtonStroke );
       
@@ -276,10 +241,10 @@ public final class PlayScreen extends RPGScreen {
     
     if ( state == State.Inventory || state == State.ItemSelect ) {
       g.setColor( Color.BLACK );
-      fillRect( g, inventoryX, inventoryY, inventoryWidth, inventoryHeight );
+      fillRect( g, inventoryBounds );
       g.setStroke( inventoryStroke );
       g.setColor( Color.WHITE );
-      drawRect( g, inventoryX, inventoryY, inventoryWidth, inventoryHeight );
+      drawRect( g, inventoryBounds );
       
       final List<Item> inventory = player.getInventory();
       g.setStroke( inventoryButtonStroke );
@@ -289,10 +254,11 @@ public final class PlayScreen extends RPGScreen {
         
         if ( inventory.size() > i ) {
           final String itemName = inventory.get( i ).name;
-          final String subItemName = itemName.length() > 10 ? itemName.substring( 0, 10 )
+          final String subItemName = itemName.length() > 10
+              ? itemName.substring( 0, 10 )
               : itemName;
-          g.setColor(
-              state == State.Inventory && i % 8 == state.selection ? Color.YELLOW : Color.WHITE );
+          g.setColor( state == State.Inventory && i % 8 == state.selection
+              ? Color.YELLOW : Color.WHITE );
           g.drawString( subItemName, rect.x + ( rect.width - fm.stringWidth( subItemName ) ) / 2,
               rect.y + ( rect.height - fm.getHeight() ) / 2 + fm.getAscent() );
         } else {
@@ -305,8 +271,9 @@ public final class PlayScreen extends RPGScreen {
       
       final String size = inventory.size() + "/" + ( pageIndex + 1 );
       g.setColor( Color.WHITE );
-      g.drawString( size, inventoryX + ( inventoryWidth - fm.stringWidth( size ) ) / 2,
-          inventoryY + ( 0.95f * inventoryHeight ) );
+      g.drawString( size,
+          inventoryBounds.x + ( inventoryBounds.width - fm.stringWidth( size ) ) / 2,
+          inventoryBounds.y + ( 0.95f * inventoryBounds.height ) );
       g.fillRect( pageCursorRight.x, pageCursorRight.y, pageCursorRight.width,
           pageCursorRight.height );
       g.fillRect( pageCursorLeft.x, pageCursorLeft.y, pageCursorLeft.width, pageCursorLeft.height );
@@ -315,29 +282,32 @@ public final class PlayScreen extends RPGScreen {
       
       if ( inventory.size() > index ) {
         g.setColor( Color.BLACK );
-        fillRect( g, statX, statY, statWidth, statHeight );
+        fillRect( g, statBounds );
         g.setStroke( inventoryStroke );
         g.setColor( Color.WHITE );
-        drawRect( g, statX, inventoryY, statWidth, statHeight );
+        drawRect( g, statBounds.x, inventoryBounds.y, statBounds.width, statBounds.height );
       }
       
       if ( !inventory.isEmpty() && inventory.size() > index ) {
-        drawImage( g, inventory.get( pageIndex > 0 ? index : State.Inventory.selection ).getImage(),
-            statImageX, statImageY, statImageWidth, statImageHeight );
+        final int slot = pageIndex > 0 ? index : State.Inventory.selection;
+        final BufferedImage image = inventory.get( slot ).getImage();
+        drawImage( g, image, statImageBounds );
       }
     }
     
     if ( state == State.ItemSelect ) {
       g.setColor( Color.BLACK );
-      fillRect( g, itemSelectX, itemSelectY + State.Inventory.selection * inventoryButtonDy,
-          itemSelectWidth, itemSelectHeight );
+      fillRect( g, itemSelectBounds.x,
+          itemSelectBounds.y + State.Inventory.selection * inventoryButtonDY,
+          itemSelectBounds.width, itemSelectBounds.height );
       g.setStroke( itemSelectStroke );
       g.setColor( Color.WHITE );
-      drawRect( g, itemSelectX, itemSelectY + State.Inventory.selection * inventoryButtonDy,
-          itemSelectWidth, itemSelectHeight );
+      drawRect( g, itemSelectBounds.x,
+          itemSelectBounds.y + State.Inventory.selection * inventoryButtonDY,
+          itemSelectBounds.width, itemSelectBounds.height );
       
       for ( int i = 0; i < State.ItemSelect.buttonBounds.length; i++ ) {
-        final float dy = State.Inventory.selection * inventoryButtonDy;
+        final float dy = State.Inventory.selection * inventoryButtonDY;
         g.translate( 0, dy );
         
         final Rectangle2D.Float rect = State.ItemSelect.buttonBounds[ i ];
@@ -353,32 +323,35 @@ public final class PlayScreen extends RPGScreen {
   private void renderHPBar( final Graphics2D g ) {
     final Player player = getPlayer();
     final float progress = (float) player.getHp() / player.getMaxHp();
-    final int barProgressWidth = (int) ( barWidth * progress );
+    final float barProgressWidth = barBounds.width * progress;
     
     if ( barProgressWidth > 0 ) {
-      barImage = new BufferedImage( barProgressWidth, barHeight, BufferedImage.TYPE_INT_ARGB );
+      barImage = new BufferedImage( (int) barProgressWidth, (int) barBounds.height,
+          BufferedImage.TYPE_INT_ARGB );
     }
     
-    final Rectangle barRectangle = new Rectangle( barX, barY, barProgressWidth, barHeight );
+    final Rectangle2D.Float barRectangle = new Rectangle2D.Float(
+        barBounds.x, barBounds.y,
+        barProgressWidth, barBounds.height );
     
     final int barRgb = new Color(
-        progress < 0.5F ? 0.5F : ( 1F - progress ) * 2F / ( 1 / 0.5F ),
-        progress > 0.5F ? 0.5F : progress * 2F / ( 1 / 0.5F ),
-        0F ).getRGB();
+        progress <= 0.5f ? 0.5f : 1f - progress,
+        progress >= 0.5f ? 0.5f : progress,
+        0f ).getRGB();
     
-    for ( int y = 0; y < barHeight; y++ ) {
-      for ( int x = 0; x < barProgressWidth; x++ ) {
-        if ( barRectangle.contains( barX + x, barY + y ) ) {
+    for ( int y = 0; y < barImage.getHeight(); y++ ) {
+      for ( int x = 0; x < barImage.getWidth(); x++ ) {
+        if ( barRectangle.contains( barBounds.x + x, barBounds.y + y ) ) {
           barImage.setRGB( x, y, barRgb );
         }
       }
     }
     
     g.setColor( Color.BLACK );
-    g.fillRect( barX, barY, barWidth, barHeight );
+    fillRect( g, barBounds );
     
     if ( barProgressWidth > 0 ) {
-      g.drawImage( barImage, barX, barY, null );
+      drawImage( g, barImage, barBounds.x, barBounds.y );
     }
     
     g.setStroke( new BasicStroke( 0.0003f * getHeight() ) );
@@ -389,7 +362,7 @@ public final class PlayScreen extends RPGScreen {
         0f );
     
     g.setColor( backgroundBarRgb );
-    g.drawRect( barX, barY, barWidth, barHeight );
+    drawRect( g, barBounds );
   }
   
   private void debug( final Graphics2D g ) {
@@ -587,9 +560,10 @@ public final class PlayScreen extends RPGScreen {
             break;
           
           case Inventory :
-            for ( int i = 0; i < State.Inventory.buttonBounds.length; i++ ) {
-              if ( State.Inventory.buttonBounds[ i ].contains( event.getPoint() ) ) {
+            for ( final Rectangle2D.Float bounds : State.Inventory.buttonBounds ) {
+              if ( bounds.contains( event.getPoint() ) ) {
                 runInventoryCommand( state.selection );
+                break;
               }
             }
             
@@ -601,6 +575,7 @@ public final class PlayScreen extends RPGScreen {
                 && getPlayer().getInventory().size() > ( pageIndex + 1 ) * 8 ) {
               pageIndex++;
             }
+            
             break;
           
           case ItemSelect :

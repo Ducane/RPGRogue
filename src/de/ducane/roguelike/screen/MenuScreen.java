@@ -1,38 +1,30 @@
 package de.ducane.roguelike.screen;
 
+import static de.androbin.gfx.util.GraphicsUtil.*;
+import static de.androbin.math.util.floats.FloatMathUtil.*;
 import static de.ducane.roguelike.Configuration.gui_.menu_.*;
 import de.androbin.game.*;
 import de.androbin.gfx.transition.*;
-import de.androbin.math.util.floats.*;
 import de.androbin.math.util.ints.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 
-public class MenuScreen extends Screen {
+public final class MenuScreen extends Screen {
   private final ResourceManager<String> rm;
   
   private int selection;
   
-  private int backgroundDecoYOffset;
+  private int backgroundDecoDY;
   
   private Stroke cursorStroke;
   
-  private Rectangle2D[] buttonBounds;
+  private Rectangle2D.Float[] buttonBounds;
   private Font buttonFont;
   private Stroke buttonStroke;
   private Stroke buttonStrokeSelected;
   
-  private int buttonX;
-  private int buttonY;
-  private int buttonDy;
-  private int buttonWidth;
-  private int buttonHeight;
-  
-  private int titleX;
-  private int titleY;
-  private int titleWidth;
-  private int titleHeight;
+  private Rectangle2D.Float titleBounds;
   
   private float passedTime;
   private float cursorProgress;
@@ -69,29 +61,28 @@ public class MenuScreen extends Screen {
   
   @ Override
   public void onResized( final int width, final int height ) {
-    backgroundDecoYOffset = (int) ( BACKGROUND_DECO_Y_OFFSET * getHeight() );
+    backgroundDecoDY = (int) ( BACKGROUND_DECO_Y_OFFSET * height );
     
-    buttonX = (int) ( BUTTON_X * getWidth() );
-    buttonY = (int) ( BUTTON_Y * getHeight() );
-    buttonDy = (int) ( BUTTON_DY * getHeight() );
-    buttonWidth = (int) ( BUTTON_WIDTH * getWidth() );
-    buttonHeight = (int) ( BUTTON_HEIGHT * getHeight() );
     buttonFont = new Font( BUTTON_FONT_NAME, BUTTON_FONT_STYLE,
-        (int) ( BUTTON_FONT_SIZE * getHeight() ) );
-    buttonStroke = new BasicStroke( BUTTON_BORDER_THICKNESS * getHeight() );
-    buttonStrokeSelected = new BasicStroke( BUTTON_BORDER_THICKNESS_SELECTED * getHeight() );
+        (int) ( BUTTON_FONT_SIZE * height ) );
+    buttonStroke = new BasicStroke( BUTTON_BORDER_THICKNESS * height );
+    buttonStrokeSelected = new BasicStroke( BUTTON_BORDER_THICKNESS_SELECTED * height );
     
-    buttonBounds = new Rectangle2D[ BUTTON_LABELS.length ];
+    final float buttonX = BUTTON_X * width;
+    final float buttonY = BUTTON_Y * height;
+    final float buttonDY = BUTTON_DY * height;
+    final float buttonWidth = BUTTON_WIDTH * width;
+    final float buttonHeight = BUTTON_HEIGHT * height;
+    
+    buttonBounds = new Rectangle2D.Float[ BUTTON_LABELS.length ];
     
     for ( int i = 0; i < buttonBounds.length; i++ ) {
-      buttonBounds[ i ] = new Rectangle2D.Float( buttonX, buttonY + buttonDy * i,
-          buttonWidth, buttonHeight );
+      buttonBounds[ i ] = new Rectangle2D.Float(
+          buttonX, buttonY + buttonDY * i, buttonWidth, buttonHeight );
     }
     
-    titleX = (int) ( TITLE_X * getWidth() );
-    titleY = (int) ( TITLE_Y * getHeight() );
-    titleWidth = (int) ( TITLE_WIDTH * getWidth() );
-    titleHeight = (int) ( TITLE_HEIGHT * getHeight() );
+    titleBounds = new Rectangle2D.Float(
+        TITLE_X * width, TITLE_Y * height, TITLE_WIDTH * width, TITLE_HEIGHT * height );
     
     cursorStroke = new BasicStroke( CURSOR_BORDER_THICKNESS * getHeight() );
   }
@@ -115,68 +106,77 @@ public class MenuScreen extends Screen {
     
     g.setColor( BACKGROUND_DECO_COLOR );
     
-    g.drawLine( 0, backgroundDecoYOffset, getWidth(), backgroundDecoYOffset );
-    g.drawLine( 0, getHeight() - backgroundDecoYOffset, getWidth(),
-        getHeight() - backgroundDecoYOffset );
+    g.drawLine( 0, backgroundDecoDY, getWidth(), backgroundDecoDY );
+    g.drawLine( 0, getHeight() - backgroundDecoDY, getWidth(),
+        getHeight() - backgroundDecoDY );
   }
   
   private void renderCursor( final Graphics2D g ) {
+    final Rectangle2D.Float button = buttonBounds[ selection ];
+    
     // TODO replace with Polygon object
     
-    final int[] x = { buttonX - buttonWidth / 5,
-        buttonX - buttonWidth / 5,
-        buttonX - buttonWidth / 12 };
-    final int[] y = { buttonY + buttonHeight / 5 + buttonDy * selection,
-        buttonY + buttonHeight - buttonHeight / 5 + buttonDy * selection,
-        buttonY + buttonHeight / 2 + buttonDy * selection };
+    final float[] x = {
+        button.x - button.width / 5,
+        button.x - button.width / 5,
+        button.x - button.width / 12 };
+    final float[] y = {
+        button.y + button.height / 5,
+        button.y + button.height - button.height / 5,
+        button.y + button.height / 2 };
     
-    final int[] newX = { buttonX - (int) ( buttonWidth / 5.5f ),
-        buttonX - (int) ( buttonWidth / 5.5f ),
-        buttonX - (int) ( buttonWidth / 7.5f ) };
-    final int[] newY = { buttonY + (int) ( buttonHeight / 2.5f ) + buttonDy * selection,
-        buttonY + buttonHeight - (int) ( buttonHeight / 2.5f ) + buttonDy * selection,
-        buttonY + buttonHeight / 2 + buttonDy * selection };
+    final float[] newX = {
+        button.x - button.width / 5.5f,
+        button.x - button.width / 5.5f,
+        button.x - button.width / 7.5f };
+    final float[] newY = {
+        button.y + button.height / 2.5f,
+        button.y + button.height - button.height / 2.5f,
+        button.y + button.height / 2 };
     
-    final int[] interpolX = { (int) FloatMathUtil.inter( x[ 0 ], cursorProgress, newX[ 0 ] ),
-        (int) FloatMathUtil.inter( x[ 1 ], cursorProgress, newX[ 1 ] ),
-        (int) FloatMathUtil.inter( x[ 2 ], cursorProgress, newX[ 2 ] ) };
+    final int[] interX = {
+        (int) inter( x[ 0 ], cursorProgress, newX[ 0 ] ),
+        (int) inter( x[ 1 ], cursorProgress, newX[ 1 ] ),
+        (int) inter( x[ 2 ], cursorProgress, newX[ 2 ] ) };
     
-    final int[] interpolY = { (int) FloatMathUtil.inter( y[ 0 ], cursorProgress, newY[ 0 ] ),
-        (int) FloatMathUtil.inter( y[ 1 ], cursorProgress, newY[ 1 ] ),
-        (int) FloatMathUtil.inter( y[ 2 ], cursorProgress, newY[ 2 ] )
-    };
+    final int[] interY = {
+        (int) inter( y[ 0 ], cursorProgress, newY[ 0 ] ),
+        (int) inter( y[ 1 ], cursorProgress, newY[ 1 ] ),
+        (int) inter( y[ 2 ], cursorProgress, newY[ 2 ] ) };
     
     g.setColor( CURSOR_COLOR );
-    g.fillPolygon( interpolX, interpolY, 3 );
+    g.fillPolygon( interX, interY, 3 );
     
     g.setColor( CURSOR_COLOR_BORDER );
     g.setStroke( cursorStroke );
-    g.drawPolygon( interpolX, interpolY, 3 );
+    g.drawPolygon( interX, interY, 3 );
   }
   
   private void renderButtons( final Graphics2D g ) {
     for ( int i = 0; i < BUTTON_LABELS.length; i++ ) {
+      final Rectangle2D.Float bounds = buttonBounds[ i ];
+      
       g.setStroke( selection == i ? buttonStrokeSelected : buttonStroke );
       g.setColor( BUTTON_COLOR_BORDER );
-      g.drawRect( buttonX, buttonY + buttonDy * i, buttonWidth, buttonHeight );
+      drawRect( g, bounds );
       
       final String label = BUTTON_LABELS[ i ];
       
       final FontMetrics fm = g.getFontMetrics( buttonFont );
       final Rectangle2D b = fm.getStringBounds( label, g );
       
-      final int dx = (int) ( buttonWidth - b.getWidth() ) / 2;
-      final int dy = (int) ( buttonHeight - b.getHeight() ) / 2;
+      final int dx = (int) ( bounds.width - b.getWidth() ) / 2;
+      final int dy = (int) ( bounds.height - b.getHeight() ) / 2;
       
       g.setColor( BUTTON_COLOR_LABEL );
       g.setFont( buttonFont );
-      g.drawString( label, buttonX + dx, buttonY + buttonDy * i + dy + fm.getAscent() );
+      g.drawString( label, bounds.x + dx, bounds.y + dy + fm.getAscent() );
     }
     
   }
   
   private void renderTitle( final Graphics2D g ) {
-    g.drawImage( rm.getImage( "Rogue" ), titleX, titleY, titleWidth, titleHeight, null );
+    drawImage( g, rm.getImage( "Rogue" ), titleBounds );
   }
   
   private void runCommand( final int selection ) {
