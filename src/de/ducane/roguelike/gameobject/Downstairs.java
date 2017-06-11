@@ -3,7 +3,7 @@ package de.ducane.roguelike.gameobject;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.level.*;
 
-public class Downstairs extends GameObject {
+public final class Downstairs extends GameObject {
   public Downstairs() {
     super( "downstairs" );
   }

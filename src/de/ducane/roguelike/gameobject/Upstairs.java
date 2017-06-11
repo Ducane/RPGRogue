@@ -4,7 +4,7 @@ import de.ducane.roguelike.entity.*;
 // import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
 
-public class Upstairs extends GameObject {
+public final class Upstairs extends GameObject {
   public Upstairs() {
     super( "upstairs" );
   }

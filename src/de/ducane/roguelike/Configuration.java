@@ -4,7 +4,7 @@ import static de.androbin.util.JSONUtil.*;
 import java.awt.*;
 import org.json.simple.*;
 
-public class Configuration {
+public final class Configuration {
   private static final JSONObject CONFIG = (JSONObject) parseJSON( "config.json" ).get();
   
   public static final class window_ {
