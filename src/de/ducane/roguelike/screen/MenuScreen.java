@@ -181,10 +181,10 @@ public final class MenuScreen extends Screen {
   
   private void runCommand( final int selection ) {
     switch ( selection ) {
-      case 0 :
+      case 0:
         game.gsm.crossfadeSwitch( new NewGameScreen( game ), ColorCrossfade.BLACK, 1f );
         break;
-      case 1 :
+      case 1:
         game.gsm.close();
         break;
     }
@@ -215,15 +215,15 @@ public final class MenuScreen extends Screen {
     @ Override
     public void keyPressed( final KeyEvent event ) {
       switch ( event.getKeyCode() ) {
-        case KeyEvent.VK_ENTER :
-        case KeyEvent.VK_SPACE :
+        case KeyEvent.VK_ENTER:
+        case KeyEvent.VK_SPACE:
           runCommand( selection );
           break;
         
-        case KeyEvent.VK_UP :
+        case KeyEvent.VK_UP:
           shiftSelection( -1 );
           break;
-        case KeyEvent.VK_DOWN :
+        case KeyEvent.VK_DOWN:
           shiftSelection( 1 );
           break;
       }

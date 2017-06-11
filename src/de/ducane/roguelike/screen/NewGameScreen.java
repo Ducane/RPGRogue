@@ -88,10 +88,10 @@ public final class NewGameScreen extends Screen {
       
       if ( name.length() > 0 ) {
         switch ( c ) {
-          case KeyEvent.VK_BACK_SPACE :
+          case KeyEvent.VK_BACK_SPACE:
             name.deleteCharAt( name.length() - 1 );
             break;
-          case KeyEvent.VK_ENTER :
+          case KeyEvent.VK_ENTER:
             startGame();
             break;
         }

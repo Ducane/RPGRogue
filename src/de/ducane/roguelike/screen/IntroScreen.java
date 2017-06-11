@@ -131,8 +131,8 @@ public final class IntroScreen extends Screen {
     @ Override
     public void keyReleased( final KeyEvent event ) {
       switch ( event.getKeyCode() ) {
-        case KeyEvent.VK_SPACE :
-        case KeyEvent.VK_ENTER : {
+        case KeyEvent.VK_SPACE:
+        case KeyEvent.VK_ENTER: {
           stepwiseOutput ^= true;
           
           if ( stepwiseOutput ) {

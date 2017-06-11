@@ -424,14 +424,14 @@ public final class PlayScreen extends RPGScreen {
     final Item item = inventory.get( index );
     
     switch ( selection ) {
-      case 0 :
+      case 0:
         equip( player, inventory, index, item );
         state = State.Inventory;
         break;
-      case 1 :
+      case 1:
         // TODO display item info
         break;
-      case 2 :
+      case 2:
         inventory.remove( item );
         break;
     }
@@ -493,10 +493,10 @@ public final class PlayScreen extends RPGScreen {
   
   private void runMenuCommand( final int selection ) {
     switch ( selection ) {
-      case 0 :
+      case 0:
         state = State.Inventory;
         break;
-      case 1 :
+      case 1:
         game.gsm.close();
         break;
     }
@@ -534,12 +534,12 @@ public final class PlayScreen extends RPGScreen {
       }
       
       switch ( event.getKeyCode() ) {
-        case KeyEvent.VK_SPACE :
+        case KeyEvent.VK_SPACE:
           if ( !player.isDamaging() ) {
             player.requestAttack();
           }
           break;
-        case KeyEvent.VK_M :
+        case KeyEvent.VK_M:
           state = state == null ? State.Menu : null;
           break;
       }
@@ -555,11 +555,11 @@ public final class PlayScreen extends RPGScreen {
         }
         
         switch ( state ) {
-          case Menu :
+          case Menu:
             runMenuCommand( state.selection );
             break;
           
-          case Inventory :
+          case Inventory:
             for ( final Rectangle2D.Float bounds : State.Inventory.buttonBounds ) {
               if ( bounds.contains( event.getPoint() ) ) {
                 runInventoryCommand( state.selection );
@@ -578,7 +578,7 @@ public final class PlayScreen extends RPGScreen {
             
             break;
           
-          case ItemSelect :
+          case ItemSelect:
             runItemSelectCommand( state.selection );
             break;
         }

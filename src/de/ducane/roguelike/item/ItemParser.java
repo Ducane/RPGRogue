@@ -15,13 +15,13 @@ public final class ItemParser {
     final String type = (String) data.get( "type" );
     
     switch ( type ) {
-      case "weapon" :
+      case "weapon":
         return parseWeapon( name, data );
-      case "accessoire" :
+      case "accessoire":
         return parseAcessoire( name, data );
-      case "armor" :
+      case "armor":
         return parseArmor( name, data );
-      case "food" :
+      case "food":
         return parseFood( name, data );
     }
     
