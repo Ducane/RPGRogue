@@ -12,8 +12,7 @@
 		"minHeight": 10,
 		"maxHeight": 15,
 	},
-
-
+	
 	"droprate":
 	{
 		"StabileRuestung": 10,
@@ -30,4 +29,5 @@
 		"KetteDesZeitreisenden": 2,
 	},
 	
+	"monsters": [ "Ape", "Ghost", "Scythe", "WarriorSlime" ],
 }

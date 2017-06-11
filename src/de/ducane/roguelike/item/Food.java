@@ -2,14 +2,13 @@ package de.ducane.roguelike.item;
 
 import java.awt.image.*;
 
-public final class Food extends Item
-{
-	public final int hp;
-	
-	public Food( final String name, final String description, final int hp, final BufferedImage image )
-	{
-		super( name, description, image );
-		
-		this.hp = hp;
-	}
+public final class Food extends Item {
+  public final int hp;
+  
+  public Food( final String name, final String description, final int hp,
+      final BufferedImage image ) {
+    super( name, description, image );
+    
+    this.hp = hp;
+  }
 }

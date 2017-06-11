@@ -12,23 +12,22 @@
 		"minHeight": 10,
 		"maxHeight": 15,
 	},
-
+	
 	"droprate":
 	{
-		
-		"FrischPolierteRüstung": 10,
+		"FrischPolierteRuestung": 10,
 		"GlitzerTop": 5,
-		"Majestätischekrone": 3,
+		"Majestaetischekrone": 3,
 		
 		"DoppelseitigeAxt": 30,
 		"EbenerzSchurkendolch": 15,
-		"KöniglicheHellebarde": 2,
+		"KoeniglicheHellebarde": 2,
 		
 		"OrdentlicheFeschba": 50,
 		"ZaubertrankvonRatiopharm": 20,
 		
-		"Hehlerware": 2,
-		
-		
+		"FettesBlingBling": 2,
 	},
+	
+	"monsters": [ "AntiHero", "Cutter", "RedDragon", "Daemon" ],
 }

@@ -12,15 +12,14 @@
 		"minHeight": 10,
 		"maxHeight": 15,
 	},
-
+	
 	"droprate":
 	{
-		
 		"MichaelJacksonsHandschuh": 10,
 		"KoboldTreter": 5,
-		"Orkrüstung": 3,
+		"Orkruestung": 3,
 		
-		"AliBabasSäbel": 30,
+		"AliBabasSaebel": 30,
 		"DIESpitzhacke": 15,
 		"MorgensternDesSchrecklichenSvens": 2,
 		
@@ -28,7 +27,7 @@
 		"HerrHolsteinsHerz": 20,
 		
 		"Hehlerware": 2,
-		
-		
 	},
+	
+	"monsters": [ "KingSlime", "DarkSoul", "Eye", "Knight" ],
 }

@@ -3,10 +3,11 @@ This is a RPG empathizing Rogue. please see:
 https://de.wikipedia.org/wiki/Rogue-like
 
 # Tiles
-At the moment there are four tiles called 'door', 'floor', 'granite', and 'wall'.
+Currently there are four types of tiles:
+"door", "floor", "granite", and "wall"
 
 # Combat System
-The Combat System is inherited from Rogue.
+The Combat System is inspired by Rogue.
 
 # World Generation
  - rooms are generated
@@ -19,6 +20,4 @@ The Combat System is inherited from Rogue.
 
 # Contributors
  - Ducane
-
-# Thanks To
  - Androbin

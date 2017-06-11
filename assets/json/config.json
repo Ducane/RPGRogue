@@ -42,7 +42,7 @@
 			
 			"cursor_border_thickness" 0.008,
 			
-			"return_time": 15,
+			"return_time": 10,
 			
 			"title_x": 0.2,
 			"title_y": 0.2,
@@ -56,7 +56,6 @@
 			"font_color": "#FFFFFF",
 			
 			"char_speed": 15.0,
-			"image_speed": 0.4,
 			
 			"text":
 			[
