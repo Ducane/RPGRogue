@@ -44,10 +44,13 @@ public final class Level extends World {
     return getEntityAt( new Point( x, y ) ) != null;
   }
   
+  public Point getDownStairsPos() {
+    return upStairsPos;
+  }
+  
   public RogueEntity getEntityAt( final Point pos ) {
     for ( final Entity entity : listEntities() ) {
-      final Point entityPos = entity.getPos();
-      if ( entityPos.x == pos.x && entityPos.y == pos.y ) {
+      if ( entity.getPos().equals( pos ) ) {
         return (RogueEntity) entity;
       }
     }
@@ -55,31 +58,29 @@ public final class Level extends World {
     return null;
   }
   
-  public Point getDownStairsPos() {
-    return downStairsPos;
-  }
-  
   @ Override
   public RogueTile getTile( final Point pos ) {
     return (RogueTile) super.getTile( pos );
-  }
-  
-  public Point getUpStairsPos() {
-    return upStairsPos;
   }
   
   public List<Rectangle> getRooms() {
     return Collections.unmodifiableList( rooms );
   }
   
+  public Point getUpStairsPos() {
+    return upStairsPos;
+  }
+  
   public void giveItem( final RogueEntity entity ) {
     final RogueTile field = getTile( entity.getPos() );
     final Item item = field.getItem();
     
-    if ( item != null ) {
-      entity.collectItem( item );
-      field.setItem( null );
+    if ( item == null ) {
+      return;
     }
+    
+    entity.collectItem( item );
+    field.setItem( null );
   }
   
   public void moveMobs() {
@@ -101,9 +102,11 @@ public final class Level extends World {
     final RogueTile tile = getTile( player.getPos() );
     final GameObject object = tile.getObject();
     
-    if ( object != null && !player.isRunning() ) {
-      object.onPlayerEntered( this, player );
+    if ( object == null || player.isRunning() ) {
+      return;
     }
+    
+    object.onPlayerEntered( this, player );
   }
   
   public void onEntityMoved( final RogueEntity entity ) {
@@ -136,23 +139,23 @@ public final class Level extends World {
       Color color;
       
       switch ( tile.data.name ) {
-        case "granite" :
+        case "granite":
           color = new Color( 0.8f, 0.8f, 0.8f, 0.7f );
           break;
         
-        case "floor" :
-        case "door" :
+        case "floor":
+        case "door":
           color = new Color( 0.2f, 0.8f, 1f, 0.7f );
           break;
         
-        default :
+        default:
           color = new Color( 0f, 0f, 0f, 0f );
           break;
       }
       
-      if ( getUpStairsPos().equals( pos ) ) {
+      if ( pos.equals( upStairsPos ) ) {
         color = new Color( 0.3f, 0.3f, 0.3f, 0.7f );
-      } else if ( getDownStairsPos().equals( pos ) ) {
+      } else if ( pos.equals( downStairsPos ) ) {
         color = new Color( 0.15f, 0.15f, 0.15f, 0.7f );
       }
       
@@ -160,18 +163,15 @@ public final class Level extends World {
         color = new Color( 1f, 0.25f, 0.25f, 0.7f );
       }
       
-      final int x = (int) ( width - this.size.width * size + pos.x * size );
-      final int y = (int) ( pos.y * size );
-      
-      final int nx = (int) ( width - this.size.width * size + ( pos.x + 1 ) * size );
-      final int ny = (int) ( ( pos.y + 1 ) * size );
+      final float x = width - this.size.width * size + pos.x * size;
+      final float y = pos.y * size;
       
       g.setColor( color );
-      g.fillRect( x, y, nx - x, ny - y );
+      fillRect( g, x, y, size, size );
     }
     
     g.setColor( Color.GREEN );
-    fillRect( g, width - this.size.width * size + playerPos.x * size,
+    fillRect( g, width - ( this.size.width + playerPos.x ) * size,
         playerPos.y * size, size, size );
   }
   
