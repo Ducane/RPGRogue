@@ -47,9 +47,11 @@ public final class NewGameScreen extends Screen {
   @ Override
   public void onResized( final int width, final int height ) {
     fm = game.getFontMetrics( new Font( "Determination Mono", 0, (int) ( 0.1f * getHeight() ) ) );
-    buttonBounds = new Rectangle2D.Float( (int) ( 0.85f * getWidth() ),
-        (int) ( 0.9f * getHeight() ) - ( fm.getAscent() - fm.getLeading() ), fm.stringWidth( "OK" ),
-        fm.getAscent() - fm.getLeading() );
+    
+    final float buttonHeight = fm.getAscent() - fm.getLeading();
+    buttonBounds = new Rectangle2D.Float(
+        0.85f * getWidth(), 0.9f * getHeight() - buttonHeight,
+        fm.stringWidth( "OK" ), buttonHeight );
   }
   
   @ Override
@@ -61,16 +63,16 @@ public final class NewGameScreen extends Screen {
     final String output = name.toString();
     
     g.setColor( Color.WHITE );
-    g.drawString( "Benenne deinen Helden!", (int) ( 0.05f * getWidth() ),
-        fm.getAscent() + (int) ( 0.1f * getHeight() ) );
+    g.drawString( "Benenne deinen Helden!",
+        0.05f * getWidth(), fm.getAscent() + 0.1f * getHeight() );
     
     g.setColor( buttonSelection ? Color.YELLOW : Color.WHITE );
     // drawRect( g, buttonBounds );
-    g.drawString( "OK", (int) buttonBounds.getX(), (int) ( buttonBounds.getY()
-        + ( buttonBounds.getHeight() - fm.getAscent() - fm.getLeading() ) / 2 + fm.getAscent() ) );
+    g.drawString( "OK", buttonBounds.x, buttonBounds.y
+        + ( buttonBounds.height - fm.getAscent() - fm.getLeading() ) * 0.5f + fm.getAscent() );
     
     g.setColor( Color.WHITE );
-    g.drawString( output, ( getWidth() - fm.stringWidth( output ) ) / 2, getHeight() / 2 );
+    g.drawString( output, ( getWidth() - fm.stringWidth( output ) ) * 0.5f, getHeight() * 0.5f );
   }
   
   @ Override

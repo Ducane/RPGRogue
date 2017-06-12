@@ -1,11 +1,12 @@
 package de.ducane.roguelike.screen;
 
+import static de.androbin.gfx.util.GraphicsUtil.*;
 import static de.androbin.math.util.floats.FloatMathUtil.*;
 import static de.ducane.roguelike.Configuration.gui_.intro_.*;
-import static de.ducane.util.AWTUtil.*;
 import de.androbin.game.*;
 import de.androbin.gfx.transition.*;
 import de.androbin.gfx.util.*;
+import de.ducane.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
@@ -17,7 +18,7 @@ public final class IntroScreen extends Screen {
   
   private Font font;
   
-  private int padding;
+  private float padding;
   
   private int pageIndex;
   private float charProgress;
@@ -57,7 +58,7 @@ public final class IntroScreen extends Screen {
   
   @ Override
   public void onResized( final int width, final int height ) {
-    padding = (int) ( TEXT_DX * width );
+    padding = TEXT_DX * width;
     
     font = new Font( TEXT_FONT_NAME, TEXT_FONT_STYLE, (int) ( TEXT_FONT_SIZE * height ) );
   }
@@ -77,10 +78,10 @@ public final class IntroScreen extends Screen {
     final String[] lines = page.split( "\n" );
     
     for ( int i = 0; i < lines.length; i++ ) {
-      list.addAll( wrapLines( lines[ i ], fm, getWidth() - 2 * padding ) );
+      list.addAll( AWTUtil.wrapLines( lines[ i ], fm, getWidth() - (int) ( 2f * padding ) ) );
     }
     
-    int y = getHeight() - fm.getHeight() * list.size() + fm.getAscent() - padding;
+    float y = getHeight() - fm.getHeight() * list.size() + fm.getAscent() - padding;
     
     int charsLeft = (int) charProgress;
     
@@ -107,14 +108,14 @@ public final class IntroScreen extends Screen {
       y += fm.getHeight();
     }
     
-    g.drawImage( images[ pageIndex ], (int) ( getWidth() * 0.1f ), (int) ( getHeight() * 0.1f ),
-        (int) ( getWidth() * 0.8f ), (int) ( getHeight() * 0.6f ), null );
+    drawImage( g, images[ pageIndex ],
+        getWidth() * 0.1f, getHeight() * 0.1f,
+        getWidth() * 0.8f, getHeight() * 0.6f );
     
     if ( !imageShown ) {
       final float alpha = inter( 1f, charProgress / TEXT[ pageIndex ].length(), 0f );
       g.setColor( new Color( 0f, 0f, 0f, alpha ) );
-      g.fillRect( (int) ( getWidth() * 0.1f ), (int) ( getHeight() * 0.1f ),
-          (int) ( getWidth() * 0.8f ), (int) ( getHeight() * 0.6f ) );
+      fillRect( g, getWidth() * 0.1f, getHeight() * 0.1f, getWidth() * 0.8f, getHeight() * 0.6f );
     }
   }
   

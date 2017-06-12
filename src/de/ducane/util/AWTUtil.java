@@ -10,14 +10,14 @@ public final class AWTUtil {
   
   public static void drawBorderedString( final Graphics2D g, final String string,
       final float x, final float y, final float shift, final Color border,
-      final Color stringColor ) {
+      final Color color ) {
     g.setColor( border );
     g.drawString( string, x - shift, y - shift );
     g.drawString( string, x - shift, y + shift );
     g.drawString( string, x + shift, y - shift );
     g.drawString( string, x + shift, y + shift );
     
-    g.setColor( stringColor );
+    g.setColor( color );
     g.drawString( string, x, y );
   }
   
@@ -38,15 +38,15 @@ public final class AWTUtil {
   public static List<String> wrapLines( final String label, final FontMetrics fm,
       final int width ) {
     final List<String> lines = new LinkedList<>();
-    String l = label;
+    String line = label;
     
-    while ( fm.stringWidth( l ) > width ) {
-      final int i = trimIndex( l, fm, width );
-      lines.add( l.substring( 0, i ) );
-      l = l.substring( i + 1 );
+    while ( fm.stringWidth( line ) > width ) {
+      final int i = trimIndex( line, fm, width );
+      lines.add( line.substring( 0, i ) );
+      line = line.substring( i + 1 );
     }
     
-    lines.add( l );
+    lines.add( line );
     return lines;
   }
 }

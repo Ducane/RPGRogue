@@ -15,7 +15,7 @@ public final class MenuScreen extends Screen {
   
   private int selection;
   
-  private int backgroundDecoDY;
+  private float backgroundDecoDY;
   
   private Stroke cursorStroke;
   
@@ -61,7 +61,7 @@ public final class MenuScreen extends Screen {
   
   @ Override
   public void onResized( final int width, final int height ) {
-    backgroundDecoDY = (int) ( BACKGROUND_DECO_Y_OFFSET * height );
+    backgroundDecoDY = BACKGROUND_DECO_Y_OFFSET * height;
     
     buttonFont = new Font( BUTTON_FONT_NAME, BUTTON_FONT_STYLE,
         (int) ( BUTTON_FONT_SIZE * height ) );
@@ -106,9 +106,8 @@ public final class MenuScreen extends Screen {
     
     g.setColor( BACKGROUND_DECO_COLOR );
     
-    g.drawLine( 0, backgroundDecoDY, getWidth(), backgroundDecoDY );
-    g.drawLine( 0, getHeight() - backgroundDecoDY, getWidth(),
-        getHeight() - backgroundDecoDY );
+    drawLine( g, 0f, backgroundDecoDY, getWidth(), backgroundDecoDY );
+    drawLine( g, 0f, getHeight() - backgroundDecoDY, getWidth(), getHeight() - backgroundDecoDY );
   }
   
   private void renderCursor( final Graphics2D g ) {
@@ -154,25 +153,24 @@ public final class MenuScreen extends Screen {
   
   private void renderButtons( final Graphics2D g ) {
     for ( int i = 0; i < BUTTON_LABELS.length; i++ ) {
-      final Rectangle2D.Float bounds = buttonBounds[ i ];
+      final Rectangle2D.Float button = buttonBounds[ i ];
       
       g.setStroke( selection == i ? buttonStrokeSelected : buttonStroke );
       g.setColor( BUTTON_COLOR_BORDER );
-      drawRect( g, bounds );
+      drawRect( g, button );
       
       final String label = BUTTON_LABELS[ i ];
       
       final FontMetrics fm = g.getFontMetrics( buttonFont );
-      final Rectangle2D b = fm.getStringBounds( label, g );
+      final Rectangle2D.Float bounds = (Rectangle2D.Float) fm.getStringBounds( label, g );
       
-      final int dx = (int) ( bounds.width - b.getWidth() ) / 2;
-      final int dy = (int) ( bounds.height - b.getHeight() ) / 2;
+      final float dx = ( button.width - bounds.width ) * 0.5f;
+      final float dy = ( button.height - bounds.height ) * 0.5f;
       
       g.setColor( BUTTON_COLOR_LABEL );
       g.setFont( buttonFont );
-      g.drawString( label, bounds.x + dx, bounds.y + dy + fm.getAscent() );
+      g.drawString( label, button.x + dx, button.y + dy + fm.getAscent() );
     }
-    
   }
   
   private void renderTitle( final Graphics2D g ) {
