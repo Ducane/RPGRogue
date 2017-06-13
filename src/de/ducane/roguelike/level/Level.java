@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public final class Level extends World {
-  public PlayScreen screen;
+  public final PlayScreen screen;
   
   private final List<Point> visitedTiles = new LinkedList<>();
   private final String[] monsters;
@@ -25,9 +25,9 @@ public final class Level extends World {
   private Point downStairsPos;
   private Point upStairsPos;
   
-  public Level( final PlayScreen screen, final Dimension size,
+  public Level( final PlayScreen screen, final String name, final Dimension size,
       final List<Rectangle> rooms, final String[] monsters ) {
-    super( size, "unnamed" );
+    super( size, name );
     
     this.screen = screen;
     
@@ -35,27 +35,13 @@ public final class Level extends World {
     this.monsters = monsters;
   }
   
-  public boolean canAttack( final RogueEntity entity, final Direction viewDir ) {
-    final Point pos = entity.getPos();
-    
-    final int x = pos.x + viewDir.dx;
-    final int y = pos.y + viewDir.dy;
-    
-    return getEntityAt( new Point( x, y ) ) != null;
-  }
-  
   public Point getDownStairsPos() {
     return upStairsPos;
   }
   
-  public RogueEntity getEntityAt( final Point pos ) {
-    for ( final Entity entity : listEntities() ) {
-      if ( entity.getPos().equals( pos ) ) {
-        return (RogueEntity) entity;
-      }
-    }
-    
-    return null;
+  @ Override
+  public RogueEntity getEntity( final Point pos ) {
+    return (RogueEntity) super.getEntity( pos );
   }
   
   @ Override
@@ -92,12 +78,6 @@ public final class Level extends World {
     }
   }
   
-  public void next() {
-    visitedTiles.removeAll( visitedTiles );
-    screen.nextFloor();
-    screen.generateLevel();
-  }
-  
   public void onCollisionObject( final Player player ) {
     final RogueTile tile = getTile( player.getPos() );
     final GameObject object = tile.getObject();
@@ -119,6 +99,8 @@ public final class Level extends World {
     }
     
     if ( entity instanceof Player ) {
+      screen.onPlayerMoved();
+      
       final Player player = (Player) entity;
       
       if ( !player.isRunning() ) {

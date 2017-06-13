@@ -10,7 +10,6 @@ import java.util.concurrent.*;
 
 public abstract class RogueEntity extends Entity {
   protected final PlayScreen screen;
-  protected final Level level;
   
   protected final Stats stats;
   
@@ -28,17 +27,16 @@ public abstract class RogueEntity extends Entity {
     super( level, pos );
     
     this.screen = screen;
-    this.level = level;
     
     this.stats = new Stats();
     
-    moveRequestCallback = result -> level.onEntityMoved( this );
+    moveRequestCallback = result -> ( (Level) world ).onEntityMoved( this );
   }
   
   public void attack( final Direction viewDir ) {
     final Point pos = getPos();
     final Point target = new Point( pos.x + viewDir.dx, pos.y + viewDir.dy );
-    final RogueEntity entity = level.getEntityAt( target );
+    final RogueEntity entity = (RogueEntity) world.getEntity( target );
     
     if ( entity == null ) {
       return;

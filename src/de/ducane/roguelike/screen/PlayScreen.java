@@ -4,6 +4,7 @@ import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.game.*;
 import de.androbin.game.listener.*;
 import de.androbin.rpg.*;
+import de.androbin.rpg.gfx.*;
 import de.androbin.rpg.tile.*;
 import de.androbin.util.*;
 import de.ducane.roguelike.*;
@@ -18,7 +19,7 @@ import java.util.List;
 import org.json.simple.*;
 
 public final class PlayScreen extends RPGScreen {
-  private final String name;
+  private final String playerName;
   
   private Level level;
   private int floor;
@@ -58,30 +59,115 @@ public final class PlayScreen extends RPGScreen {
   
   public PlayScreen( final Game game, final float scale, final String name ) {
     super( game, scale );
-    this.name = name;
+    this.playerName = name;
     
     Tiles.builder = data -> new RogueTile( this, data );
     
-    generateLevel();
-    updateBlackout();
+    player = new Player( this, playerName );
+    camera.setFocus( Camera.focus( player ) );
+    
+    updateFloor();
   }
   
-  public void generateLevel() {
+  public boolean canAttack( final RogueEntity entity, final Direction viewDir ) {
+    final Point pos = entity.getPos();
+    
+    final int x = pos.x + viewDir.dx;
+    final int y = pos.y + viewDir.dy;
+    
+    return world.getEntity( new Point( x, y ) ) != null;
+  }
+  
+  @ Override
+  public Level createWorld( final String name ) {
+    final int floor = Integer.parseInt( name.split( "-" )[ 1 ] );
     final int index = Math.min( ( floor / 4 + 1 ), 5 );
-    world = level = LevelGenerator.generate( this,
-        (JSONObject) JSONUtil.parseJSON( "level/level" + index + ".json" ).get() );
-    level.screen = this;
     
-    final Point pos = level.getUpStairsPos();
-    final Player player = new Player( this, level, pos, name );
-    level.addEntity( player );
-    this.player = player;
+    final String path = "level/level" + index + ".json";
+    final JSONObject data = (JSONObject) JSONUtil.parseJSON( path ).get();
     
-    this.rooms = level.getRooms();
-    this.room = getCurrentRoom();
+    return LevelGenerator.generate( this, name, data );
+  }
+  
+  private Rectangle currentRoom() {
+    Rectangle tileRoom = null;
     
-    updateBlackout();
-    floor++;
+    for ( final Rectangle room : rooms ) {
+      final int x = room.x * 2 - 1;
+      final int y = room.y * 2 - 1;
+      final int width = room.width * 2 + 1;
+      final int height = room.height * 2 + 1;
+      
+      tileRoom = new Rectangle( x, y, width, height );
+      
+      if ( tileRoom.contains( player.getPos() ) ) {
+        return tileRoom;
+      }
+    }
+    
+    return null;
+  }
+  
+  private void debug( final Graphics2D g ) {
+    final FontMetrics fm = g.getFontMetrics();
+    final Player player = getPlayer();
+    
+    final Point2D.Float pos = player.getFloatPos();
+    
+    final String x = String.valueOf( pos.x );
+    final String y = String.valueOf( pos.y );
+    
+    final String viewDir = "viewDir: " + player.getViewDir();
+    final String moveDir = "moveDir: " + player.getMoveDir();
+    
+    final String name = "name: " + player.name;
+    
+    g.drawString( x, getWidth() - fm.stringWidth( x ), getHeight() - fm.getHeight() * 5 );
+    g.drawString( y, getWidth() - fm.stringWidth( y ), getHeight() - fm.getHeight() * 4 );
+    
+    g.drawString( viewDir, getWidth() - fm.stringWidth( viewDir ),
+        getHeight() - fm.getHeight() * 3 );
+    g.drawString( moveDir, getWidth() - fm.stringWidth( moveDir ),
+        getHeight() - fm.getHeight() * 2 );
+    
+    g.drawString( name, getWidth() - fm.stringWidth( name ), getHeight() - fm.getHeight() * 1 );
+  }
+  
+  private void equip( final int index ) {
+    final Player player = getPlayer();
+    final List<Item> inventory = player.getInventory();
+    final Item item = inventory.get( index );
+    
+    if ( item instanceof Food ) {
+      if ( player.getHp() != player.getMaxHp() ) {
+        player.eat( (Food) item );
+        inventory.remove( index );
+      }
+    } else if ( item instanceof Weapon ) {
+      if ( player.getWeapon() == null ) {
+        inventory.remove( index );
+      } else {
+        inventory.set( index, player.dequipWeapon() );
+      }
+      
+      player.equipWeapon( (Weapon) item );
+    } else if ( item instanceof Accessoire ) {
+      if ( player.getAccessoire() == null ) {
+        inventory.remove( index );
+      } else {
+        inventory.set( index, player.dequipWeapon() );
+      }
+      
+      player.equipAccessoire( (Accessoire) item );
+    } else if ( item instanceof Armor ) {
+      if ( player.getArmor() == null ) {
+        inventory.remove( index );
+      } else {
+        inventory.set( index, player.dequipWeapon() );
+      }
+      
+      player.equipArmour( (Armor) item );
+    }
   }
   
   public Blackout getBlackout() {
@@ -112,6 +198,18 @@ public final class PlayScreen extends RPGScreen {
   
   public Player getPlayer() {
     return (Player) player;
+  }
+  
+  public void nextFloor() {
+    floor++;
+    updateFloor();
+  }
+  
+  public void onPlayerMoved() {
+    this.room = currentRoom();
+    updateBlackout();
+    
+    level.moveMobs();
   }
   
   @ Override
@@ -180,18 +278,6 @@ public final class PlayScreen extends RPGScreen {
           itemSelectButtonBounds.x, itemSelectButtonBounds.y + itemSelectButtonDY * i,
           itemSelectButtonBounds.width, itemSelectButtonBounds.height );
     }
-  }
-  
-  private void updateBlackout() {
-    final Color color = new Color( 0f, 0f, 0f, 0.8f );
-    
-    if ( room == null ) {
-      blackout = new CircularBlackout( color, scale * 1.5f );
-    } else {
-      blackout = new RectangularBlackout( color, scale * room.width, scale * room.height );
-    }
-    
-    level.updateMiniMap( blackout, scale, getBlackoutPos() );
   }
   
   @ Override
@@ -361,67 +447,16 @@ public final class PlayScreen extends RPGScreen {
     drawRect( g, barBounds );
   }
   
-  private void debug( final Graphics2D g ) {
-    final FontMetrics fm = g.getFontMetrics();
-    final Player player = getPlayer();
-    
-    final Point2D.Float pos = player.getFloatPos();
-    
-    final String x = String.valueOf( pos.x );
-    final String y = String.valueOf( pos.y );
-    
-    final String viewDir = "viewDir: " + player.getViewDir();
-    final String moveDir = "moveDir: " + player.getMoveDir();
-    
-    final String name = "name: " + player.name;
-    
-    g.drawString( x, getWidth() - fm.stringWidth( x ), getHeight() - fm.getHeight() * 5 );
-    g.drawString( y, getWidth() - fm.stringWidth( y ), getHeight() - fm.getHeight() * 4 );
-    
-    g.drawString( viewDir, getWidth() - fm.stringWidth( viewDir ),
-        getHeight() - fm.getHeight() * 3 );
-    g.drawString( moveDir, getWidth() - fm.stringWidth( moveDir ),
-        getHeight() - fm.getHeight() * 2 );
-    
-    g.drawString( name, getWidth() - fm.stringWidth( name ), getHeight() - fm.getHeight() * 1 );
-  }
-  
-  public void onPlayerMoved() {
-    this.room = getCurrentRoom();
-    updateBlackout();
-    
-    level.moveMobs();
-  }
-  
-  private Rectangle getCurrentRoom() {
-    Rectangle tileRoom = null;
-    
-    for ( final Rectangle room : rooms ) {
-      final int x = room.x * 2 - 1;
-      final int y = room.y * 2 - 1;
-      final int width = room.width * 2 + 1;
-      final int height = room.height * 2 + 1;
-      
-      tileRoom = new Rectangle( x, y, width, height );
-      
-      if ( tileRoom.contains( getPlayer().getPos() ) ) {
-        return tileRoom;
-      }
-    }
-    
-    return null;
-  }
-  
   private void runItemSelectCommand( final int selection ) {
     final Player player = getPlayer();
     final List<Item> inventory = player.getInventory();
-    final int index = State.Inventory.selection + pageIndex * 8;
     
+    final int index = State.Inventory.selection + pageIndex * 8;
     final Item item = inventory.get( index );
     
     switch ( selection ) {
       case 0:
-        equip( player, inventory, index, item );
+        equip( index );
         state = State.Inventory;
         break;
       case 1:
@@ -430,40 +465,6 @@ public final class PlayScreen extends RPGScreen {
       case 2:
         inventory.remove( item );
         break;
-    }
-  }
-  
-  private void equip( final Player player, final List<Item> inventory, final int index,
-      final Item item ) {
-    if ( item instanceof Food ) {
-      if ( player.getHp() != player.getMaxHp() ) {
-        player.eat( (Food) item );
-        inventory.remove( index );
-      }
-    } else if ( item instanceof Weapon ) {
-      if ( player.getWeapon() == null ) {
-        inventory.remove( index );
-      } else {
-        inventory.set( index, player.dequipWeapon() );
-      }
-      
-      player.equipWeapon( (Weapon) item );
-    } else if ( item instanceof Accessoire ) {
-      if ( player.getAccessoire() == null ) {
-        inventory.remove( index );
-      } else {
-        inventory.set( index, player.dequipWeapon() );
-      }
-      
-      player.equipAccessoire( (Accessoire) item );
-    } else if ( item instanceof Armor ) {
-      if ( player.getArmor() == null ) {
-        inventory.remove( index );
-      } else {
-        inventory.set( index, player.dequipWeapon() );
-      }
-      
-      player.equipArmour( (Armor) item );
     }
   }
   
@@ -499,16 +500,43 @@ public final class PlayScreen extends RPGScreen {
   }
   
   @ Override
+  public void switchWorld( final String name, final Point pos ) {
+    super.switchWorld( name, pos );
+    level = (Level) world;
+  }
+  
+  @ Override
   public void update( final float delta ) {
     super.update( delta );
     
-    for ( final Entity entity : level.listEntities() ) {
+    for ( final Entity entity : world.listEntities() ) {
       if ( entity instanceof Mob && getPlayer().isDamaging() ) {
         ( (Mob) entity ).requestAttack();
       }
     }
     
     level.update();
+  }
+  
+  private void updateBlackout() {
+    final Color color = new Color( 0f, 0f, 0f, 0.8f );
+    
+    if ( room == null ) {
+      blackout = new CircularBlackout( color, scale * 1.5f );
+    } else {
+      blackout = new RectangularBlackout( color, scale * room.width, scale * room.height );
+    }
+    
+    level.updateMiniMap( blackout, scale, getBlackoutPos() );
+  }
+  
+  public void updateFloor() {
+    final String name = "floor-" + floor;
+    final Level level = (Level) getWorld( name );
+    switchWorld( name, level.getUpStairsPos() );
+    rooms = level.getRooms();
+    room = currentRoom();
+    updateBlackout();
   }
   
   private class PlayKeyListener extends KeyAdapter {
@@ -545,11 +573,11 @@ public final class PlayScreen extends RPGScreen {
   private class PlayMouseListener extends MouseAdapter {
     @ Override
     public void mousePressed( final MouseEvent event ) {
+      if ( state == null ) {
+        return;
+      }
+      
       if ( event.getButton() == MouseEvent.BUTTON1 ) {
-        if ( state == null ) {
-          return;
-        }
-        
         switch ( state ) {
           case Menu:
             runMenuCommand( state.selection );
@@ -597,9 +625,5 @@ public final class PlayScreen extends RPGScreen {
         }
       }
     }
-  }
-  
-  public void nextFloor() {
-    floor++;
   }
 }

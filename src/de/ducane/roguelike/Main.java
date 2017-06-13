@@ -10,7 +10,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public final class Main {
-  public static final boolean DEBUG = false;
+  public static final boolean DEBUG = true;
   
   private Main() {
   }

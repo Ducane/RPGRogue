@@ -4,7 +4,6 @@ import de.androbin.gfx.util.*;
 import de.androbin.rpg.*;
 import de.androbin.util.txt.*;
 import de.ducane.roguelike.item.*;
-import de.ducane.roguelike.level.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.image.*;
@@ -25,16 +24,14 @@ public final class Player extends RogueEntity {
   
   private boolean running;
   
-  public Player( final PlayScreen screen, final Level level, final Point pos, final String name ) {
-    super( screen, level, pos );
+  public Player( final PlayScreen screen, final String name ) {
+    super( screen, null, new Point() );
     
     this.name = name;
     
     viewDir = Direction.DOWN;
     
     renderer = new PlayerRenderer( this );
-    
-    moveRequestCallback = result -> screen.onPlayerMoved();
     
     initPlayer();
     initImages();
@@ -49,7 +46,7 @@ public final class Player extends RogueEntity {
   public void attack( final Direction viewDir ) {
     final Point pos = getPos();
     final Point target = new Point( pos.x + viewDir.dx, pos.y + viewDir.dy );
-    final RogueEntity entity = level.getEntityAt( target );
+    final RogueEntity entity = (RogueEntity) world.getEntity( target );
     
     if ( entity == null ) {
       return;
@@ -186,7 +183,7 @@ public final class Player extends RogueEntity {
   
   @ Override
   public void requestAttack() {
-    if ( level.canAttack( this, viewDir ) ) {
+    if ( screen.canAttack( this, viewDir ) ) {
       attacking = true;
     }
   }

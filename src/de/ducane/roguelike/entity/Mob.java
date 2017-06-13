@@ -60,7 +60,7 @@ public class Mob extends RogueEntity {
       if ( attackProgress >= 1f ) {
         damaging = true;
         
-        if ( level.canAttack( this, viewDir ) ) {
+        if ( this.screen.canAttack( this, viewDir ) ) {
           attack( viewDir );
         }
         

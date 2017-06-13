@@ -40,9 +40,10 @@ public final class LevelGenerator {
   }
   
   @ SuppressWarnings( "unchecked" )
-  public static Level generate( final PlayScreen screen, final JSONObject data ) {
+  public static Level generate( final PlayScreen screen, final String name,
+      final JSONObject data ) {
     final JSONObject droprateData = (JSONObject) data.get( "droprate" );
-    final String[] monsters = JSONUtil.toStringArray( (JSONArray) data.get( "monsters" ) );
+    final String[] monsters = JSONUtil.toStringArray( data.get( "monsters" ) );
     
     final Map<String, Float> droprates = new HashMap<>();
     
@@ -72,12 +73,15 @@ public final class LevelGenerator {
     final List<Rectangle> rooms = generateRooms( minRoomWidth, maxRoomWidth,
         minRoomHeight, maxRoomHeight, random, nRooms, width, height, types );
     generateBlueprint( types, width, height, rooms, random );
+    
     final Dimension size = new Dimension( types[ 0 ].length, types.length );
-    final Level level = new Level( screen, size, rooms, monsters );
+    final Level level = new Level( screen, name, size, rooms, monsters );
+    
     translate( level, types );
     placeItems( level, droprates );
     placeStairs( level );
     level.spawnMobs();
+    
     return level;
   }
   
@@ -179,7 +183,7 @@ public final class LevelGenerator {
       addIfAdjacentWall( types, neighbours, new Point( current.x, current.y - 2 ) );
       
       if ( hasUnvisitedNeighbours( neighbours, types ) ) {
-        Point neighbour = null;
+        final Point neighbour;
         
         final float chance = (float) Math.random();
         final Point sameDirectionPoint = lastDirection == null ? null
@@ -210,7 +214,7 @@ public final class LevelGenerator {
     for ( int i = 0; i < neighbours.size(); i++ ) {
       final Point pos = neighbours.get( i );
       
-      if ( types[ pos.y ][ pos.y ] == TileType.WALL ) {
+      if ( types[ pos.y ][ pos.x ] == TileType.WALL ) {
         return true;
       }
     }

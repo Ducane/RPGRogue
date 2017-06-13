@@ -10,6 +10,6 @@ public final class Downstairs extends GameObject {
   
   @ Override
   public void onPlayerEntered( final Level level, final Player player ) {
-    level.next();
+    level.screen.nextFloor();
   }
 }
