@@ -8,16 +8,18 @@ public final class FontUtil {
   private FontUtil() {
   }
   
-  public static void installFont( final GraphicsEnvironment ge, final String path ) {
-    final URL res = ClassLoader.getSystemResource( "fonts/" + path );
+  public static boolean installFont( final GraphicsEnvironment ge, final String path ) {
+    final URL res = ClassLoader.getSystemResource( "font/" + path );
     
     if ( res == null ) {
-      return;
+      return false;
     }
     
     try ( final InputStream stream = res.openStream() ) {
       ge.registerFont( Font.createFont( Font.TRUETYPE_FONT, stream ) );
-    } catch ( final FontFormatException | IOException ignore ) {
+      return true;
+    } catch ( final FontFormatException | IOException e ) {
+      return false;
     }
   }
 }

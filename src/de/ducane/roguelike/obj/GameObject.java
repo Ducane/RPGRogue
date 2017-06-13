@@ -1,4 +1,4 @@
-package de.ducane.roguelike.gameobject;
+package de.ducane.roguelike.obj;
 
 import de.androbin.gfx.util.*;
 import de.ducane.roguelike.entity.*;
@@ -10,7 +10,7 @@ public abstract class GameObject {
   protected boolean passable;
   
   protected GameObject( final String name ) {
-    image = ImageUtil.loadImage( "gameobject/" + name + ".png" );
+    image = ImageUtil.loadImage( "obj/" + name + ".png" );
   }
   
   public abstract void onPlayerEntered( Level level, Player player );

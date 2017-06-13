@@ -1,4 +1,4 @@
-package de.ducane.roguelike.gameobject;
+package de.ducane.roguelike.obj;
 
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
