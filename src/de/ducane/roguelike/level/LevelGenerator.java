@@ -52,12 +52,6 @@ public final class LevelGenerator {
     
     final JSONObject mapData = (JSONObject) data.get( "mapdata" );
     
-    final int minRooms = ( (Number) mapData.get( "minRooms" ) ).intValue();
-    final int maxRooms = ( (Number) mapData.get( "maxRooms" ) ).intValue();
-    final int minRoomWidth = ( (Number) mapData.get( "minRoomWidth" ) ).intValue();
-    final int maxRoomWidth = ( (Number) mapData.get( "maxRoomWidth" ) ).intValue();
-    final int minRoomHeight = ( (Number) mapData.get( "minRoomHeight" ) ).intValue();
-    final int maxRoomHeight = ( (Number) mapData.get( "maxRoomHeight" ) ).intValue();
     final int minWidth = ( (Number) mapData.get( "minWidth" ) ).intValue();
     final int maxWidth = ( (Number) mapData.get( "maxWidth" ) ).intValue();
     final int minHeight = ( (Number) mapData.get( "minHeight" ) ).intValue();
@@ -65,14 +59,12 @@ public final class LevelGenerator {
     
     final Random random = ThreadLocalRandom.current();
     
-    final int nRooms = minRooms + random.nextInt( maxRooms - minRooms + 1 );
     final int width = minWidth + random.nextInt( maxWidth - minWidth + 1 );
     final int height = minHeight + random.nextInt( maxHeight - minHeight + 1 );
     
     final TileType[][] types = new TileType[ height * 2 - 1 ][ width * 2 - 1 ];
-    final List<Rectangle> rooms = generateRooms( minRoomWidth, maxRoomWidth,
-        minRoomHeight, maxRoomHeight, random, nRooms, width, height, types );
-    generateBlueprint( types, width, height, rooms, random );
+    final List<Rectangle> rooms = generateRooms( types, mapData, random, width, height );
+    generateBlueprint( types, random, rooms, width, height );
     
     final Dimension size = new Dimension( types[ 0 ].length, types.length );
     final Level level = new Level( screen, name, size, rooms, monsters );
@@ -85,8 +77,8 @@ public final class LevelGenerator {
     return level;
   }
   
-  private static void generateBlueprint( final TileType[][] tileTypes,
-      final int width, final int height, final List<Rectangle> rooms, final Random random ) {
+  private static void generateBlueprint( final TileType[][] tileTypes, final Random random,
+      final List<Rectangle> rooms, final int width, final int height ) {
     for ( int y = 0; y < tileTypes.length; y++ ) {
       for ( int x = 0; x < tileTypes[ 0 ].length; x++ ) {
         if ( tileTypes[ y ][ x ] == null ) {
@@ -118,10 +110,18 @@ public final class LevelGenerator {
     }
   }
   
-  private static List<Rectangle> generateRooms( final int minRoomWidth, final int maxRoomWidth,
-      final int minRoomHeight, final int maxRoomHeight, final Random random, final int nRooms,
-      final int width, final int height, final TileType[][] tileTypes ) {
-    final List<Rectangle> rooms = new LinkedList<>();
+  private static List<Rectangle> generateRooms( final TileType[][] tileTypes, final JSONObject data,
+      final Random random, final int width, final int height ) {
+    final int minRooms = ( (Number) data.get( "minRooms" ) ).intValue();
+    final int maxRooms = ( (Number) data.get( "maxRooms" ) ).intValue();
+    final int minRoomWidth = ( (Number) data.get( "minRoomWidth" ) ).intValue();
+    final int maxRoomWidth = ( (Number) data.get( "maxRoomWidth" ) ).intValue();
+    final int minRoomHeight = ( (Number) data.get( "minRoomHeight" ) ).intValue();
+    final int maxRoomHeight = ( (Number) data.get( "maxRoomHeight" ) ).intValue();
+    
+    final int nRooms = minRooms + random.nextInt( maxRooms - minRooms + 1 );
+    
+    final List<Rectangle> rooms = new ArrayList<>( nRooms );
     
     for ( int i = 0; i < nRooms; i++ ) {
       for ( int t = 0; t < 100; t++ ) {

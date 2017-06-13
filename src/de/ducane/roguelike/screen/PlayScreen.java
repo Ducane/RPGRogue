@@ -182,17 +182,17 @@ public final class PlayScreen extends RPGScreen {
   
   @ Override
   public KeyListener getKeyListener() {
-    return new TeeKeyListener( new PlayKeyListener(), super.getKeyListener() );
+    return new TeeKeyListener( new KeyInput(), super.getKeyListener() );
   }
   
   @ Override
   public MouseListener getMouseListener() {
-    return new PlayMouseListener();
+    return new MouseInput();
   }
   
   @ Override
   public MouseMotionListener getMouseMotionListener() {
-    return new PlayMouseMotionListener();
+    return new MouseMotionInput();
   }
   
   public Player getPlayer() {
@@ -297,8 +297,7 @@ public final class PlayScreen extends RPGScreen {
     final Stats stats = player.getStats();
     
     g.setFont( new Font( "Determination Mono", 0, (int) ( 0.04 * getHeight() ) ) );
-    g.drawString( "Lv " + stats.stage,
-        barBounds.x - 0.1f * getWidth(), barBounds.y );
+    g.drawString( "Lv " + stats.stage, barBounds.x - 0.1f * getWidth(), barBounds.y );
     g.drawString( "E" + floor, barBounds.x - 0.175f * getWidth(), barBounds.y );
     g.drawString( "HP " + stats.hp + "/" + stats.maxHp,
         barBounds.x, barBounds.y - 0.01f * getHeight() );
@@ -400,39 +399,40 @@ public final class PlayScreen extends RPGScreen {
   }
   
   private void renderHPBar( final Graphics2D g ) {
-    final Player player = getPlayer();
-    final Stats stats = player.getStats();
-    
-    final float progress = (float) stats.hp / stats.maxHp;
-    final float progressWidth = barBounds.width * progress;
-    
-    final BufferedImage barImage = new BufferedImage( (int) progressWidth, (int) barBounds.height,
-        BufferedImage.TYPE_INT_ARGB );
-    
-    final int color = new Color(
-        progress <= 0.5f ? 0.5f : 1f - progress,
-        progress >= 0.5f ? 0.5f : progress,
-        0f ).getRGB();
-    
-    for ( int y = 0; y < barImage.getHeight(); y++ ) {
-      for ( int x = 0; x < barImage.getWidth(); x++ ) {
-        barImage.setRGB( x, y, color );
-      }
-    }
-    
     g.setColor( Color.BLACK );
     fillRect( g, barBounds );
     
-    drawImage( g, barImage, barBounds.x, barBounds.y );
+    final Player player = getPlayer();
+    final Stats stats = player.getStats();
     
-    g.setStroke( new BasicStroke( 0.0003f * getHeight() ) );
+    final float health = (float) stats.hp / stats.maxHp;
+    final int barWidth = (int) ( barBounds.width * health );
+    
+    if ( health > 0 ) {
+      final BufferedImage barImage = new BufferedImage(
+          barWidth, (int) barBounds.height, BufferedImage.TYPE_INT_ARGB );
+      
+      final int color = new Color(
+          health <= 0.5f ? 0.5f : 1f - health,
+          health >= 0.5f ? 0.5f : health,
+          0f ).getRGB();
+      
+      for ( int y = 0; y < barImage.getHeight(); y++ ) {
+        for ( int x = 0; x < barImage.getWidth(); x++ ) {
+          barImage.setRGB( x, y, color );
+        }
+      }
+      
+      drawImage( g, barImage, barBounds.x, barBounds.y );
+    }
     
     final Color backgroundColor = new Color(
-        progress < 0.5f ? 0.3f : ( 1f - progress ) * 0.6f,
-        progress > 0.5f ? 0.3f : progress * 0.6f,
+        health < 0.5f ? 0.3f : ( 1f - health ) * 0.6f,
+        health > 0.5f ? 0.3f : health * 0.6f,
         0f );
     
     g.setColor( backgroundColor );
+    g.setStroke( new BasicStroke( 0.0003f * getHeight() ) );
     drawRect( g, barBounds );
   }
   
@@ -506,12 +506,6 @@ public final class PlayScreen extends RPGScreen {
   public void update( final float delta ) {
     super.update( delta );
     
-    for ( final Entity entity : world.listEntities() ) {
-      if ( entity instanceof Mob && getPlayer().isDamaging() ) {
-        ( (Mob) entity ).requestAttack();
-      }
-    }
-    
     level.update();
     
     if ( floor != requestedFloor ) {
@@ -541,7 +535,7 @@ public final class PlayScreen extends RPGScreen {
     updateBlackout();
   }
   
-  private class PlayKeyListener extends KeyAdapter {
+  private final class KeyInput extends KeyAdapter {
     @ Override
     public void keyPressed( final KeyEvent event ) {
       final Player player = getPlayer();
@@ -561,9 +555,7 @@ public final class PlayScreen extends RPGScreen {
       
       switch ( event.getKeyCode() ) {
         case KeyEvent.VK_SPACE:
-          if ( !player.isDamaging() ) {
-            player.requestAttack();
-          }
+          player.requestAttack();
           break;
         case KeyEvent.VK_M:
           state = state == null ? State.Menu : null;
@@ -572,7 +564,7 @@ public final class PlayScreen extends RPGScreen {
     }
   }
   
-  private class PlayMouseListener extends MouseAdapter {
+  private final class MouseInput extends MouseAdapter {
     @ Override
     public void mousePressed( final MouseEvent event ) {
       if ( state == null ) {
@@ -614,7 +606,7 @@ public final class PlayScreen extends RPGScreen {
     }
   }
   
-  private class PlayMouseMotionListener extends MouseAdapter {
+  private final class MouseMotionInput extends MouseAdapter {
     @ Override
     public void mouseMoved( final MouseEvent event ) {
       if ( state == null ) {

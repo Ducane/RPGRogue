@@ -6,12 +6,16 @@ import org.json.simple.*;
 
 public class Item {
   public final String name;
-  public final String description;
   public final BufferedImage image;
+  public final String description;
   
   public Item( final String name, final JSONObject data ) {
     this.name = name;
-    this.description = (String) data.get( "description" );
     this.image = ImageUtil.loadImage( "item/" + name + ".png" );
+    this.description = (String) data.get( "description" );
+  }
+  
+  public interface Builder {
+    Item build( String name, JSONObject data );
   }
 }

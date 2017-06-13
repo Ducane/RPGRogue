@@ -42,7 +42,7 @@ public final class Player extends RogueEntity {
   }
   
   @ Override
-  public void attack( final Direction viewDir ) {
+  protected void attack() {
     final Point pos = getPos();
     final Point target = new Point( pos.x + viewDir.dx, pos.y + viewDir.dy );
     final RogueEntity entity = (RogueEntity) world.getEntity( target );
@@ -56,20 +56,28 @@ public final class Player extends RogueEntity {
     final Stats stats = getStats();
     final Stats stats2 = entity.getStats();
     
-    final int minDamage = stats.attack - stats2.defense;
+    final int minDamage = Math.max( stats.attack - stats2.defense, 0 );
     final int maxDamage = minDamage + random.nextInt( stats.stage + 1 );
     
-    damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
-    
-    entity.takeDamage( damage );
+    final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
+    entity.requestDamage( damage, this );
     
     if ( entity.isDead() ) {
       addExp( stats2.exp );
+      
+      if ( entity instanceof Mob ) {
+        final Mob mob = (Mob) entity;
+        final Item item = mob.getItem();
+        
+        if ( item != null ) {
+          mob.setItem( null );
+          addItem( item );
+        }
+      }
     }
   }
   
-  @ Override
-  public void collectItem( final Item item ) {
+  public void addItem( final Item item ) {
     inventory.add( item );
   }
   
@@ -142,13 +150,6 @@ public final class Player extends RogueEntity {
     return animation;
   }
   
-  @ Override
-  public void requestAttack() {
-    if ( screen.canAttack( this, viewDir ) ) {
-      attacking = true;
-    }
-  }
-  
   public Accessoire setAccessoire( final Accessoire accessoire ) {
     final Accessoire current = this.accessoire;
     this.accessoire = accessoire;
@@ -165,31 +166,5 @@ public final class Player extends RogueEntity {
     final Weapon current = this.weapon;
     this.weapon = weapon;
     return current;
-  }
-  
-  @ Override
-  public void update( final float delta, final RPGScreen screen ) {
-    super.update( delta, screen );
-    
-    if ( isAttacking() ) {
-      attackProgress += delta;
-      
-      if ( attackProgress >= 1f ) {
-        damaging = true;
-        attack( viewDir );
-        
-        attacking = false;
-        attackProgress = 0f;
-      }
-    }
-    
-    if ( damaging ) {
-      damageProgress += delta;
-      
-      if ( damageProgress >= 1f ) {
-        damaging = false;
-        damageProgress = 0f;
-      }
-    }
   }
 }

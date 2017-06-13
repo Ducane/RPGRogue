@@ -44,7 +44,7 @@ public final class MobRenderer extends Renderer {
     if ( mob.attacking ) {
       final Direction dir = mob.getViewDir();
       
-      final float d = (float) Math.sin( mob.attackProgress * Math.PI ) * 0.35f * scale;
+      final float d = -0.35f * scale * (float) Math.sin( mob.attackProgress * Math.PI );
       
       final float dx = d * dir.dx;
       final float dy = d * dir.dy;
@@ -58,7 +58,7 @@ public final class MobRenderer extends Renderer {
     if ( mob.damaging ) {
       g.setFont( new Font( "Determination Mono", 0, (int) ( scale * 0.6f ) ) );
       
-      final String damage = String.valueOf( mob.damage );
+      final String damage = String.valueOf( -mob.damage );
       
       final FontMetrics fm = g.getFontMetrics();
       

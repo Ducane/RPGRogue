@@ -7,7 +7,7 @@ import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.geom.*;
 
-public class Mob extends RogueEntity {
+public final class Mob extends RogueEntity {
   public final MobType type;
   private Item item;
   
@@ -22,27 +22,18 @@ public class Mob extends RogueEntity {
     viewDir = Direction.DOWN;
   }
   
-  public void calcDirection( final Entity entity ) {
+  public Direction aim( final Entity entity, final boolean move ) {
     final Point2D.Float pos = getFloatPos();
     final Point2D.Float pos2 = entity.getFloatPos();
     
     final float dx = pos2.x - pos.x;
     final float dy = pos2.y - pos.y;
     
-    final Direction dirX = dx < 0f ? Direction.LEFT : Direction.RIGHT;
-    final Direction dirY = dy < 0f ? Direction.UP : Direction.DOWN;
-    
-    final boolean a = Math.abs( dx ) > Math.abs( dy );
-    moveRequestDir = a && canMove( dirX ) || !a && !canMove( dirY ) ? dirX : dirY;
+    return Directions.aim( dx, dy, dir -> !move || canMove( dir ) );
   }
   
-  @ Override
-  public void collectItem( final Item item ) {
-    this.item = item;
-  }
-  
-  public boolean hasItem() {
-    return item != null;
+  public Item getItem() {
+    return item;
   }
   
   @ Override
@@ -51,31 +42,17 @@ public class Mob extends RogueEntity {
   }
   
   @ Override
-  public void update( final float delta, final RPGScreen screen ) {
-    super.update( delta, screen );
+  public void requestDamage( final int damage, final Object source ) {
+    super.requestDamage( damage, source );
     
-    if ( isAttacking() ) {
-      attackProgress += delta;
-      
-      if ( attackProgress >= 1f ) {
-        damaging = true;
-        
-        if ( this.screen.canAttack( this, viewDir ) ) {
-          attack( viewDir );
-        }
-        
-        attacking = false;
-        attackProgress = 0f;
-      }
+    if ( source instanceof Entity ) {
+      final Entity entity = (Entity) source;
+      viewDir = aim( entity, false );
+      requestAttack();
     }
-    
-    if ( damaging ) {
-      damageProgress += delta;
-      
-      if ( damageProgress >= 1f ) {
-        damaging = false;
-        damageProgress = 0f;
-      }
-    }
+  }
+  
+  public void setItem( final Item item ) {
+    this.item = item;
   }
 }

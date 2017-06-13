@@ -5,30 +5,29 @@ import java.util.*;
 import org.json.simple.*;
 
 public final class Items {
-  public static final Map<String, Item> CACHE = new HashMap<>();
+  private static final Map<String, Item> CACHE = new HashMap<>();
+  public static final Map<String, Item.Builder> BUILDERS = new HashMap<>();
+  
+  static {
+    BUILDERS.put( "none", Item::new );
+    BUILDERS.put( "accessoire", Accessoire::new );
+    BUILDERS.put( "armor", Armor::new );
+    BUILDERS.put( "food", Food::new );
+    BUILDERS.put( "weapon", Weapon::new );
+  }
   
   private Items() {
   }
   
   public static Item create( final String name ) {
     final JSONObject data = (JSONObject) JSONUtil.parseJSON( "item/" + name + ".json" ).get();
-    
+    return create( name, data );
+  }
+  
+  public static Item create( final String name, final JSONObject data ) {
     final String type = (String) data.get( "type" );
-    
-    switch ( type ) {
-      case "none":
-        return new Item( name, data );
-      case "accessoire":
-        return new Accessoire( name, data );
-      case "armor":
-        return new Armor( name, data );
-      case "food":
-        return new Food( name, data );
-      case "weapon":
-        return new Weapon( name, data );
-    }
-    
-    return null;
+    final Item.Builder builder = BUILDERS.get( type );
+    return builder.build( name, data );
   }
   
   public static Item getItem( final String type ) {

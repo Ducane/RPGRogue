@@ -65,15 +65,25 @@ public final class Level extends World {
       return;
     }
     
-    entity.collectItem( item );
-    field.setItem( null );
+    if ( entity instanceof Mob ) {
+      final Mob mob = (Mob) entity;
+      
+      if ( mob.getItem() == null ) {
+        mob.setItem( item );
+        field.setItem( null );
+      }
+    } else if ( entity instanceof Player ) {
+      final Player player = (Player) entity;
+      player.addItem( item );
+      field.setItem( null );
+    }
   }
   
   public void moveMobs() {
     for ( final Entity entity : listEntities() ) {
       if ( entity instanceof Mob && entity.getMoveDir() == null ) {
         final Mob mob = (Mob) entity;
-        mob.calcDirection( screen.getPlayer() );
+        mob.moveRequestDir = mob.aim( screen.getPlayer(), true );
       }
     }
   }
@@ -93,7 +103,7 @@ public final class Level extends World {
     if ( entity instanceof Mob ) {
       final Mob mob = (Mob) entity;
       
-      if ( !mob.hasItem() ) {
+      if ( mob.getItem() == null ) {
         giveItem( mob );
       }
     }
