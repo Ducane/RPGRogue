@@ -5,12 +5,14 @@ import de.androbin.game.*;
 import de.androbin.game.listener.*;
 import de.androbin.rpg.*;
 import de.androbin.rpg.gfx.*;
+import de.androbin.rpg.obj.*;
 import de.androbin.rpg.tile.*;
 import de.androbin.util.*;
 import de.ducane.roguelike.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
+import de.ducane.roguelike.obj.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
@@ -59,6 +61,7 @@ public final class PlayScreen extends RPGScreen {
     super( game, scale );
     
     Tiles.builder = data -> new RogueTile( this, data );
+    GameObjects.builder = RogueObjects::create;
     
     player = new Player( this, name );
     camera.setFocus( Camera.focus( player ) );

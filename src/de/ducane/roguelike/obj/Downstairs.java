@@ -1,11 +1,12 @@
 package de.ducane.roguelike.obj;
 
+import de.androbin.rpg.obj.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.level.*;
 
-public final class Downstairs extends GameObject {
-  public Downstairs() {
-    super( "downstairs" );
+public final class Downstairs extends RogueObject {
+  public Downstairs( final GameObjectData data ) {
+    super( data );
   }
   
   @ Override

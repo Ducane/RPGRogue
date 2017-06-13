@@ -13,14 +13,14 @@ public final class RogueTile extends Tile {
   private final PlayScreen screen;
   
   private Item item;
-  private GameObject object;
+  private RogueObject object;
   
   public RogueTile( final PlayScreen screen, final TileData data ) {
     super( data );
     this.screen = screen;
   }
   
-  public void setObject( final GameObject object ) {
+  public void setObject( final RogueObject object ) {
     this.object = object;
   }
   
@@ -49,10 +49,10 @@ public final class RogueTile extends Tile {
         drawImage( g, item.image, pos0, scale, scale );
       }
       
-      final GameObject object = getObject();
+      final RogueObject object = getObject();
       
       if ( object != null ) {
-        drawImage( g, object.image, pos0, scale, scale );
+        drawImage( g, object.data.image, pos0, scale, scale );
       }
     }
   }
@@ -61,7 +61,7 @@ public final class RogueTile extends Tile {
     return item;
   }
   
-  public GameObject getObject() {
+  public RogueObject getObject() {
     return object;
   }
 }

@@ -3,6 +3,7 @@ package de.ducane.roguelike.level;
 import static de.androbin.collection.util.ObjectCollectionUtil.*;
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.rpg.*;
+import de.androbin.rpg.obj.*;
 import de.ducane.roguelike.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
@@ -90,7 +91,7 @@ public final class Level extends World {
   
   public void onCollisionObject( final Player player ) {
     final RogueTile tile = getTile( player.getPos() );
-    final GameObject object = tile.getObject();
+    final RogueObject object = tile.getObject();
     
     if ( object == null || player.running ) {
       return;
@@ -169,12 +170,12 @@ public final class Level extends World {
   
   public void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
-    getTile( pos ).setObject( new Upstairs() );
+    getTile( pos ).setObject( (RogueObject) GameObjects.create( "upstairs" ) );
   }
   
   public void setDownStairsPos( final Point pos ) {
     this.downStairsPos = pos;
-    getTile( pos ).setObject( new Downstairs() );
+    getTile( pos ).setObject( (RogueObject) GameObjects.create( "downstairs" ) );
   }
   
   public void spawnMobs() {
