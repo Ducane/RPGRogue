@@ -96,7 +96,7 @@ public final class LevelGenerator {
     }
     
     final Point entry = entryPoint( tileTypes );
-    generatePath( tileTypes, entry, width, height );
+    generatePath( tileTypes, entry );
     
     for ( final Rectangle room : rooms ) {
       final int x;
@@ -163,8 +163,7 @@ public final class LevelGenerator {
     return rooms;
   }
   
-  public static void generatePath( final TileType[][] types, final Point entry,
-      final int width, final int height ) {
+  private static void generatePath( final TileType[][] types, final Point entry ) {
     final Deque<Point> deque = new ArrayDeque<>();
     final Random random = ThreadLocalRandom.current();
     
@@ -222,7 +221,7 @@ public final class LevelGenerator {
     return false;
   }
   
-  public static void placeItems( final Level level, final Map<String, Float> droprates ) {
+  private static void placeItems( final Level level, final Map<String, Float> droprates ) {
     final Random random = ThreadLocalRandom.current();
     
     final int minItems = 4;
@@ -264,7 +263,7 @@ public final class LevelGenerator {
     }
   }
   
-  public static void placeStairs( final Level level ) {
+  private static void placeStairs( final Level level ) {
     final Random random = ThreadLocalRandom.current();
     
     Point up;

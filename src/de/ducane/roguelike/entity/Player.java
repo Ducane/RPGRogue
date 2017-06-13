@@ -22,7 +22,7 @@ public final class Player extends RogueEntity {
   
   public final String name;
   
-  private boolean running;
+  public boolean running;
   
   public Player( final PlayScreen screen, final String name ) {
     super( screen, null, new Point() );
@@ -34,11 +34,11 @@ public final class Player extends RogueEntity {
     renderer = new PlayerRenderer( this );
     
     initPlayer();
-    initImages();
+    moveAnimation = prepareImages();
   }
   
   private void addExp( final int exp ) {
-    stats.exp += exp;
+    baseStats.exp += exp;
   }
   
   @ Override
@@ -53,54 +53,29 @@ public final class Player extends RogueEntity {
     
     final Random random = ThreadLocalRandom.current();
     
-    final int minDamage = getAttack() - entity.getDef();
+    final Stats stats = getStats();
+    final Stats stats2 = entity.getStats();
+    
+    final int minDamage = stats.attack - stats2.defense;
     final int maxDamage = minDamage + random.nextInt( stats.stage + 1 );
     
     damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
     
     entity.takeDamage( damage );
     
-    if ( entity.getHp() <= 0 ) {
-      addExp( entity.getExp() );
+    if ( entity.isDead() ) {
+      addExp( stats2.exp );
     }
   }
   
+  @ Override
+  public void collectItem( final Item item ) {
+    inventory.add( item );
+  }
+  
   public void eat( final Food food ) {
-    stats.hp = Math.min( stats.hp + food.hp, getMaxHp() );
-  }
-  
-  public Accessoire dequipAccessoire() {
-    final Accessoire accessoire = this.accessoire;
-    this.accessoire = null;
-    return accessoire;
-  }
-  
-  public Armor dequipArmor() {
-    final Armor armor = this.armor;
-    this.armor = null;
-    return armor;
-  }
-  
-  public Weapon dequipWeapon() {
-    final Weapon weapon = this.weapon;
-    this.weapon = null;
-    return weapon;
-  }
-  
-  public void equipAccessoire( final Accessoire accessoire ) {
-    this.accessoire = accessoire;
-  }
-  
-  public void equipArmour( final Armor armour ) {
-    this.armor = armour;
-  }
-  
-  public void equipWeapon( final Weapon weapon ) {
-    this.weapon = weapon;
-  }
-  
-  public List<Item> getInventory() {
-    return inventory;
+    final Stats stats = getStats();
+    baseStats.hp += Math.min( food.hp, stats.maxHp - stats.hp );
   }
   
   public Accessoire getAccessoire() {
@@ -111,54 +86,39 @@ public final class Player extends RogueEntity {
     return armor;
   }
   
-  @ Override
-  public int getAttack() {
-    return super.getAttack() + ( weapon == null ? 0 : weapon.attack );
+  public List<Item> getInventory() {
+    return inventory;
   }
   
   @ Override
-  public int getDef() {
-    return super.getDef() + ( armor == null ? 0 : armor.defense );
-  }
-  
-  @ Override
-  public int getMaxHp() {
-    return super.getMaxHp() + ( accessoire == null ? 0 : accessoire.hp );
+  public Stats getStats() {
+    final Stats stats = new Stats( super.getStats() );
+    stats.attack += weapon == null ? 0 : weapon.attack;
+    stats.defense += armor == null ? 0 : armor.defense;
+    stats.maxHp += accessoire == null ? 0 : accessoire.hp;
+    return stats;
   }
   
   public Weapon getWeapon() {
     return weapon;
   }
   
-  private void initImages() {
-    moveAnimation = new BufferedImage[ Direction.values().length ][ 3 ];
-    
-    for ( int i = 0; i < moveAnimation.length; i++ ) {
-      final String dir = Direction.values()[ i ].name();
-      final BufferedImage image = ImageUtil.loadImage(
-          "player/" + CaseUtil.toProperCase( dir ) + ".png" );
-      
-      for ( int j = 0; j < moveAnimation[ i ].length; j++ ) {
-        moveAnimation[ i ][ j ] = image.getSubimage( j * 16, 0, 16, 18 );
-      }
-    }
-  }
-  
   private void initPlayer() {
-    stats.maxHp = 25;
-    stats.hp = 25;
-    stats.stage = 1;
-    stats.attack = 1;
-    stats.defense = 0;
+    baseStats.maxHp = 25;
+    baseStats.hp = 25;
+    baseStats.stage = 1;
+    baseStats.attack = 1;
+    baseStats.defense = 0;
   }
   
-  public boolean isRunning() {
-    return running;
-  }
-  
-  @ Override
-  public void collectItem( final Item item ) {
-    inventory.add( item );
+  public void levelUp() {
+    baseStats.stage++;
+    
+    final Random random = ThreadLocalRandom.current();
+    
+    baseStats.hp += random.nextInt( baseStats.stage ) + 1;
+    baseStats.attack += random.nextInt( baseStats.stage ) + 1;
+    baseStats.defense += random.nextInt( baseStats.stage ) + 1;
   }
   
   @ Override
@@ -166,18 +126,20 @@ public final class Player extends RogueEntity {
     return running ? 7f : 2f;
   }
   
-  public void setRunning( final boolean running ) {
-    this.running = running;
-  }
-  
-  public void levelUp() {
-    stats.stage++;
+  private static BufferedImage[][] prepareImages() {
+    final BufferedImage[][] animation = new BufferedImage[ Direction.values().length ][ 3 ];
     
-    final Random random = ThreadLocalRandom.current();
+    for ( int i = 0; i < animation.length; i++ ) {
+      final String dir = Direction.values()[ i ].name();
+      final BufferedImage image = ImageUtil.loadImage(
+          "player/" + CaseUtil.toProperCase( dir ) + ".png" );
+      
+      for ( int j = 0; j < animation[ i ].length; j++ ) {
+        animation[ i ][ j ] = image.getSubimage( j * 16, 0, 16, 18 );
+      }
+    }
     
-    stats.hp += random.nextInt( stats.stage ) + 1;
-    stats.attack += random.nextInt( stats.stage ) + 1;
-    stats.defense += random.nextInt( stats.stage ) + 1;
+    return animation;
   }
   
   @ Override
@@ -185,6 +147,24 @@ public final class Player extends RogueEntity {
     if ( screen.canAttack( this, viewDir ) ) {
       attacking = true;
     }
+  }
+  
+  public Accessoire setAccessoire( final Accessoire accessoire ) {
+    final Accessoire current = this.accessoire;
+    this.accessoire = accessoire;
+    return current;
+  }
+  
+  public Armor setArmour( final Armor armour ) {
+    final Armor current = this.armor;
+    this.armor = armour;
+    return current;
+  }
+  
+  public Weapon setWeapon( final Weapon weapon ) {
+    final Weapon current = this.weapon;
+    this.weapon = weapon;
+    return current;
   }
   
   @ Override

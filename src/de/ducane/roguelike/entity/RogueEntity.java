@@ -11,7 +11,7 @@ import java.util.concurrent.*;
 public abstract class RogueEntity extends Entity {
   protected final PlayScreen screen;
   
-  protected final Stats stats;
+  protected final Stats baseStats;
   
   protected int damage;
   
@@ -28,9 +28,9 @@ public abstract class RogueEntity extends Entity {
     
     this.screen = screen;
     
-    this.stats = new Stats();
+    this.baseStats = new Stats();
     
-    moveCallback = result -> ( (Level) world ).onEntityMoved( this );
+    moveCallback = () -> ( (Level) world ).onEntityMoved( this );
   }
   
   public void attack( final Direction viewDir ) {
@@ -44,37 +44,20 @@ public abstract class RogueEntity extends Entity {
     
     final Random random = ThreadLocalRandom.current();
     
-    final int minDamage = getAttack() - entity.getDef();
+    final Stats stats = getStats();
+    final Stats stats2 = entity.getStats();
+    
+    final int minDamage = stats.attack - stats2.defense;
     final int maxDamage = minDamage + random.nextInt( stats.stage + 1 );
     
     damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
     entity.takeDamage( damage );
   }
   
-  public abstract void collectItem( final Item item );
+  public abstract void collectItem( Item item );
   
-  public int getDef() {
-    return stats.defense;
-  }
-  
-  public int getAttack() {
-    return stats.attack;
-  }
-  
-  public int getExp() {
-    return stats.exp;
-  }
-  
-  public int getMaxHp() {
-    return stats.maxHp;
-  }
-  
-  public int getHp() {
-    return stats.hp;
-  }
-  
-  public int getStage() {
-    return stats.stage;
+  public Stats getStats() {
+    return baseStats;
   }
   
   public boolean isAttacking() {
@@ -86,18 +69,14 @@ public abstract class RogueEntity extends Entity {
   }
   
   public boolean isDead() {
-    return stats.hp == 0;
+    return baseStats.hp == 0;
   }
   
   public void requestAttack() {
     attacking = true;
   }
   
-  public void setHp( final int hp ) {
-    stats.hp = hp;
-  }
-  
   public void takeDamage( final int damage ) {
-    stats.hp = Math.max( 0, stats.hp - damage );
+    baseStats.hp = Math.max( baseStats.hp - damage, 0 );
   }
 }

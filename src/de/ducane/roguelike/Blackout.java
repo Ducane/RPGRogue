@@ -10,9 +10,9 @@ public abstract class Blackout {
     this.color = color;
   }
   
-  public abstract boolean contains( final Point2D.Float c, final Point2D.Float p );
+  public abstract boolean contains( Point2D.Float c, Point2D.Float p );
   
-  public abstract void darken( final Graphics2D g, float x, float y, float w, float h );
+  public abstract void darken( Graphics2D g, float x, float y, float w, float h );
   
   public void setColor( final Color color ) {
     this.color = color;

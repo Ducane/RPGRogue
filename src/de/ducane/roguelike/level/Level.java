@@ -82,7 +82,7 @@ public final class Level extends World {
     final RogueTile tile = getTile( player.getPos() );
     final GameObject object = tile.getObject();
     
-    if ( object == null || player.isRunning() ) {
+    if ( object == null || player.running ) {
       return;
     }
     
@@ -103,7 +103,7 @@ public final class Level extends World {
       
       final Player player = (Player) entity;
       
-      if ( !player.isRunning() ) {
+      if ( !player.running ) {
         giveItem( player );
       }
       

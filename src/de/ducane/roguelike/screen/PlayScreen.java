@@ -28,7 +28,6 @@ public final class PlayScreen extends RPGScreen {
   private List<Rectangle> rooms;
   private Rectangle room;
   
-  private BufferedImage barImage;
   private Rectangle2D.Float barBounds;
   
   private State state;
@@ -137,7 +136,9 @@ public final class PlayScreen extends RPGScreen {
     final Item item = inventory.get( index );
     
     if ( item instanceof Food ) {
-      if ( player.getHp() != player.getMaxHp() ) {
+      final Stats stats = player.getStats();
+      
+      if ( stats.hp < stats.maxHp ) {
         player.eat( (Food) item );
         inventory.remove( index );
       }
@@ -145,26 +146,26 @@ public final class PlayScreen extends RPGScreen {
       if ( player.getWeapon() == null ) {
         inventory.remove( index );
       } else {
-        inventory.set( index, player.dequipWeapon() );
+        inventory.set( index, player.setWeapon( null ) );
       }
       
-      player.equipWeapon( (Weapon) item );
+      player.setWeapon( (Weapon) item );
     } else if ( item instanceof Accessoire ) {
       if ( player.getAccessoire() == null ) {
         inventory.remove( index );
       } else {
-        inventory.set( index, player.dequipWeapon() );
+        inventory.set( index, player.setWeapon( null ) );
       }
       
-      player.equipAccessoire( (Accessoire) item );
+      player.setAccessoire( (Accessoire) item );
     } else if ( item instanceof Armor ) {
       if ( player.getArmor() == null ) {
         inventory.remove( index );
       } else {
-        inventory.set( index, player.dequipWeapon() );
+        inventory.set( index, player.setWeapon( null ) );
       }
       
-      player.equipArmour( (Armor) item );
+      player.setArmour( (Armor) item );
     }
   }
   
@@ -293,11 +294,13 @@ public final class PlayScreen extends RPGScreen {
     g.setColor( Color.WHITE );
     
     final Player player = getPlayer();
+    final Stats stats = player.getStats();
+    
     g.setFont( new Font( "Determination Mono", 0, (int) ( 0.04 * getHeight() ) ) );
-    g.drawString( "Lv " + player.getStage(),
+    g.drawString( "Lv " + stats.stage,
         barBounds.x - 0.1f * getWidth(), barBounds.y );
     g.drawString( "E" + floor, barBounds.x - 0.175f * getWidth(), barBounds.y );
-    g.drawString( "HP " + player.getHp() + "/" + player.getMaxHp(),
+    g.drawString( "HP " + stats.hp + "/" + stats.maxHp,
         barBounds.x, barBounds.y - 0.01f * getHeight() );
     
     final FontMetrics fm = g.getFontMetrics();
@@ -398,16 +401,13 @@ public final class PlayScreen extends RPGScreen {
   
   private void renderHPBar( final Graphics2D g ) {
     final Player player = getPlayer();
-    final float progress = (float) player.getHp() / player.getMaxHp();
+    final Stats stats = player.getStats();
+    
+    final float progress = (float) stats.hp / stats.maxHp;
     final float progressWidth = barBounds.width * progress;
     
-    if ( progressWidth > 0 ) {
-      barImage = new BufferedImage( (int) progressWidth, (int) barBounds.height,
-          BufferedImage.TYPE_INT_ARGB );
-    }
-    
-    final Rectangle2D.Float barRectangle = new Rectangle2D.Float(
-        barBounds.x, barBounds.y, progressWidth, barBounds.height );
+    final BufferedImage barImage = new BufferedImage( (int) progressWidth, (int) barBounds.height,
+        BufferedImage.TYPE_INT_ARGB );
     
     final int color = new Color(
         progress <= 0.5f ? 0.5f : 1f - progress,
@@ -416,18 +416,14 @@ public final class PlayScreen extends RPGScreen {
     
     for ( int y = 0; y < barImage.getHeight(); y++ ) {
       for ( int x = 0; x < barImage.getWidth(); x++ ) {
-        if ( barRectangle.contains( barBounds.x + x, barBounds.y + y ) ) {
-          barImage.setRGB( x, y, color );
-        }
+        barImage.setRGB( x, y, color );
       }
     }
     
     g.setColor( Color.BLACK );
     fillRect( g, barBounds );
     
-    if ( progressWidth > 0 ) {
-      drawImage( g, barImage, barBounds.x, barBounds.y );
-    }
+    drawImage( g, barImage, barBounds.x, barBounds.y );
     
     g.setStroke( new BasicStroke( 0.0003f * getHeight() ) );
     
@@ -551,7 +547,7 @@ public final class PlayScreen extends RPGScreen {
       final Player player = getPlayer();
       
       if ( event.isShiftDown() ) {
-        player.setRunning( true );
+        player.running = true;
       }
     }
     
@@ -560,7 +556,7 @@ public final class PlayScreen extends RPGScreen {
       final Player player = getPlayer();
       
       if ( !event.isShiftDown() ) {
-        player.setRunning( false );
+        player.running = false;
       }
       
       switch ( event.getKeyCode() ) {

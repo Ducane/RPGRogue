@@ -13,5 +13,5 @@ public abstract class GameObject {
     image = ImageUtil.loadImage( "gameobject/" + name + ".png" );
   }
   
-  public abstract void onPlayerEntered( final Level level, final Player player );
+  public abstract void onPlayerEntered( Level level, Player player );
 }

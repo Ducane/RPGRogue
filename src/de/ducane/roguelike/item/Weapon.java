@@ -1,14 +1,13 @@
 package de.ducane.roguelike.item;
 
-import java.awt.image.*;
+import org.json.simple.*;
 
 public final class Weapon extends Item {
   public final int attack;
   
-  public Weapon( final String name, final String description, final int attack,
-      final BufferedImage image ) {
-    super( name, description, image );
+  public Weapon( final String name, final JSONObject data ) {
+    super( name, data );
     
-    this.attack = attack;
+    this.attack = ( (Number) data.get( "attack" ) ).intValue();
   }
 }

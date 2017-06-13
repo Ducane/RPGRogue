@@ -15,7 +15,7 @@ public class Mob extends RogueEntity {
     super( screen, level, pos );
     
     this.type = type;
-    stats.set( type.initialStats );
+    baseStats.set( type.initialStats );
     
     renderer = new MobRenderer( this );
     
@@ -33,7 +33,7 @@ public class Mob extends RogueEntity {
     final Direction dirY = dy < 0f ? Direction.UP : Direction.DOWN;
     
     final boolean a = Math.abs( dx ) > Math.abs( dy );
-    move( a && canMove( dirX ) || !a && !canMove( dirY ) ? dirX : dirY );
+    moveRequestDir = a && canMove( dirX ) || !a && !canMove( dirY ) ? dirX : dirY;
   }
   
   @ Override
