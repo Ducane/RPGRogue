@@ -18,8 +18,6 @@ public final class Player extends RogueEntity {
   private Armor armor;
   private Accessoire accessoire;
   
-  public BufferedImage[][] moveAnimation;
-  
   public final String name;
   
   public boolean running;
@@ -31,10 +29,9 @@ public final class Player extends RogueEntity {
     
     viewDir = Direction.DOWN;
     
-    renderer = new PlayerRenderer( this );
+    renderer = new EntityRenderer( this, prepareImages() );
     
     initPlayer();
-    moveAnimation = prepareImages();
   }
   
   private void addExp( final int exp ) {

@@ -24,18 +24,18 @@ public final class MobTypeParser {
     // TODO set exp in json files
     
     final Direction[] directions = Direction.values();
-    final BufferedImage[][] images = new BufferedImage[ directions.length ][ 2 ];
+    final BufferedImage[][] animation = new BufferedImage[ directions.length ][ 2 ];
     
     for ( int i = 0; i < directions.length; i++ ) {
       final String dir = Direction.values()[ i ].name();
       final BufferedImage image = ImageUtil.loadImage(
           "mobs/" + type + CaseUtil.toProperCase( dir ) + ".png" );
       
-      for ( int j = 0; j < images[ i ].length; j++ ) {
-        images[ i ][ j ] = image.getSubimage( j * 16, 0, 16, 16 );
+      for ( int j = 0; j < animation[ i ].length; j++ ) {
+        animation[ i ][ j ] = image.getSubimage( j * 16, 0, 16, 16 );
       }
     }
     
-    return new MobType( type, images, initialStats );
+    return new MobType( type, animation, initialStats );
   }
 }

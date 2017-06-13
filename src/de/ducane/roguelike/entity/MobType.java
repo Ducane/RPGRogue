@@ -6,16 +6,16 @@ import java.util.*;
 public final class MobType {
   public static final Map<String, MobType> TYPES = new HashMap<>();
   
-  public BufferedImage[][] moveAnimation;
+  public BufferedImage[][] animation;
   
   public final Stats initialStats;
   
   public final String name;
   
-  public MobType( final String name, final BufferedImage[][] images, final Stats initialStats ) {
+  public MobType( final String name, final BufferedImage[][] animation, final Stats initialStats ) {
     this.name = name;
     this.initialStats = initialStats;
-    this.moveAnimation = images;
+    this.animation = animation;
   }
   
   public static MobType get( final String type ) {
