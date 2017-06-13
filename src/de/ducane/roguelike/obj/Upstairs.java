@@ -4,10 +4,12 @@ import de.androbin.rpg.obj.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
+import de.ducane.roguelike.screen.*;
+import java.awt.*;
 
 public final class Upstairs extends RogueObject {
-  public Upstairs( final GameObjectData data ) {
-    super( data );
+  public Upstairs( final PlayScreen screen, final GameObjectData data, final Point pos ) {
+    super( screen, data, pos );
   }
   
   @ Override

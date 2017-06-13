@@ -90,8 +90,7 @@ public final class Level extends World {
   }
   
   public void onCollisionObject( final Player player ) {
-    final RogueTile tile = getTile( player.getPos() );
-    final RogueObject object = tile.getObject();
+    final RogueObject object = (RogueObject) getGameObject( player.getPos() );
     
     if ( object == null || player.running ) {
       return;
@@ -170,12 +169,12 @@ public final class Level extends World {
   
   public void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
-    getTile( pos ).setObject( (RogueObject) GameObjects.create( "upstairs" ) );
+    addGameObject( (RogueObject) GameObjects.create( "upstairs", pos ) );
   }
   
   public void setDownStairsPos( final Point pos ) {
     this.downStairsPos = pos;
-    getTile( pos ).setObject( (RogueObject) GameObjects.create( "downstairs" ) );
+    addGameObject( (RogueObject) GameObjects.create( "downstairs", pos ) );
   }
   
   public void spawnMobs() {

@@ -4,7 +4,6 @@ import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.rpg.tile.*;
 import de.ducane.roguelike.*;
 import de.ducane.roguelike.item.*;
-import de.ducane.roguelike.obj.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.geom.*;
@@ -13,15 +12,14 @@ public final class RogueTile extends Tile {
   private final PlayScreen screen;
   
   private Item item;
-  private RogueObject object;
   
   public RogueTile( final PlayScreen screen, final TileData data ) {
     super( data );
     this.screen = screen;
   }
   
-  public void setObject( final RogueObject object ) {
-    this.object = object;
+  public Item getItem() {
+    return item;
   }
   
   public void setItem( final Item item ) {
@@ -33,35 +31,21 @@ public final class RogueTile extends Tile {
     super.render( g, pos, scale );
     
     final Blackout blackout = screen.getBlackout();
-    
     final Point2D.Float c = screen.getBlackoutPos();
     
-    final Point2D.Float pos0 = new Point2D.Float( pos.x * scale, pos.y * scale );
-    final Point2D.Float posD = new Point2D.Float(
+    final Point2D.Float center = new Point2D.Float(
         ( pos.x + 0.5f ) * scale, ( pos.y + 0.5f ) * scale );
     
-    final boolean visible = blackout.contains( c, posD );
-    
-    if ( visible ) {
-      final Item item = getItem();
-      
-      if ( item != null ) {
-        drawImage( g, item.image, pos0, scale, scale );
-      }
-      
-      final RogueObject object = getObject();
-      
-      if ( object != null ) {
-        drawImage( g, object.data.image, pos0, scale, scale );
-      }
+    if ( !blackout.contains( c, center ) ) {
+      return;
     }
-  }
-  
-  public Item getItem() {
-    return item;
-  }
-  
-  public RogueObject getObject() {
-    return object;
+    
+    final Point2D.Float pos0 = new Point2D.Float( pos.x * scale, pos.y * scale );
+    
+    final Item item = getItem();
+    
+    if ( item != null ) {
+      drawImage( g, item.image, pos0, scale, scale );
+    }
   }
 }

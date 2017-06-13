@@ -25,10 +25,10 @@ public class EntityRenderer extends Renderer {
   
   @ Override
   public void render( final Graphics2D g ) {
-    final int i = entity.getViewDir().ordinal();
+    final int i = entity.viewDir.ordinal();
     
     if ( entity.damaging ) {
-      final Direction dir = entity.getViewDir();
+      final Direction dir = entity.viewDir;
       
       final float d = -0.25f * scale * (float) Math.sin( entity.damageProgress * Math.PI );
       

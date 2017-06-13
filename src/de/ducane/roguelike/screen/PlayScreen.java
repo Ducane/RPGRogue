@@ -61,7 +61,7 @@ public final class PlayScreen extends RPGScreen {
     super( game, scale );
     
     Tiles.builder = data -> new RogueTile( this, data );
-    GameObjects.builder = RogueObjects::create;
+    GameObjects.builder = ( data, pos ) -> RogueObjects.create( this, data, pos );
     
     player = new Player( this, name );
     camera.setFocus( Camera.focus( player ) );
@@ -117,7 +117,7 @@ public final class PlayScreen extends RPGScreen {
     final String x = String.valueOf( pos.x );
     final String y = String.valueOf( pos.y );
     
-    final String viewDir = "viewDir: " + player.getViewDir();
+    final String viewDir = "viewDir: " + player.viewDir;
     final String moveDir = "moveDir: " + player.getMoveDir();
     
     final String name = "name: " + player.name;
