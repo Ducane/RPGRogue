@@ -30,7 +30,7 @@ public abstract class RogueEntity extends Entity {
     
     this.stats = new Stats();
     
-    moveRequestCallback = result -> ( (Level) world ).onEntityMoved( this );
+    moveCallback = result -> ( (Level) world ).onEntityMoved( this );
   }
   
   public void attack( final Direction viewDir ) {

@@ -1,7 +1,7 @@
 package de.ducane.roguelike.gameobject;
 
 import de.ducane.roguelike.entity.*;
-// import de.ducane.roguelike.item.*;
+import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
 
 public final class Upstairs extends GameObject {
@@ -11,7 +11,8 @@ public final class Upstairs extends GameObject {
   
   @ Override
   public void onPlayerEntered( final Level level, final Player player ) {
-    // if ( player.getInventory().contains( Item.getItem( "AmuletOfYendor" ) ) )
-    // TODO implement upstairs
+    if ( player.getInventory().contains( Items.getItem( "AmuletOfYendor" ) ) ) {
+      level.screen.requestPreviousFloor();
+    }
   }
 }

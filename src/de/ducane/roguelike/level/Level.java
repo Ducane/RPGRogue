@@ -153,7 +153,7 @@ public final class Level extends World {
     }
     
     g.setColor( Color.GREEN );
-    fillRect( g, width - ( this.size.width + playerPos.x ) * size,
+    fillRect( g, width - ( this.size.width - playerPos.x ) * size,
         playerPos.y * size, size, size );
   }
   

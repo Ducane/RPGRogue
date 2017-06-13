@@ -46,13 +46,13 @@ public final class RogueTile extends Tile {
       final Item item = getItem();
       
       if ( item != null ) {
-        drawImage( g, item.getImage(), pos0, scale, scale );
+        drawImage( g, item.image, pos0, scale, scale );
       }
       
       final GameObject object = getObject();
       
       if ( object != null ) {
-        drawImage( g, object.getImage(), pos0, scale, scale );
+        drawImage( g, object.image, pos0, scale, scale );
       }
     }
   }

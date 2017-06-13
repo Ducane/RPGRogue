@@ -39,7 +39,6 @@ public final class Player extends RogueEntity {
   
   private void addExp( final int exp ) {
     stats.exp += exp;
-    System.out.println( stats.exp );
   }
   
   @ Override

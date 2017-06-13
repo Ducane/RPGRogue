@@ -19,10 +19,9 @@ import java.util.List;
 import org.json.simple.*;
 
 public final class PlayScreen extends RPGScreen {
-  private final String playerName;
-  
   private Level level;
   private int floor;
+  private int requestedFloor;
   
   private Blackout blackout;
   
@@ -59,11 +58,10 @@ public final class PlayScreen extends RPGScreen {
   
   public PlayScreen( final Game game, final float scale, final String name ) {
     super( game, scale );
-    this.playerName = name;
     
     Tiles.builder = data -> new RogueTile( this, data );
     
-    player = new Player( this, playerName );
+    player = new Player( this, name );
     camera.setFocus( Camera.focus( player ) );
     
     updateFloor();
@@ -198,11 +196,6 @@ public final class PlayScreen extends RPGScreen {
   
   public Player getPlayer() {
     return (Player) player;
-  }
-  
-  public void nextFloor() {
-    floor++;
-    updateFloor();
   }
   
   public void onPlayerMoved() {
@@ -377,7 +370,7 @@ public final class PlayScreen extends RPGScreen {
       
       if ( !inventory.isEmpty() && inventory.size() > index ) {
         final int slot = pageIndex > 0 ? index : State.Inventory.selection;
-        final BufferedImage image = inventory.get( slot ).getImage();
+        final BufferedImage image = inventory.get( slot ).image;
         drawImage( g, image, statImageBounds );
       }
     }
@@ -445,6 +438,14 @@ public final class PlayScreen extends RPGScreen {
     
     g.setColor( backgroundColor );
     drawRect( g, barBounds );
+  }
+  
+  public void requestNextFloor() {
+    requestedFloor = floor + 1;
+  }
+  
+  public void requestPreviousFloor() {
+    requestedFloor = Math.max( floor - 1, 0 );
   }
   
   private void runItemSelectCommand( final int selection ) {
@@ -516,6 +517,11 @@ public final class PlayScreen extends RPGScreen {
     }
     
     level.update();
+    
+    if ( floor != requestedFloor ) {
+      floor = requestedFloor;
+      updateFloor();
+    }
   }
   
   private void updateBlackout() {
