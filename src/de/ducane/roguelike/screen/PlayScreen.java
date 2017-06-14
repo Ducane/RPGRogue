@@ -4,6 +4,8 @@ import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.game.*;
 import de.androbin.game.listener.*;
 import de.androbin.rpg.*;
+import de.androbin.rpg.event.*;
+import de.androbin.rpg.event.Event;
 import de.androbin.rpg.gfx.*;
 import de.androbin.rpg.obj.*;
 import de.androbin.rpg.tile.*;
@@ -69,6 +71,8 @@ public final class PlayScreen extends RPGScreen {
     
     Tiles.builder = data -> new RogueTile( dark, data );
     GameObjects.builder = ( data, pos ) -> RogueObjects.create( data, pos, dark );
+    
+    Events.BUILDERS.put( "nextFloor", args -> Event.func( "nextFloor", this::requestNextFloor ) );
     
     player = new Player( this, name );
     camera.setFocus( Camera.focus( player ) );

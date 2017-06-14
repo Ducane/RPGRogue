@@ -4,6 +4,7 @@ import static de.androbin.collection.util.ObjectCollectionUtil.*;
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.rpg.*;
 import de.androbin.rpg.obj.*;
+import de.androbin.rpg.tile.*;
 import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
@@ -169,12 +170,12 @@ public final class Level extends World {
   
   public void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
-    addGameObject( (RogueObject) GameObjects.create( "upstairs", pos ) );
+    addGameObject( GameObjects.create( "upstairs", pos ) );
   }
   
   public void setDownStairsPos( final Point pos ) {
     this.downStairsPos = pos;
-    addGameObject( (RogueObject) GameObjects.create( "downstairs", pos ) );
+    setTile( pos, Tiles.create( "downstairs" ) );
   }
   
   public void spawnMobs() {
@@ -183,10 +184,18 @@ public final class Level extends World {
     for ( final Rectangle room : getRooms() ) {
       final String monster = randomElement( monsters, null );
       
-      final int x = ( random.nextInt( room.width ) + room.x ) * 2;
-      final int y = ( random.nextInt( room.height ) + room.y ) * 2;
+      Point pos;
+      boolean success;
       
-      final Mob mob = new Mob( screen, this, MobType.get( monster ), new Point( x, y ) );
+      do {
+        final int x = ( random.nextInt( room.width ) + room.x ) * 2;
+        final int y = ( random.nextInt( room.height ) + room.y ) * 2;
+        pos = new Point( x, y );
+        
+        success = getEntity( pos ) == null && getGameObject( pos ) == null;
+      } while ( !success );
+      
+      final Mob mob = new Mob( screen, this, MobType.get( monster ), pos );
       addEntity( mob );
     }
   }
@@ -208,12 +217,10 @@ public final class Level extends World {
     final List<Entity> toRemove = new LinkedList<>();
     
     for ( final Entity entity : listEntities() ) {
-      if ( !( entity instanceof RogueEntity ) ) {
-        continue;
-      }
+      final RogueEntity rogueEntity = (RogueEntity) entity;
       
-      if ( ( (RogueEntity) entity ).isDead() ) {
-        toRemove.add( entity );
+      if ( rogueEntity.isDead() ) {
+        toRemove.add( rogueEntity );
       }
     }
     
