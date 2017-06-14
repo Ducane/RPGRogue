@@ -42,14 +42,19 @@ public final class Mob extends RogueEntity {
   }
   
   @ Override
-  public void requestDamage( final int damage, final Object source ) {
-    super.requestDamage( damage, source );
+  public boolean requestDamage( final int damage, final Object source ) {
+    final boolean dead = super.requestDamage( damage, source );
     
     if ( source instanceof Entity ) {
       final Entity entity = (Entity) source;
       viewDir = aim( entity, false );
-      requestAttack();
+      
+      if ( !dead ) {
+        requestAttack();
+      }
     }
+    
+    return dead;
   }
   
   public void setItem( final Item item ) {

@@ -57,9 +57,9 @@ public final class Player extends RogueEntity {
     final int maxDamage = minDamage + random.nextInt( stats.stage + 1 );
     
     final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
-    entity.requestDamage( damage, this );
+    final boolean dead = entity.requestDamage( damage, this );
     
-    if ( entity.isDead() ) {
+    if ( dead ) {
       addExp( stats2.exp );
       
       if ( entity instanceof Mob ) {

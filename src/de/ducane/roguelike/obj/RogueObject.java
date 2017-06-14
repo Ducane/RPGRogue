@@ -20,7 +20,8 @@ public abstract class RogueObject extends GameObject {
   @ Override
   public void render( final Graphics2D g, final float scale ) {
     final Point2D.Float center = new Point2D.Float(
-        ( pos.x + 0.5f * data.size.width ) * scale, ( pos.y + 0.5f * data.size.height ) * scale );
+        pos.x + data.size.width * 0.5f,
+        pos.y + data.size.height * 0.5f );
     
     if ( !dark.contains( center ) ) {
       return;

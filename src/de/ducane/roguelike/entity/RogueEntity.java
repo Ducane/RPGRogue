@@ -68,9 +68,10 @@ public abstract class RogueEntity extends Entity {
     return true;
   }
   
-  public void requestDamage( final int damage, final Object source ) {
+  public boolean requestDamage( final int damage, final Object source ) {
     this.damage += damage;
     damaging = true;
+    return baseStats.hp - this.damage <= 0;
   }
   
   private void takeDamage() {

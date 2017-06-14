@@ -9,7 +9,6 @@ public final class RogueObjects {
   private static final Map<String, RogueObject.Builder> BUILDERS = new HashMap<>();
   
   static {
-    BUILDERS.put( "downstairs", Downstairs::new );
     BUILDERS.put( "upstairs", Upstairs::new );
   }
   

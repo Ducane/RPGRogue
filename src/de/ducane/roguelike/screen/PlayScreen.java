@@ -10,7 +10,6 @@ import de.androbin.rpg.gfx.*;
 import de.androbin.rpg.obj.*;
 import de.androbin.rpg.tile.*;
 import de.androbin.util.*;
-import de.ducane.roguelike.*;
 import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
@@ -63,16 +62,21 @@ public final class PlayScreen extends RPGScreen {
   public PlayScreen( final Game game, final float scale, final String name ) {
     super( game, scale );
     
-    dark = new MovingDark();
-    dark.color = new Color( 0f, 0f, 0f, 0.8f );
+    dark = new MovingDark( new Color( 0f, 0f, 0f, 0.8f ), scale );
     dark.pos = this::getDarkPos;
     dark.width = getWidth();
     dark.height = getHeight();
     
-    Tiles.builder = data -> new RogueTile( dark, data );
+    Tiles.builder = data -> RogueTiles.create( data, dark );
     GameObjects.builder = ( data, pos ) -> RogueObjects.create( data, pos, dark );
     
-    Events.BUILDERS.put( "nextFloor", args -> Event.func( "nextFloor", this::requestNextFloor ) );
+    Events.BUILDERS.put( "nextFloor", args0 -> Event.func( "nextFloor", args1 -> {
+      final Entity entity = (Entity) args1.get( "entity" );
+      
+      if ( entity == player ) {
+        requestNextFloor();
+      }
+    } ) );
     
     player = new Player( this, name );
     camera.setFocus( Camera.focus( player ) );
@@ -119,31 +123,6 @@ public final class PlayScreen extends RPGScreen {
     return null;
   }
   
-  private void debug( final Graphics2D g ) {
-    final FontMetrics fm = g.getFontMetrics();
-    final Player player = getPlayer();
-    
-    final Point2D.Float pos = player.getFloatPos();
-    
-    final String x = String.valueOf( pos.x );
-    final String y = String.valueOf( pos.y );
-    
-    final String viewDir = "viewDir: " + player.viewDir;
-    final String moveDir = "moveDir: " + player.getMoveDir();
-    
-    final String name = "name: " + player.name;
-    
-    g.drawString( x, getWidth() - fm.stringWidth( x ), getHeight() - fm.getHeight() * 5 );
-    g.drawString( y, getWidth() - fm.stringWidth( y ), getHeight() - fm.getHeight() * 4 );
-    
-    g.drawString( viewDir, getWidth() - fm.stringWidth( viewDir ),
-        getHeight() - fm.getHeight() * 3 );
-    g.drawString( moveDir, getWidth() - fm.stringWidth( moveDir ),
-        getHeight() - fm.getHeight() * 2 );
-    
-    g.drawString( name, getWidth() - fm.stringWidth( name ), getHeight() - fm.getHeight() * 1 );
-  }
-  
   private void equip( final int index ) {
     final Player player = getPlayer();
     final List<Item> inventory = player.getInventory();
@@ -186,8 +165,8 @@ public final class PlayScreen extends RPGScreen {
   private Point2D.Float getDarkPos() {
     final Point2D.Float pos = getPlayer().getFloatPos();
     return room == null
-        ? new Point2D.Float( ( pos.x + 0.5f ) * scale, ( pos.y + 0.5f ) * scale )
-        : new Point2D.Float( room.x * scale, room.y * scale );
+        ? new Point2D.Float( pos.x + 0.5f, pos.y + 0.5f )
+        : new Point2D.Float( room.x, room.y );
   }
   
   @ Override
@@ -274,17 +253,16 @@ public final class PlayScreen extends RPGScreen {
     
     itemSelectStroke = new BasicStroke( 0.005f * getWidth() );
     itemSelectBounds = new Rectangle2D.Float(
-        0.65f * width, 0.15f * height, 0.2f * width, 0.25f * height );
+        0.65f * width, 0.1f * height, 0.2f * width, 0.2f * height );
     
     final Rectangle2D.Float itemSelectButtonBounds = new Rectangle2D.Float(
-        0.675f * width, 0.175f * height, 0.15f * width, 0.05f * height );
-    final float itemSelectButtonDY = 0.075f * height;
+        0.675f * width, 0.125f * height, 0.15f * width, 0.05f * height );
     
     State.ItemSelect.buttonBounds = new Rectangle2D.Float[ 2 ];
     
     for ( int i = 0; i < State.ItemSelect.buttonBounds.length; i++ ) {
       State.ItemSelect.buttonBounds[ i ] = new Rectangle2D.Float(
-          itemSelectButtonBounds.x, itemSelectButtonBounds.y + itemSelectButtonDY * i,
+          itemSelectButtonBounds.x, itemSelectButtonBounds.y + inventoryButtonDY * i,
           itemSelectButtonBounds.width, itemSelectButtonBounds.height );
     }
   }
@@ -297,20 +275,14 @@ public final class PlayScreen extends RPGScreen {
     
     level.renderMiniMap( g, getPlayer().getFloatPos(), scale, getWidth() );
     
-    g.setColor( Color.WHITE );
-    
-    if ( Main.DEBUG ) {
-      debug( g );
-    }
-    
     renderHPBar( g );
     
     g.setColor( Color.WHITE );
+    g.setFont( new Font( "Determination Mono", 0, (int) ( 0.04f * getHeight() ) ) );
     
     final Player player = getPlayer();
     final Stats stats = player.getStats();
     
-    g.setFont( new Font( "Determination Mono", 0, (int) ( 0.04 * getHeight() ) ) );
     g.drawString( "Lv " + stats.stage, barBounds.x - 0.1f * getWidth(), barBounds.y );
     g.drawString( "E" + floor, barBounds.x - 0.175f * getWidth(), barBounds.y );
     g.drawString( "HP " + stats.hp + "/" + stats.maxHp,
@@ -351,11 +323,12 @@ public final class PlayScreen extends RPGScreen {
         
         if ( inventory.size() > i ) {
           final String itemName = inventory.get( i ).name;
-          final String subItemName = itemName.length() > 10
+          final String trimItemName = itemName.length() > 10
               ? itemName.substring( 0, 10 ) : itemName;
           g.setColor( state == State.Inventory && i % 8 == state.selection
               ? Color.YELLOW : Color.WHITE );
-          g.drawString( subItemName, rect.x + ( rect.width - fm.stringWidth( subItemName ) ) * 0.5f,
+          g.drawString( trimItemName,
+              rect.x + ( rect.width - fm.stringWidth( trimItemName ) ) * 0.5f,
               rect.y + ( rect.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
         } else {
           final String nothing = "----------";
@@ -366,10 +339,10 @@ public final class PlayScreen extends RPGScreen {
         }
       }
       
-      final String size = inventory.size() + "/" + ( pageIndex + 1 );
+      final String fold = ( pageIndex + 1 ) + "/" + ( ( inventory.size() - 1 ) / 8 + 1 );
       g.setColor( Color.WHITE );
-      g.drawString( size,
-          inventoryBounds.x + ( inventoryBounds.width - fm.stringWidth( size ) ) * 0.5f,
+      g.drawString( fold,
+          inventoryBounds.x + ( inventoryBounds.width - fm.stringWidth( fold ) ) * 0.5f,
           inventoryBounds.y + 0.95f * inventoryBounds.height );
       fillRect( g, pageCursorLeft );
       fillRect( g, pageCursorRight );
@@ -392,14 +365,15 @@ public final class PlayScreen extends RPGScreen {
     }
     
     if ( state == State.ItemSelect ) {
+      final int selection = State.Inventory.selection;
+      final float dy = inventoryButtonDY * selection;
+      
       g.setColor( Color.BLACK );
-      fillRect( g, itemSelectBounds.x,
-          itemSelectBounds.y + State.Inventory.selection * inventoryButtonDY,
+      fillRect( g, itemSelectBounds.x, itemSelectBounds.y + dy,
           itemSelectBounds.width, itemSelectBounds.height );
       g.setStroke( itemSelectStroke );
       g.setColor( Color.WHITE );
-      drawRect( g, itemSelectBounds.x,
-          itemSelectBounds.y + State.Inventory.selection * inventoryButtonDY,
+      drawRect( g, itemSelectBounds.x, itemSelectBounds.y + dy,
           itemSelectBounds.width, itemSelectBounds.height );
       
       for ( int i = 0; i < State.ItemSelect.buttonBounds.length; i++ ) {
@@ -407,7 +381,7 @@ public final class PlayScreen extends RPGScreen {
         g.setColor( i == state.selection ? Color.YELLOW : Color.WHITE );
         g.drawString( itemSelectButtonLabels[ i ],
             bounds.x + ( bounds.width - fm.stringWidth( itemSelectButtonLabels[ i ] ) ) * 0.5f,
-            bounds.y + ( bounds.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
+            bounds.y + ( bounds.height - fm.getHeight() ) * 0.5f + fm.getAscent() + dy );
       }
     }
   }
@@ -420,32 +394,21 @@ public final class PlayScreen extends RPGScreen {
     final Stats stats = player.getStats();
     
     final float health = (float) stats.hp / stats.maxHp;
-    final int barWidth = (int) ( barBounds.width * health );
     
-    if ( health > 0 ) {
-      final BufferedImage barImage = new BufferedImage(
-          barWidth, (int) barBounds.height, BufferedImage.TYPE_INT_ARGB );
-      
-      final int color = new Color(
-          health <= 0.5f ? 0.5f : 1f - health,
-          health >= 0.5f ? 0.5f : health,
-          0f ).getRGB();
-      
-      for ( int y = 0; y < barImage.getHeight(); y++ ) {
-        for ( int x = 0; x < barImage.getWidth(); x++ ) {
-          barImage.setRGB( x, y, color );
-        }
-      }
-      
-      drawImage( g, barImage, barBounds.x, barBounds.y );
-    }
+    final Color color = new Color(
+        health <= 0.5f ? 0.5f : 1f - health,
+        health >= 0.5f ? 0.5f : health,
+        0f );
     
-    final Color backgroundColor = new Color(
+    g.setColor( color );
+    fillRect( g, barBounds.x, barBounds.y, barBounds.width * health, barBounds.height );
+    
+    final Color border = new Color(
         health < 0.5f ? 0.3f : ( 1f - health ) * 0.6f,
         health > 0.5f ? 0.3f : health * 0.6f,
         0f );
     
-    g.setColor( backgroundColor );
+    g.setColor( border );
     g.setStroke( new BasicStroke( 0.0003f * getHeight() ) );
     drawRect( g, barBounds );
   }

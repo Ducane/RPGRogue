@@ -19,7 +19,7 @@ public final class Items {
   private Items() {
   }
   
-  public static Item create( final String name ) {
+  private static Item create( final String name ) {
     final JSONObject data = (JSONObject) JSONUtil.parseJSON( "item/" + name + ".json" )
         .orElseGet( JSONObject::new );
     return create( name, data );

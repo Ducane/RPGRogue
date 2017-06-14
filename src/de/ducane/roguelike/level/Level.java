@@ -204,9 +204,9 @@ public final class Level extends World {
     for ( int y = 0; y < size.height; y++ ) {
       for ( int x = 0; x < size.width; x++ ) {
         final Point p = new Point( x, y );
-        final Point2D.Float pos = new Point2D.Float( ( x + 0.5f ) * scale, ( y + 0.5f ) * scale );
+        final Point2D.Float center = new Point2D.Float( x + 0.5f, y + 0.5f );
         
-        if ( !visitedTiles.contains( p ) && dark.contains( pos ) ) {
+        if ( !visitedTiles.contains( p ) && dark.contains( center ) ) {
           visitedTiles.add( p );
         }
       }

@@ -15,14 +15,10 @@ public final class MobRenderer extends EntityRenderer {
   
   @ Override
   public void render( final Graphics2D g ) {
-    final Point2D.Float posRaw = entity.getFloatPos();
+    final Point2D.Float pos = entity.getFloatPos();
+    final Point2D.Float center = new Point2D.Float( pos.x + 0.5f, pos.y + 0.5f );
     
-    final float posX = ( posRaw.x + 0.5f ) * scale;
-    final float posY = ( posRaw.y + 0.5f ) * scale;
-    
-    final Point2D.Float pos = new Point2D.Float( posX, posY );
-    
-    if ( !dark.contains( pos ) ) {
+    if ( !dark.contains( center ) ) {
       return;
     }
     

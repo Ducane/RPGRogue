@@ -7,12 +7,12 @@ import de.ducane.roguelike.item.*;
 import java.awt.*;
 import java.awt.geom.*;
 
-public final class RogueTile extends Tile {
-  private final MovingDark dark;
+public class RogueTile extends Tile {
+  protected final MovingDark dark;
   
   private Item item;
   
-  public RogueTile( final MovingDark dark, final TileData data ) {
+  public RogueTile( final TileData data, final MovingDark dark ) {
     super( data );
     this.dark = dark;
   }
@@ -29,18 +29,16 @@ public final class RogueTile extends Tile {
   public void render( final Graphics2D g, final Point pos, final float scale ) {
     super.render( g, pos, scale );
     
-    final Point2D.Float center = new Point2D.Float(
-        ( pos.x + 0.5f ) * scale, ( pos.y + 0.5f ) * scale );
+    final Point2D.Float center = new Point2D.Float( pos.x + 0.5f, pos.y + 0.5f );
     
     if ( !dark.contains( center ) ) {
       return;
     }
     
-    final Point2D.Float pos0 = new Point2D.Float( pos.x * scale, pos.y * scale );
-    
     final Item item = getItem();
     
     if ( item != null ) {
+      final Point2D.Float pos0 = new Point2D.Float( pos.x * scale, pos.y * scale );
       drawImage( g, item.image, pos0, scale, scale );
     }
   }
