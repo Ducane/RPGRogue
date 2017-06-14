@@ -1,32 +1,28 @@
 package de.ducane.roguelike.obj;
 
 import de.androbin.rpg.obj.*;
-import de.ducane.roguelike.*;
+import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.level.*;
-import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.geom.*;
 
 public abstract class RogueObject extends GameObject {
-  private final PlayScreen screen;
+  private final MovingDark dark;
   
-  protected RogueObject( final PlayScreen screen, final GameObjectData data, final Point pos ) {
+  protected RogueObject( final GameObjectData data, final Point pos, final MovingDark dark ) {
     super( data, pos );
-    this.screen = screen;
+    this.dark = dark;
   }
   
   public abstract void onPlayerEntered( Level level, Player player );
   
   @ Override
   public void render( final Graphics2D g, final float scale ) {
-    final Blackout blackout = screen.getBlackout();
-    final Point2D.Float c = screen.getBlackoutPos();
-    
     final Point2D.Float center = new Point2D.Float(
         ( pos.x + 0.5f * data.size.width ) * scale, ( pos.y + 0.5f * data.size.height ) * scale );
     
-    if ( !blackout.contains( c, center ) ) {
+    if ( !dark.contains( center ) ) {
       return;
     }
     
@@ -34,6 +30,6 @@ public abstract class RogueObject extends GameObject {
   }
   
   public interface Builder {
-    RogueObject build( PlayScreen screen, GameObjectData data, final Point pos );
+    RogueObject build( GameObjectData data, Point pos, MovingDark dark );
   }
 }

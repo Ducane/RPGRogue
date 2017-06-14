@@ -21,32 +21,32 @@ public final class AWTUtil {
     g.drawString( string, x, y );
   }
   
-  public static int trimIndex( final String l, final FontMetrics fm, final int width ) {
-    int pw = 0;
+  private static int trimIndex( final String text, final FontMetrics fm, final int width ) {
+    int widthLeft = width;
     
-    for ( int i = 0; i < l.length(); i++ ) {
-      pw += fm.charWidth( l.charAt( i ) );
+    for ( int i = 0; i < text.length(); i++ ) {
+      widthLeft -= fm.charWidth( text.charAt( i ) );
       
-      if ( pw > width ) {
-        return l.lastIndexOf( ' ', i );
+      if ( widthLeft <= 0 ) {
+        final int index = text.lastIndexOf( ' ', i );
+        return index == -1 ? i : index;
       }
     }
     
-    return -1;
+    return text.length();
   }
   
-  public static List<String> wrapLines( final String label, final FontMetrics fm,
-      final int width ) {
+  public static List<String> wrapLines( final String text, final FontMetrics fm, final int width ) {
     final List<String> lines = new LinkedList<>();
-    String line = label;
+    String textLeft = text;
     
-    while ( fm.stringWidth( line ) > width ) {
-      final int i = trimIndex( line, fm, width );
-      lines.add( line.substring( 0, i ) );
-      line = line.substring( i + 1 );
+    while ( fm.stringWidth( textLeft ) > width ) {
+      final int i = trimIndex( textLeft, fm, width );
+      lines.add( textLeft.substring( 0, i ) );
+      textLeft = textLeft.substring( i ).trim();
     }
     
-    lines.add( line );
+    lines.add( textLeft );
     return lines;
   }
 }

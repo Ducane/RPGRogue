@@ -2,20 +2,19 @@ package de.ducane.roguelike.level;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.rpg.tile.*;
-import de.ducane.roguelike.*;
+import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.item.*;
-import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.geom.*;
 
 public final class RogueTile extends Tile {
-  private final PlayScreen screen;
+  private final MovingDark dark;
   
   private Item item;
   
-  public RogueTile( final PlayScreen screen, final TileData data ) {
+  public RogueTile( final MovingDark dark, final TileData data ) {
     super( data );
-    this.screen = screen;
+    this.dark = dark;
   }
   
   public Item getItem() {
@@ -30,13 +29,10 @@ public final class RogueTile extends Tile {
   public void render( final Graphics2D g, final Point pos, final float scale ) {
     super.render( g, pos, scale );
     
-    final Blackout blackout = screen.getBlackout();
-    final Point2D.Float c = screen.getBlackoutPos();
-    
     final Point2D.Float center = new Point2D.Float(
         ( pos.x + 0.5f ) * scale, ( pos.y + 0.5f ) * scale );
     
-    if ( !blackout.contains( c, center ) ) {
+    if ( !dark.contains( center ) ) {
       return;
     }
     

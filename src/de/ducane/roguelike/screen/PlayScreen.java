@@ -9,6 +9,7 @@ import de.androbin.rpg.obj.*;
 import de.androbin.rpg.tile.*;
 import de.androbin.util.*;
 import de.ducane.roguelike.*;
+import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
@@ -25,7 +26,7 @@ public final class PlayScreen extends RPGScreen {
   private int floor;
   private int requestedFloor;
   
-  private Blackout blackout;
+  public final MovingDark dark;
   
   private List<Rectangle> rooms;
   private Rectangle room;
@@ -60,8 +61,14 @@ public final class PlayScreen extends RPGScreen {
   public PlayScreen( final Game game, final float scale, final String name ) {
     super( game, scale );
     
-    Tiles.builder = data -> new RogueTile( this, data );
-    GameObjects.builder = ( data, pos ) -> RogueObjects.create( this, data, pos );
+    dark = new MovingDark();
+    dark.color = new Color( 0f, 0f, 0f, 0.8f );
+    dark.pos = this::getDarkPos;
+    dark.width = getWidth();
+    dark.height = getHeight();
+    
+    Tiles.builder = data -> new RogueTile( dark, data );
+    GameObjects.builder = ( data, pos ) -> RogueObjects.create( data, pos, dark );
     
     player = new Player( this, name );
     camera.setFocus( Camera.focus( player ) );
@@ -172,11 +179,7 @@ public final class PlayScreen extends RPGScreen {
     }
   }
   
-  public Blackout getBlackout() {
-    return blackout;
-  }
-  
-  public Point2D.Float getBlackoutPos() {
+  private Point2D.Float getDarkPos() {
     final Point2D.Float pos = getPlayer().getFloatPos();
     return room == null
         ? new Point2D.Float( ( pos.x + 0.5f ) * scale, ( pos.y + 0.5f ) * scale )
@@ -211,6 +214,11 @@ public final class PlayScreen extends RPGScreen {
   
   @ Override
   public void onResized( final int width, final int height ) {
+    if ( dark != null ) {
+      dark.width = width;
+      dark.height = height;
+    }
+    
     barBounds = new Rectangle2D.Float(
         0.2f * width, 0.05f * height, 0.4f * width, 0.025f * height );
     
@@ -281,8 +289,7 @@ public final class PlayScreen extends RPGScreen {
   public void render( final Graphics2D g ) {
     super.render( g );
     
-    final Point2D.Float pos = getBlackoutPos();
-    blackout.darken( g, pos.x + trans.x, pos.y + trans.y, getWidth(), getHeight() );
+    dark.darken( g, trans );
     
     level.renderMiniMap( g, getPlayer().getFloatPos(), scale, getWidth() );
     
@@ -518,15 +525,13 @@ public final class PlayScreen extends RPGScreen {
   }
   
   private void updateBlackout() {
-    final Color color = new Color( 0f, 0f, 0f, 0.8f );
-    
     if ( room == null ) {
-      blackout = new CircularBlackout( color, scale * 1.5f );
+      dark.dark = new CircleDark( scale * 1.5f );
     } else {
-      blackout = new RectangularBlackout( color, scale * room.width, scale * room.height );
+      dark.dark = new RectDark( scale * room.width, scale * room.height );
     }
     
-    level.updateMiniMap( blackout, scale, getBlackoutPos() );
+    level.updateMiniMap( dark, scale );
   }
   
   public void updateFloor() {

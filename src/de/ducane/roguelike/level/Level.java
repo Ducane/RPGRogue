@@ -4,7 +4,7 @@ import static de.androbin.collection.util.ObjectCollectionUtil.*;
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.rpg.*;
 import de.androbin.rpg.obj.*;
-import de.ducane.roguelike.*;
+import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.obj.*;
@@ -191,13 +191,13 @@ public final class Level extends World {
     }
   }
   
-  public void updateMiniMap( final Blackout blackout, final float scale, final Point2D.Float c ) {
+  public void updateMiniMap( final MovingDark dark, final float scale ) {
     for ( int y = 0; y < size.height; y++ ) {
       for ( int x = 0; x < size.width; x++ ) {
         final Point p = new Point( x, y );
         final Point2D.Float pos = new Point2D.Float( ( x + 0.5f ) * scale, ( y + 0.5f ) * scale );
         
-        if ( !visitedTiles.contains( p ) && blackout.contains( c, pos ) ) {
+        if ( !visitedTiles.contains( p ) && dark.contains( pos ) ) {
           visitedTiles.add( p );
         }
       }

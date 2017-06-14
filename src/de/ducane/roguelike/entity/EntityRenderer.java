@@ -19,7 +19,6 @@ public class EntityRenderer extends Renderer {
   
   @ Override
   public Rectangle2D.Float getBounds() {
-    // TODO(Androbin) Clarify units
     return new Rectangle2D.Float( 0f, 0f, scale, scale );
   }
   
@@ -37,7 +36,7 @@ public class EntityRenderer extends Renderer {
       
       drawImage( g, animation[ i ][ 0 ], dx, dy, scale, scale );
     } else {
-      final int j = (int) ( entity.getMoveProgress() * animation[ 0 ].length );
+      final int j = (int) ( entity.getMoveProgress() * animation[ i ].length );
       drawImage( g, animation[ i ][ j ], 0f, 0f, scale, scale );
     }
     

@@ -17,7 +17,7 @@ public final class Mob extends RogueEntity {
     this.type = type;
     baseStats.set( type.initialStats );
     
-    renderer = new MobRenderer( this, type.animation );
+    renderer = new MobRenderer( this, type.animation, screen.dark );
     
     viewDir = Direction.DOWN;
   }

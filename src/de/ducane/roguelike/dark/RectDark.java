@@ -1,16 +1,14 @@
-package de.ducane.roguelike;
+package de.ducane.roguelike.dark;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import java.awt.*;
 import java.awt.geom.*;
 
-public final class RectangularBlackout extends Blackout {
+public final class RectDark implements Dark {
   private final float width;
   private final float height;
   
-  public RectangularBlackout( final Color color, final float width, final float height ) {
-    super( color );
-    
+  public RectDark( final float width, final float height ) {
     this.width = width;
     this.height = height;
   }
@@ -21,10 +19,9 @@ public final class RectangularBlackout extends Blackout {
   }
   
   @ Override
-  public void darken( final Graphics2D g, final float x, final float y,
+  public void darken( final Graphics2D g, final Color c, final float x, final float y,
       final float w, final float h ) {
-    g.setColor( color );
-    
+    g.setColor( c );
     fillRect( g, 0, 0, w, y );
     fillRect( g, 0, y, x, height );
     fillRect( g, x + width, y, w - x - width, height );

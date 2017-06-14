@@ -27,9 +27,8 @@ public final class MobTypeParser {
     final BufferedImage[][] animation = new BufferedImage[ directions.length ][ 2 ];
     
     for ( int i = 0; i < directions.length; i++ ) {
-      final String dir = Direction.values()[ i ].name();
-      final BufferedImage image = ImageUtil.loadImage(
-          "mob/" + type + CaseUtil.toProperCase( dir ) + ".png" );
+      final String dir = CaseUtil.toProperCase( directions[ i ].name() );
+      final BufferedImage image = ImageUtil.loadImage( "mob/" + type + dir + ".png" );
       
       for ( int j = 0; j < animation[ i ].length; j++ ) {
         animation[ i ][ j ] = image.getSubimage( j * 16, 0, 16, 16 );

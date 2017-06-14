@@ -1,7 +1,7 @@
 package de.ducane.roguelike.obj;
 
 import de.androbin.rpg.obj.*;
-import de.ducane.roguelike.screen.*;
+import de.ducane.roguelike.dark.*;
 import java.awt.*;
 import java.util.*;
 
@@ -16,8 +16,8 @@ public final class RogueObjects {
   private RogueObjects() {
   }
   
-  public static GameObject create( final PlayScreen screen, final GameObjectData data, final Point pos ) {
+  public static GameObject create( final GameObjectData data, final Point pos, final MovingDark dark ) {
     final RogueObject.Builder builder = BUILDERS.get( data.name );
-    return builder.build( screen, data, pos );
+    return builder.build( data, pos, dark );
   }
 }

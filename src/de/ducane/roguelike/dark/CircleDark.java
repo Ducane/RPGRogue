@@ -1,18 +1,17 @@
-package de.ducane.roguelike;
+package de.ducane.roguelike.dark;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 
-public final class CircularBlackout extends Blackout {
+public final class CircleDark implements Dark {
+  private final float r;
+  private Color color;
   private BufferedImage mask;
-  private float r;
   
-  public CircularBlackout( final Color color, final float radius ) {
-    super( color );
+  public CircleDark( final float radius ) {
     this.r = radius;
-    updateMask();
   }
   
   @ Override
@@ -23,10 +22,14 @@ public final class CircularBlackout extends Blackout {
   }
   
   @ Override
-  public void darken( final Graphics2D g, final float x, final float y,
+  public void darken( final Graphics2D g, final Color c, final float x, final float y,
       final float w, final float h ) {
-    g.setColor( color );
+    if ( mask == null || color != c ) {
+      mask = prepareMask( c, r );
+      color = c;
+    }
     
+    g.setColor( c );
     fillRect( g, 0, 0, w, y - r );
     fillRect( g, 0, y - r, x - r, r * 2 );
     drawImage( g, mask, x - r, y - r );
@@ -34,23 +37,11 @@ public final class CircularBlackout extends Blackout {
     fillRect( g, 0, y + r, w, h - y - r );
   }
   
-  @ Override
-  public void setColor( final Color color ) {
-    super.setColor( color );
-    updateMask();
-  }
-  
-  public void setRadius( final float radius ) {
-    if ( radius != this.r ) {
-      this.r = radius;
-      updateMask();
-    }
-  }
-  
-  private void updateMask() {
-    final int rgba = color.getRGB();
+  private static BufferedImage prepareMask( final Color color, final float r ) {
+    final int res = (int) ( 2 * r );
+    final BufferedImage mask = new BufferedImage( res, res, BufferedImage.TYPE_INT_ARGB );
     
-    mask = new BufferedImage( (int) ( 2 * r ), (int) ( 2 * r ), BufferedImage.TYPE_INT_ARGB );
+    final int rgba = color.getRGB();
     
     for ( int y = 0; y < mask.getHeight(); y++ ) {
       for ( int x = 0; x < mask.getHeight(); x++ ) {
@@ -59,5 +50,7 @@ public final class CircularBlackout extends Blackout {
         }
       }
     }
+    
+    return mask;
   }
 }
