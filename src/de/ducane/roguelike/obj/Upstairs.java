@@ -4,7 +4,7 @@ import de.androbin.rpg.obj.*;
 import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
-import de.ducane.roguelike.level.*;
+import de.ducane.roguelike.screen.*;
 import java.awt.*;
 
 public final class Upstairs extends RogueObject {
@@ -13,9 +13,11 @@ public final class Upstairs extends RogueObject {
   }
   
   @ Override
-  public void onPlayerEntered( final Level level, final Player player ) {
+  public void onPlayerEntered( final PlayScreen screen ) {
+    final Player player = screen.getPlayer();
+    
     if ( player.getInventory().contains( Items.getItem( "AmuletOfYendor" ) ) ) {
-      level.screen.requestPreviousFloor();
+      screen.requestPreviousFloor();
     }
   }
 }

@@ -72,7 +72,7 @@ public final class IntroScreen extends Screen {
     g.setFont( font );
     
     final FontMetrics fm = g.getFontMetrics();
-    final List<String> list = new LinkedList<>();
+    final List<String> list = new ArrayList<>();
     
     final String page = TEXT[ pageIndex ];
     final String[] lines = page.split( "\n" );

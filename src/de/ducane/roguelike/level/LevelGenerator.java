@@ -174,7 +174,7 @@ public final class LevelGenerator {
     deque.add( current );
     
     while ( !deque.isEmpty() ) {
-      final List<Point> neighbours = new LinkedList<>();
+      final List<Point> neighbours = new ArrayList<>();
       
       addIfAdjacentWall( types, neighbours, new Point( current.x + 2, current.y ) );
       addIfAdjacentWall( types, neighbours, new Point( current.x - 2, current.y ) );

@@ -37,7 +37,7 @@ public final class AWTUtil {
   }
   
   public static List<String> wrapLines( final String text, final FontMetrics fm, final int width ) {
-    final List<String> lines = new LinkedList<>();
+    final List<String> lines = new ArrayList<>();
     String textLeft = text;
     
     while ( fm.stringWidth( textLeft ) > width ) {

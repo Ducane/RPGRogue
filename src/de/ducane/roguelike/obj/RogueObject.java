@@ -2,8 +2,7 @@ package de.ducane.roguelike.obj;
 
 import de.androbin.rpg.obj.*;
 import de.ducane.roguelike.dark.*;
-import de.ducane.roguelike.entity.*;
-import de.ducane.roguelike.level.*;
+import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.geom.*;
 
@@ -15,7 +14,7 @@ public abstract class RogueObject extends GameObject {
     this.dark = dark;
   }
   
-  public abstract void onPlayerEntered( Level level, Player player );
+  public abstract void onPlayerEntered( PlayScreen screen );
   
   @ Override
   public void render( final Graphics2D g, final float scale ) {

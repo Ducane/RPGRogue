@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public final class Player extends RogueEntity {
-  private final List<Item> inventory = new LinkedList<>();
+  private final List<Item> inventory = new ArrayList<>();
   
   private Weapon weapon;
   private Armor armor;

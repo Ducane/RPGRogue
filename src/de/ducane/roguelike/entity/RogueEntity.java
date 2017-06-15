@@ -79,8 +79,8 @@ public abstract class RogueEntity extends Entity {
   }
   
   @ Override
-  public void update( final float delta, final RPGScreen screen ) {
-    super.update( delta, screen );
+  public void update( final float delta ) {
+    super.update( delta );
     
     if ( attacking ) {
       attackProgress += delta;

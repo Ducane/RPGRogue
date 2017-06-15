@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public final class Level extends World {
-  public final PlayScreen screen;
+  private final PlayScreen screen;
   
-  private final List<Point> visitedTiles = new LinkedList<>();
+  private final List<Point> visitedTiles = new ArrayList<>();
   private final String[] monsters;
   
   private final List<Rectangle> rooms;
@@ -42,6 +42,11 @@ public final class Level extends World {
   }
   
   @ Override
+  public RogueObject getGameObject( final Point pos ) {
+    return (RogueObject) super.getGameObject( pos );
+  }
+  
+  @ Override
   public RogueEntity getEntity( final Point pos ) {
     return (RogueEntity) super.getEntity( pos );
   }
@@ -59,7 +64,7 @@ public final class Level extends World {
     return upStairsPos;
   }
   
-  public void giveItem( final RogueEntity entity ) {
+  protected void giveItem( final RogueEntity entity ) {
     final RogueTile field = getTile( entity.getPos() );
     final Item item = field.getItem();
     
@@ -83,21 +88,11 @@ public final class Level extends World {
   
   public void moveMobs() {
     for ( final Entity entity : listEntities() ) {
-      if ( entity instanceof Mob && entity.getMoveDir() == null ) {
+      if ( entity instanceof Mob && entity.moveRequestDir == null ) {
         final Mob mob = (Mob) entity;
         mob.moveRequestDir = mob.aim( screen.getPlayer(), true );
       }
     }
-  }
-  
-  public void onCollisionObject( final Player player ) {
-    final RogueObject object = (RogueObject) getGameObject( player.getPos() );
-    
-    if ( object == null || player.running ) {
-      return;
-    }
-    
-    object.onPlayerEntered( this, player );
   }
   
   public void onEntityMoved( final RogueEntity entity ) {
@@ -118,7 +113,11 @@ public final class Level extends World {
         giveItem( player );
       }
       
-      onCollisionObject( player );
+      final RogueObject object = getGameObject( player.getPos() );
+      
+      if ( object != null ) {
+        object.onPlayerEntered( screen );
+      }
     }
   }
   
@@ -168,17 +167,17 @@ public final class Level extends World {
         playerPos.y * size, size, size );
   }
   
-  public void setUpStairsPos( final Point pos ) {
+  protected void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
     addGameObject( GameObjects.create( "upstairs", pos ) );
   }
   
-  public void setDownStairsPos( final Point pos ) {
+  protected void setDownStairsPos( final Point pos ) {
     this.downStairsPos = pos;
     setTile( pos, Tiles.create( "downstairs" ) );
   }
   
-  public void spawnMobs() {
+  protected void spawnMobs() {
     final Random random = ThreadLocalRandom.current();
     
     for ( final Rectangle room : getRooms() ) {
@@ -214,7 +213,7 @@ public final class Level extends World {
   }
   
   public void update() {
-    final List<Entity> toRemove = new LinkedList<>();
+    final List<Entity> toRemove = new ArrayList<>();
     
     for ( final Entity entity : listEntities() ) {
       final RogueEntity rogueEntity = (RogueEntity) entity;

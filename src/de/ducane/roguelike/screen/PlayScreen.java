@@ -482,7 +482,6 @@ public final class PlayScreen extends RPGScreen {
   @ Override
   public void update( final float delta ) {
     super.update( delta );
-    
     level.update();
     
     if ( floor != requestedFloor ) {
