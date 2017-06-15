@@ -1,6 +1,7 @@
 package de.ducane.roguelike.screen;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
+import de.androbin.*;
 import de.androbin.game.*;
 import de.androbin.game.listener.*;
 import de.androbin.rpg.*;
@@ -18,7 +19,7 @@ import de.ducane.roguelike.obj.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.awt.image.*;
+import java.util.*;
 import java.util.List;
 import org.json.simple.*;
 
@@ -34,33 +35,13 @@ public final class PlayScreen extends RPGScreen {
   
   private Rectangle2D.Float barBounds;
   
-  private State state;
-  
-  private Rectangle2D.Float statBounds;
-  private Rectangle2D.Float statImageBounds;
-  
-  private Stroke menuStroke;
-  private Rectangle2D.Float menuBounds;
-  private Stroke menuButtonStroke;
-  
-  private static final String[] MENU_BUTTON_LABELS = { "Inventar", "Beenden" };
-  
-  private Stroke inventoryStroke;
-  private Rectangle2D.Float inventoryBounds;
-  private Stroke inventoryButtonStroke;
-  private float inventoryButtonDY;
-  
-  private Stroke itemSelectStroke;
-  private Rectangle2D.Float itemSelectBounds;
-  
-  private String[] itemSelectButtonLabels = new String[ 2 ];
-  
-  private Rectangle2D.Float pageCursorRight;
-  private Rectangle2D.Float pageCursorLeft;
-  private int pageIndex;
+  private final Locked<List<Menu>> menus;
+  private Point2D.Float menuOffset;
   
   public PlayScreen( final Game game, final float scale, final String name ) {
     super( game, scale );
+    
+    menus = new Locked<>( new ArrayList<>() );
     
     dark = new MovingDark( new Color( 0f, 0f, 0f, 0.8f ), scale );
     dark.pos = this::getDarkPos;
@@ -84,11 +65,11 @@ public final class PlayScreen extends RPGScreen {
     updateFloor();
   }
   
-  public boolean canAttack( final RogueEntity entity, final Direction viewDir ) {
+  public boolean canAttack( final RogueEntity entity, final Direction dir ) {
     final Point pos = entity.getPos();
     
-    final int x = pos.x + viewDir.dx;
-    final int y = pos.y + viewDir.dy;
+    final int x = pos.x + dir.dx;
+    final int y = pos.y + dir.dy;
     
     return world.getEntity( new Point( x, y ) ) != null;
   }
@@ -123,7 +104,7 @@ public final class PlayScreen extends RPGScreen {
     return null;
   }
   
-  private void equip( final int index ) {
+  protected void equip( final int index ) {
     final Player player = getPlayer();
     final List<Item> inventory = player.getInventory();
     final Item item = inventory.get( index );
@@ -203,68 +184,13 @@ public final class PlayScreen extends RPGScreen {
     }
     
     barBounds = new Rectangle2D.Float(
-        0.2f * width, 0.05f * height, 0.4f * width, 0.025f * height );
+        0.2f * width, 0.075f * height, 0.4f * width, 0.025f * height );
     
-    statBounds = new Rectangle2D.Float(
-        0.1f * width, 0.1f * height, 0.2f * width, 0.25f * height );
-    statImageBounds = new Rectangle2D.Float(
-        0.15f * width, 0.15f * height, 0.1f * width, 0.15f * height );
-    
-    menuBounds = new Rectangle2D.Float(
-        0.1f * width, 0.4f * height, 0.2f * width, 0.4f * height );
-    menuStroke = new BasicStroke( 0.005f * getWidth() );
-    menuButtonStroke = new BasicStroke( 0f );
-    
-    final Rectangle2D.Float menuButtonBounds = new Rectangle2D.Float(
-        0.125f * width, 0.45f * height, 0.15f * width, 0.05f * height );
-    final float menuButtonDY = 0.075f * height;
-    
-    State.Menu.buttonBounds = new Rectangle2D.Float[ MENU_BUTTON_LABELS.length ];
-    
-    for ( int i = 0; i < State.Menu.buttonBounds.length; i++ ) {
-      State.Menu.buttonBounds[ i ] = new Rectangle2D.Float(
-          menuButtonBounds.x, menuButtonBounds.y + menuButtonDY * i,
-          menuButtonBounds.width, menuButtonBounds.height );
+    for ( final Menu menu : Menu.values() ) {
+      menu.onResized( width, height );
     }
     
-    inventoryStroke = new BasicStroke( 0.005f * getWidth() );
-    inventoryBounds = new Rectangle2D.Float(
-        0.35f * width, 0.1f * height, 0.25f * width, 0.7f * height );
-    inventoryButtonStroke = new BasicStroke( 0f );
-    
-    final Rectangle2D.Float inventoryButtonBounds = new Rectangle2D.Float(
-        0.4f * width, 0.125f * height, 0.15f * width, 0.05f * height );
-    
-    inventoryButtonDY = 0.075f * height;
-    State.Inventory.buttonBounds = new Rectangle2D.Float[ 8 ];
-    
-    for ( int i = 0; i < State.Inventory.buttonBounds.length; i++ ) {
-      State.Inventory.buttonBounds[ i ] = new Rectangle2D.Float(
-          inventoryButtonBounds.x, inventoryButtonBounds.y + inventoryButtonDY * i,
-          inventoryButtonBounds.width, inventoryButtonBounds.height );
-    }
-    
-    pageCursorLeft = new Rectangle2D.Float(
-        inventoryBounds.x + ( 0.1f * inventoryBounds.width ),
-        inventoryBounds.y + ( 0.95f * inventoryBounds.height ), 10f, 10f );
-    pageCursorRight = new Rectangle2D.Float(
-        inventoryBounds.x + ( 0.9f * inventoryBounds.width ),
-        inventoryBounds.y + ( 0.95f * inventoryBounds.height ), 10f, 10f );
-    
-    itemSelectStroke = new BasicStroke( 0.005f * getWidth() );
-    itemSelectBounds = new Rectangle2D.Float(
-        0.65f * width, 0.1f * height, 0.2f * width, 0.2f * height );
-    
-    final Rectangle2D.Float itemSelectButtonBounds = new Rectangle2D.Float(
-        0.675f * width, 0.125f * height, 0.15f * width, 0.05f * height );
-    
-    State.ItemSelect.buttonBounds = new Rectangle2D.Float[ 2 ];
-    
-    for ( int i = 0; i < State.ItemSelect.buttonBounds.length; i++ ) {
-      State.ItemSelect.buttonBounds[ i ] = new Rectangle2D.Float(
-          itemSelectButtonBounds.x, itemSelectButtonBounds.y + inventoryButtonDY * i,
-          itemSelectButtonBounds.width, itemSelectButtonBounds.height );
-    }
+    menuOffset = new Point2D.Float( 0.05f * getWidth(), 0.2f * getHeight() );
   }
   
   @ Override
@@ -288,102 +214,23 @@ public final class PlayScreen extends RPGScreen {
     g.drawString( "HP " + stats.hp + "/" + stats.maxHp,
         barBounds.x, barBounds.y - 0.01f * getHeight() );
     
-    final FontMetrics fm = g.getFontMetrics();
+    final Point2D.Float pos = new Point2D.Float();
+    g.translate( menuOffset.x, menuOffset.y );
+    pos.x += menuOffset.x;
+    pos.y += menuOffset.y;
     
-    if ( state != null ) {
-      g.setColor( Color.BLACK );
-      fillRect( g, menuBounds );
-      g.setStroke( menuStroke );
-      g.setColor( Color.WHITE );
-      drawRect( g, menuBounds );
-      
-      g.setStroke( menuButtonStroke );
-      
-      for ( int i = 0; i < State.Menu.buttonBounds.length; i++ ) {
-        final Rectangle2D.Float rect = State.Menu.buttonBounds[ i ];
-        g.setColor( state == State.Menu && i == state.selection ? Color.YELLOW : Color.WHITE );
-        g.drawString( MENU_BUTTON_LABELS[ i ],
-            rect.x + ( rect.width - fm.stringWidth( MENU_BUTTON_LABELS[ i ] ) ) * 0.5f,
-            rect.y + ( rect.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
-      }
-    }
-    
-    if ( state == State.Inventory || state == State.ItemSelect ) {
-      g.setColor( Color.BLACK );
-      fillRect( g, inventoryBounds );
-      g.setStroke( inventoryStroke );
-      g.setColor( Color.WHITE );
-      drawRect( g, inventoryBounds );
-      
-      final List<Item> inventory = player.getInventory();
-      g.setStroke( inventoryButtonStroke );
-      
-      for ( int i = pageIndex * 8; i < ( pageIndex + 1 ) * 8; i++ ) {
-        final Rectangle2D.Float rect = State.Inventory.buttonBounds[ i % 8 ];
+    menus.read( menus -> {
+      for ( final Menu menu : menus ) {
+        menu.render( g, this );
         
-        if ( inventory.size() > i ) {
-          final String itemName = inventory.get( i ).name;
-          final String trimItemName = itemName.length() > 10
-              ? itemName.substring( 0, 10 ) : itemName;
-          g.setColor( state == State.Inventory && i % 8 == state.selection
-              ? Color.YELLOW : Color.WHITE );
-          g.drawString( trimItemName,
-              rect.x + ( rect.width - fm.stringWidth( trimItemName ) ) * 0.5f,
-              rect.y + ( rect.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
-        } else {
-          final String nothing = "----------";
-          g.setColor( Color.WHITE );
-          g.drawString( nothing,
-              rect.x + ( rect.width - fm.stringWidth( nothing ) ) * 0.5f,
-              rect.y + ( rect.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
-        }
+        final Point2D.Float offset = menu.getOffset();
+        g.translate( offset.x, offset.y );
+        pos.x += offset.x;
+        pos.y += offset.y;
       }
-      
-      final String fold = ( pageIndex + 1 ) + "/" + ( ( inventory.size() - 1 ) / 8 + 1 );
-      g.setColor( Color.WHITE );
-      g.drawString( fold,
-          inventoryBounds.x + ( inventoryBounds.width - fm.stringWidth( fold ) ) * 0.5f,
-          inventoryBounds.y + 0.95f * inventoryBounds.height );
-      fillRect( g, pageCursorLeft );
-      fillRect( g, pageCursorRight );
-      
-      final int index = State.Inventory.selection + pageIndex * 8;
-      
-      if ( inventory.size() > index ) {
-        g.setColor( Color.BLACK );
-        fillRect( g, statBounds );
-        g.setStroke( inventoryStroke );
-        g.setColor( Color.WHITE );
-        drawRect( g, statBounds.x, inventoryBounds.y, statBounds.width, statBounds.height );
-      }
-      
-      if ( !inventory.isEmpty() && inventory.size() > index ) {
-        final int slot = pageIndex > 0 ? index : State.Inventory.selection;
-        final BufferedImage image = inventory.get( slot ).image;
-        drawImage( g, image, statImageBounds );
-      }
-    }
+    } );
     
-    if ( state == State.ItemSelect ) {
-      final int selection = State.Inventory.selection;
-      final float dy = inventoryButtonDY * selection;
-      
-      g.setColor( Color.BLACK );
-      fillRect( g, itemSelectBounds.x, itemSelectBounds.y + dy,
-          itemSelectBounds.width, itemSelectBounds.height );
-      g.setStroke( itemSelectStroke );
-      g.setColor( Color.WHITE );
-      drawRect( g, itemSelectBounds.x, itemSelectBounds.y + dy,
-          itemSelectBounds.width, itemSelectBounds.height );
-      
-      for ( int i = 0; i < State.ItemSelect.buttonBounds.length; i++ ) {
-        final Rectangle2D.Float bounds = State.ItemSelect.buttonBounds[ i ];
-        g.setColor( i == state.selection ? Color.YELLOW : Color.WHITE );
-        g.drawString( itemSelectButtonLabels[ i ],
-            bounds.x + ( bounds.width - fm.stringWidth( itemSelectButtonLabels[ i ] ) ) * 0.5f,
-            bounds.y + ( bounds.height - fm.getHeight() ) * 0.5f + fm.getAscent() + dy );
-      }
-    }
+    g.translate( -pos.x, -pos.y );
   }
   
   private void renderHPBar( final Graphics2D g ) {
@@ -404,8 +251,8 @@ public final class PlayScreen extends RPGScreen {
     fillRect( g, barBounds.x, barBounds.y, barBounds.width * health, barBounds.height );
     
     final Color border = new Color(
-        health < 0.5f ? 0.3f : ( 1f - health ) * 0.6f,
-        health > 0.5f ? 0.3f : health * 0.6f,
+        health <= 0.5f ? 0.3f : ( 1f - health ) * 0.6f,
+        health >= 0.5f ? 0.3f : health * 0.6f,
         0f );
     
     g.setColor( border );
@@ -419,58 +266,6 @@ public final class PlayScreen extends RPGScreen {
   
   public void requestPreviousFloor() {
     requestedFloor = Math.max( floor - 1, 0 );
-  }
-  
-  private void runItemSelectCommand( final int selection ) {
-    final Player player = getPlayer();
-    final List<Item> inventory = player.getInventory();
-    
-    final int index = State.Inventory.selection + pageIndex * 8;
-    final Item item = inventory.get( index );
-    
-    switch ( selection ) {
-      case 0:
-        equip( index );
-        state = State.Inventory;
-        break;
-      case 1:
-        // TODO display item info
-        break;
-      case 2:
-        inventory.remove( item );
-        break;
-    }
-  }
-  
-  private void runInventoryCommand( final int selection ) {
-    final Player player = getPlayer();
-    final List<Item> inventory = player.getInventory();
-    final int index = selection + pageIndex * 8;
-    
-    if ( inventory.size() > index ) {
-      state = State.ItemSelect;
-      
-      final Item item = inventory.get( index );
-      
-      if ( item instanceof Food ) {
-        itemSelectButtonLabels[ 0 ] = "Eat";
-      } else if ( item instanceof Weapon || item instanceof Armor || item instanceof Accessoire ) {
-        itemSelectButtonLabels[ 0 ] = "Equip";
-      }
-      
-      itemSelectButtonLabels[ 1 ] = "Throw";
-    }
-  }
-  
-  private void runMenuCommand( final int selection ) {
-    switch ( selection ) {
-      case 0:
-        state = State.Inventory;
-        break;
-      case 1:
-        game.gsm.close();
-        break;
-    }
   }
   
   @ Override
@@ -532,7 +327,14 @@ public final class PlayScreen extends RPGScreen {
           player.requestAttack();
           break;
         case KeyEvent.VK_M:
-          state = state == null ? State.Menu : null;
+          menus.write( menus -> {
+            if ( menus.isEmpty() ) {
+              menus.add( Menu.Main );
+            } else {
+              menus.clear();
+            }
+          } );
+          
           break;
       }
     }
@@ -541,41 +343,43 @@ public final class PlayScreen extends RPGScreen {
   private final class MouseInput extends MouseAdapter {
     @ Override
     public void mousePressed( final MouseEvent event ) {
-      if ( state == null ) {
+      if ( menus.readBack( List::isEmpty ) ) {
         return;
       }
       
       if ( event.getButton() == MouseEvent.BUTTON1 ) {
-        switch ( state ) {
-          case Menu:
-            runMenuCommand( state.selection );
-            break;
+        final int code = menus.readBack( menus -> {
+          final int index = menus.size() - 1;
           
-          case Inventory:
-            for ( final Rectangle2D.Float bounds : State.Inventory.buttonBounds ) {
-              if ( bounds.contains( event.getPoint() ) ) {
-                runInventoryCommand( state.selection );
-                break;
-              }
-            }
-            
-            if ( pageCursorLeft.contains( event.getPoint() ) ) {
-              pageIndex = Math.max( 0, pageIndex - 1 );
-            }
-            
-            if ( pageCursorRight.contains( event.getPoint() )
-                && getPlayer().getInventory().size() > ( pageIndex + 1 ) * 8 ) {
-              pageIndex++;
-            }
-            
-            break;
+          final Point2D.Float p = new Point2D.Float( event.getX(), event.getY() );
+          p.x -= menuOffset.x;
+          p.y -= menuOffset.y;
           
-          case ItemSelect:
-            runItemSelectCommand( state.selection );
-            break;
-        }
+          for ( int i = 0; i < index; i++ ) {
+            final Point2D.Float offset = menus.get( i ).getOffset();
+            p.x -= offset.x;
+            p.y -= offset.y;
+          }
+          
+          final Menu menu = menus.get( index );
+          return menu.onClick( p, PlayScreen.this );
+        } );
+        
+        menus.write( menus -> {
+          switch ( code ) {
+            case -2:
+              game.gsm.close();
+              break;
+            case -1:
+              menus.remove( menus.size() - 1 );
+              break;
+            case 1:
+              menus.add( menus.get( menus.size() - 1 ).next() );
+              break;
+          }
+        } );
       } else if ( event.getButton() == MouseEvent.BUTTON3 ) {
-        state = state.previous();
+        menus.write( menus -> menus.remove( menus.size() - 1 ) );
       }
     }
   }
@@ -583,15 +387,26 @@ public final class PlayScreen extends RPGScreen {
   private final class MouseMotionInput extends MouseAdapter {
     @ Override
     public void mouseMoved( final MouseEvent event ) {
-      if ( state == null ) {
+      if ( menus.readBack( List::isEmpty ) ) {
         return;
       }
       
-      for ( int i = 0; i < state.buttonBounds.length; i++ ) {
-        if ( state.buttonBounds[ i ].contains( event.getPoint() ) ) {
-          state.selection = i;
+      menus.read( menus -> {
+        final int index = menus.size() - 1;
+        
+        final Point2D.Float p = new Point2D.Float( event.getX(), event.getY() );
+        p.x -= menuOffset.x;
+        p.y -= menuOffset.y;
+        
+        for ( int i = 0; i < index; i++ ) {
+          final Point2D.Float offset = menus.get( i ).getOffset();
+          p.x -= offset.x;
+          p.y -= offset.y;
         }
-      }
+        
+        final Menu menu = menus.get( index );
+        menu.onHover( p );
+      } );
     }
   }
 }
