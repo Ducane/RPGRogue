@@ -17,16 +17,16 @@
 	{
 		"Lederkutte": 10,
 		"Moenchskutte": 5,
-		"DeutscheSandale": 3,
+		"DeutscheSandale": 5,
 		
 		"Holzknueppel": 30,
 		"Holzsense": 15,
-		"SelteneSchaufelDesTotengraebers": 2,
+		"SelteneSchaufelDesTotengraebers": 5,
 		
-		"Pilz": 50,
+		"Pilz": 40,
 		"LeichtesWaesserchen": 20,
 		
-		"OmasErbstueck": 2,
+		"OmasErbstueck": 5,
 	},
 	
 	"monsters": [ "MysticLamp", "Shroom", "Snail", "Tree" ],

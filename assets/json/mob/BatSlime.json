@@ -1,5 +1,6 @@
 {
-	"attack": 3,
-	"hp": 9,
-	"defense": 1,
+	"attack": 7,
+	"defense": 5,
+	"exp": 13,
+	"hp": 13,
 }

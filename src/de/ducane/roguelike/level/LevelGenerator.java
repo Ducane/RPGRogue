@@ -225,7 +225,7 @@ public final class LevelGenerator {
     final Random random = ThreadLocalRandom.current();
     
     final int minItems = 4;
-    final int maxItems = 8;
+    final int maxItems = 9;
     
     final int items = minItems + random.nextInt( maxItems - minItems );
     
@@ -237,7 +237,7 @@ public final class LevelGenerator {
         final int y = random.nextInt( level.size.height );
         
         tile = level.getTile( new Point( x, y ) );
-      } while ( "wall".equals( tile.data.name ) || "door".equals( tile.data.name ) );
+      } while ( tile.data.passEvent == null );
       
       final Set<String> keySet = droprates.keySet();
       final String[] keyArray = keySet.toArray( new String[ keySet.size() ] );

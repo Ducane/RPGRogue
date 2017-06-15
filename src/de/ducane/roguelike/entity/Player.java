@@ -29,15 +29,22 @@ public final class Player extends RogueEntity {
     
     inventory = new ArrayList<>();
     
-    viewDir = Direction.DOWN;
-    
     renderer = new EntityRenderer( this, prepareImages() );
     
-    initStats();
+    baseStats.attack = 3;
+    baseStats.defense = 1;
+    baseStats.hp = 20;
+    baseStats.maxHp = 30;
   }
   
   private void addExp( final int exp ) {
+    final int level0 = baseStats.level();
     baseStats.exp += exp;
+    final int level1 = baseStats.level();
+    
+    for ( int i = level0; i < level1; i++ ) {
+      levelUp();
+    }
   }
   
   @ Override
@@ -56,7 +63,7 @@ public final class Player extends RogueEntity {
     final Stats stats2 = entity.getStats();
     
     final int minDamage = Math.max( stats.attack - stats2.defense, 0 );
-    final int maxDamage = minDamage + random.nextInt( stats.stage + 1 );
+    final int maxDamage = minDamage + random.nextInt( stats.level() + 1 );
     
     final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
     final boolean dead = entity.requestDamage( damage, this );
@@ -110,22 +117,12 @@ public final class Player extends RogueEntity {
     return weapon;
   }
   
-  private void initStats() {
-    baseStats.maxHp = 25;
-    baseStats.hp = 25;
-    baseStats.stage = 1;
-    baseStats.attack = 1;
-    baseStats.defense = 0;
-  }
-  
   public void levelUp() {
-    baseStats.stage++;
-    
     final Random random = ThreadLocalRandom.current();
     
-    baseStats.hp += random.nextInt( baseStats.stage ) + 1;
-    baseStats.attack += random.nextInt( baseStats.stage ) + 1;
-    baseStats.defense += random.nextInt( baseStats.stage ) + 1;
+    baseStats.attack += random.nextInt( baseStats.level() ) + 1;
+    baseStats.defense += random.nextInt( baseStats.level() ) + 1;
+    baseStats.maxHp += random.nextInt( baseStats.level() ) + 1;
   }
   
   @ Override
@@ -134,12 +131,13 @@ public final class Player extends RogueEntity {
   }
   
   private static BufferedImage[][] prepareImages() {
-    final BufferedImage[][] animation = new BufferedImage[ Direction.values().length ][ 3 ];
+    final BufferedImage[][] animation = new BufferedImage[ Direction.values().length ][];
     
     for ( int i = 0; i < animation.length; i++ ) {
-      final String dir = Direction.values()[ i ].name();
-      final BufferedImage image = ImageUtil.loadImage(
-          "player/" + CaseUtil.toProperCase( dir ) + ".png" );
+      final String dir = CaseUtil.toProperCase( Direction.values()[ i ].name() );
+      final BufferedImage image = ImageUtil.loadImage( "player/" + dir + ".png" );
+      
+      animation[ i ] = new BufferedImage[ image.getWidth() / 16 ];
       
       for ( int j = 0; j < animation[ i ].length; j++ ) {
         animation[ i ][ j ] = image.getSubimage( j * 16, 0, 16, 18 );

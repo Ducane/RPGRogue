@@ -51,10 +51,11 @@ public final class PlayScreen extends RPGScreen {
     Tiles.builder = data -> RogueTiles.create( data, dark );
     GameObjects.builder = ( data, pos ) -> RogueObjects.create( data, pos, dark );
     
-    Events.BUILDERS.put( "nextFloor", args0 -> Event.func( "nextFloor", args1 -> {
+    Events.BUILDERS.put( "downstairs", args0 -> Event.func( "downstairs", args1 -> {
       final Entity entity = (Entity) args1.get( "entity" );
+      final Player player = getPlayer();
       
-      if ( entity == player ) {
+      if ( entity == player && !player.running ) {
         requestNextFloor();
       }
     } ) );
@@ -209,7 +210,7 @@ public final class PlayScreen extends RPGScreen {
     final Player player = getPlayer();
     final Stats stats = player.getStats();
     
-    g.drawString( "Lv " + stats.stage, barBounds.x - 0.1f * getWidth(), barBounds.y );
+    g.drawString( "Lv " + stats.level(), barBounds.x - 0.1f * getWidth(), barBounds.y );
     g.drawString( "E" + floor, barBounds.x - 0.175f * getWidth(), barBounds.y );
     g.drawString( "HP " + stats.hp + "/" + stats.maxHp,
         barBounds.x, barBounds.y - 0.01f * getHeight() );

@@ -1,14 +1,13 @@
 package de.ducane.roguelike.entity;
 
 public final class Stats {
-  public int stage;
   public int exp;
+  
+  public int attack;
+  public int defense;
   
   public int hp;
   public int maxHp;
-  
-  public int defense;
-  public int attack;
   
   public Stats() {
   }
@@ -17,14 +16,17 @@ public final class Stats {
     set( stats );
   }
   
+  public int level() {
+    return (int) Math.sqrt( exp / 25f );
+  }
+  
   public void set( final Stats stats ) {
-    this.stage = stats.stage;
     this.exp = stats.exp;
+    
+    this.attack = stats.attack;
+    this.defense = stats.defense;
     
     this.hp = stats.hp;
     this.maxHp = stats.maxHp;
-    
-    this.defense = stats.defense;
-    this.attack = stats.attack;
   }
 }

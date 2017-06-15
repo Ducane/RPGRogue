@@ -1,7 +1,6 @@
 package de.ducane.roguelike.level;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
-import de.androbin.rpg.event.*;
 import de.androbin.rpg.tile.*;
 import de.ducane.roguelike.dark.*;
 import java.awt.*;
@@ -10,7 +9,6 @@ import java.awt.geom.*;
 public final class Downstairs extends RogueTile {
   public Downstairs( final TileData data, final MovingDark dark ) {
     super( data, dark );
-    setEvent( Events.parse( "nextFloor" ) );
   }
   
   @ Override

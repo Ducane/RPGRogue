@@ -45,7 +45,7 @@ public abstract class RogueEntity extends Entity {
     final Stats stats2 = entity.getStats();
     
     final int minDamage = Math.max( stats.attack - stats2.defense, 0 );
-    final int maxDamage = minDamage + random.nextInt( stats.stage + 1 );
+    final int maxDamage = minDamage + random.nextInt( stats.level() + 1 );
     
     final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
     entity.requestDamage( damage, this );

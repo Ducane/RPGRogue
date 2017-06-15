@@ -17,16 +17,16 @@
 	{
 		"AkzeptableRuestung": 10,
 		"StaerkenderBrustpanzer": 5,
-		"PradaKleid": 3,
+		"PradaKleid": 5,
 		
 		"SpitzerSpeer": 30,
 		"KrummerBogen": 15,
-		"TreuerBoomerang": 2,
+		"TreuerBoomerang": 5,
 		
-		"SaftigesSteak": 50,
+		"SaftigesSteak": 40,
 		"ReifeTomate": 20,
 		
-		"SchniekeKette": 2,
+		"SchniekeKette": 5,
 	},
 	
 	"monsters": [ "BatSlime", "Bear", "Insect", "Mole" ],
