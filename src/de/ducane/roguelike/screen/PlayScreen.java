@@ -116,6 +116,22 @@ public final class PlayScreen extends RPGScreen {
         player.eat( (Food) item );
         inventory.remove( index );
       }
+    } else if ( item instanceof Accessoire ) {
+      if ( player.getAccessoire() == null ) {
+        inventory.remove( index );
+      } else {
+        inventory.set( index, player.setAccessoire( null ) );
+      }
+      
+      player.setAccessoire( (Accessoire) item );
+    } else if ( item instanceof Armor ) {
+      if ( player.getArmor() == null ) {
+        inventory.remove( index );
+      } else {
+        inventory.set( index, player.setArmor( null ) );
+      }
+      
+      player.setArmor( (Armor) item );
     } else if ( item instanceof Weapon ) {
       if ( player.getWeapon() == null ) {
         inventory.remove( index );
@@ -124,22 +140,6 @@ public final class PlayScreen extends RPGScreen {
       }
       
       player.setWeapon( (Weapon) item );
-    } else if ( item instanceof Accessoire ) {
-      if ( player.getAccessoire() == null ) {
-        inventory.remove( index );
-      } else {
-        inventory.set( index, player.setWeapon( null ) );
-      }
-      
-      player.setAccessoire( (Accessoire) item );
-    } else if ( item instanceof Armor ) {
-      if ( player.getArmor() == null ) {
-        inventory.remove( index );
-      } else {
-        inventory.set( index, player.setWeapon( null ) );
-      }
-      
-      player.setArmour( (Armor) item );
     }
   }
   
@@ -171,7 +171,7 @@ public final class PlayScreen extends RPGScreen {
   
   public void onPlayerMoved() {
     this.room = currentRoom();
-    updateBlackout();
+    updateDark();
     
     level.moveMobs();
   }
@@ -285,7 +285,7 @@ public final class PlayScreen extends RPGScreen {
     }
   }
   
-  private void updateBlackout() {
+  private void updateDark() {
     if ( room == null ) {
       dark.dark = new CircleDark( scale * 1.5f );
     } else {
@@ -301,7 +301,7 @@ public final class PlayScreen extends RPGScreen {
     switchWorld( name, level.getUpStairsPos() );
     rooms = level.getRooms();
     room = currentRoom();
-    updateBlackout();
+    updateDark();
   }
   
   private final class KeyInput extends KeyAdapter {

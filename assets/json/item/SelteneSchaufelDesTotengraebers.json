@@ -2,5 +2,4 @@
 	"type": "weapon",
 	"description": "Diese Schaufel ist aus WMF Edelstahl designt!",
 	"attack": 3,
-	"defense": 1,
 }

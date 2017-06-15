@@ -38,7 +38,7 @@ public final class Level extends World {
   }
   
   public Point getDownStairsPos() {
-    return upStairsPos;
+    return downStairsPos;
   }
   
   @ Override

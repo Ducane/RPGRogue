@@ -1,7 +1,5 @@
 {
-	"type": "armor",
+	"type": "accessoire",
 	"description": "Besonders im Trend von deutschen Urlaubern: Kombination mit weißen Tennissocken",
-	"defense": 1,
 	"hp": 1,
-	"attack":1,
 }

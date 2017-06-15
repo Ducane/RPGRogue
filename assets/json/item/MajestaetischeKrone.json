@@ -1,7 +1,5 @@
 {
-	"type": "armor",
+	"type": "accessoire",
 	"description": "Das alles und noch viel mehr würd ich machen, wenn ich König von Deutschland wär...",
-	"defense": 25,
 	"hp": 15,
-	"attack": 10,
 }

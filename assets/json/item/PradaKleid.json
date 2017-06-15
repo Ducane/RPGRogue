@@ -2,6 +2,4 @@
 	"type": "armor",
 	"description": "Damit bist du der Star jedes Laufstegs",
 	"defense": 2,
-	"hp": 5,
-	"attack": 1,
 }

@@ -1,6 +1,5 @@
 {
 	"type": "accessoire",
 	"description": "Pass auf das du dich nicht selbst trifft!",
-	"defense": 10,
 	"hp": 80,
 }

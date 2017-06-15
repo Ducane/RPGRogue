@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public final class Player extends RogueEntity {
-  private final List<Item> inventory = new ArrayList<>();
-  
-  private Weapon weapon;
-  private Armor armor;
-  private Accessoire accessoire;
-  
   public final String name;
+  
+  private final List<Item> inventory;
+  
+  private Accessoire accessoire;
+  private Armor armor;
+  private Weapon weapon;
   
   public boolean running;
   
@@ -27,11 +27,13 @@ public final class Player extends RogueEntity {
     
     this.name = name;
     
+    inventory = new ArrayList<>();
+    
     viewDir = Direction.DOWN;
     
     renderer = new EntityRenderer( this, prepareImages() );
     
-    initPlayer();
+    initStats();
   }
   
   private void addExp( final int exp ) {
@@ -108,7 +110,7 @@ public final class Player extends RogueEntity {
     return weapon;
   }
   
-  private void initPlayer() {
+  private void initStats() {
     baseStats.maxHp = 25;
     baseStats.hp = 25;
     baseStats.stage = 1;
@@ -153,9 +155,9 @@ public final class Player extends RogueEntity {
     return current;
   }
   
-  public Armor setArmour( final Armor armour ) {
+  public Armor setArmor( final Armor armor ) {
     final Armor current = this.armor;
-    this.armor = armour;
+    this.armor = armor;
     return current;
   }
   
