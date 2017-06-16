@@ -8,7 +8,6 @@ import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import java.awt.*;
 import java.awt.geom.*;
-import java.awt.geom.Point2D.Float;
 import java.awt.image.*;
 import java.util.List;
 
@@ -125,7 +124,7 @@ public enum Menu {
       bounds = new Rectangle2D.Float( 0.25f * width, 0f, 0.25f * width, 0.7f * height );
       
       final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
-          0.3f * width, 0f, 0.15f * width, 0.075f * height );
+          0.3f * width, 0.01f * height, 0.15f * width, 0.075f * height );
       
       final float buttonDY = 0.075f * height;
       
@@ -139,7 +138,7 @@ public enum Menu {
       
       statBounds = new Rectangle2D.Float( 0f, 0f, 0.2f * width, 0.25f * height );
       statImageBounds = new Rectangle2D.Float(
-          0.05f * width, 0.05f * height, 0.1f * width, 0.15f * height );
+          0.055f * width, 0.045f * height, 0.09f * width, 0.16f * height );
       
       pageCursorLeft = new Rectangle2D.Float(
           bounds.x + ( 0.1f * bounds.width ),
@@ -249,7 +248,7 @@ public enum Menu {
           0.3f * width, 0.0525f * height, 0.15f * width, 0.56f * height );
       
       final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
-          0.65f * width, 0.0525f * height, 0.05f * width, 0.05f * height );
+          0.65f * width, 0.0525f * height, 0.05f * width, 0.05f * width );
       
       final float buttonDY = 0.21f * height;
       
@@ -279,18 +278,17 @@ public enum Menu {
           equipment.getAccessoire()
       };
       
-      final int hp = equipment.getAccessoire() == null ? 0 : equipment.getAccessoire().hp;
-      final int attack = equipment.getWeapon() == null ? 0 : equipment.getWeapon().attack;
-      final int defense = equipment.getArmor() == null ? 0 : equipment.getArmor().defense;
-      
       final Stats stats = player.getStats();
+      
+      final Stats stats0 = new Stats();
+      equipment.applyTo( stats0 );
       
       final String[] statstrings = {
           "Stats:",
           "Level: " + stats.level(),
-          "HP: " + stats.hp + "/" + stats.maxHp + "(+" + hp + ")",
-          "ATK: " + stats.attack + "(+" + attack + ")",
-          "DEF: " + stats.defense + "(+" + defense + ")", "EXP: " + stats.exp,
+          "HP: " + stats.hp + "/" + stats.maxHp + "(+" + stats0.hp + ")",
+          "ATK: " + stats.attack + "(+" + stats0.attack + ")",
+          "DEF: " + stats.defense + "(+" + stats0.defense + ")", "EXP: " + stats.exp,
           "REXP: " + stats.remExp()
       };
       
@@ -309,10 +307,17 @@ public enum Menu {
           statBounds.y + statBounds.height + fm.getAscent() );
       
       for ( int i = 0; i < labels.length; i++ ) {
-        final BufferedImage icon = ImageUtil.loadImage( items[ i ] != null
-            ? "menu/character/icon.png"
-            : "menu/character/" + labels[ i ] + "-Icon.png" );
-        drawImage( g, icon, buttonBounds[ i ] );
+        if ( items[ i ] == null ) {
+          final BufferedImage icon = ImageUtil.loadImage(
+              "menu/character/" + labels[ i ] + "-Icon.png" );
+          drawImage( g, icon, buttonBounds[ i ] );
+        } else {
+          final BufferedImage frame = ImageUtil.loadImage(
+              "menu/character/icon.png" );
+          final BufferedImage icon = items[ i ].image;
+          drawImage( g, frame, buttonBounds[ i ] );
+          drawImage( g, icon, buttonBounds[ i ] );
+        }
       }
       
       for ( int i = 0; i < items.length; i++ ) {
@@ -362,7 +367,7 @@ public enum Menu {
     private Stroke stroke;
     
     @ Override
-    public Float getOffset() {
+    public Point2D.Float getOffset() {
       final int selection = Inventory.selection % 8;
       return new Point2D.Float( 0f, ( selection > 3 ? -1.4f : 1f ) * bounds.height );
     }
