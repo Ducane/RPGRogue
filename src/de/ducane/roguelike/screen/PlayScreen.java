@@ -59,7 +59,7 @@ public final class PlayScreen extends RPGScreen {
       }
     } ) );
     
-    player = new Player( RogueEntites.createData( "player/Player" ), name );
+    player = new Player( RogueEntites.getData( "player/Player" ), name );
     camera.setFocus( Camera.focus( player ) );
     
     updateFloor();

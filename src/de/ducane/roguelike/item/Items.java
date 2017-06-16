@@ -25,13 +25,13 @@ public final class Items {
     return create( name, data );
   }
   
-  public static Item create( final String name, final JSONObject data ) {
+  private static Item create( final String name, final JSONObject data ) {
     final String type = (String) data.get( "type" );
     final Item.Builder builder = BUILDERS.get( type );
     return builder.build( name, data );
   }
   
-  public static Item getItem( final String type ) {
+  public static Item get( final String type ) {
     return CACHE.computeIfAbsent( type, Items::create );
   }
 }

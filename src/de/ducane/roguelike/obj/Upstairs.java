@@ -15,7 +15,7 @@ public final class Upstairs extends RogueObject {
   @ Override
   public void onPlayerEntered( final PlayScreen screen ) {
     final Player player = screen.getPlayer();
-    final Item amulet = Items.getItem( "AmuletOfYendor" );
+    final Item amulet = Items.get( "AmuletOfYendor" );
     
     if ( player.inventory.contains( amulet ) ) {
       screen.requestPreviousFloor();

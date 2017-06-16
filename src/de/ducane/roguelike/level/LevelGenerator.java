@@ -256,7 +256,7 @@ public final class LevelGenerator {
         prob += droprates.get( keyArray[ i ] );
         
         if ( prob > itemRandom ) {
-          tile.setItem( Items.getItem( keyArray[ i ] ) );
+          tile.setItem( Items.get( keyArray[ i ] ) );
           break;
         }
       }

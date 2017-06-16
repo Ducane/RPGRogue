@@ -10,8 +10,9 @@ public final class RogueEntites {
   private RogueEntites() {
   }
   
-  public static RogueEntityData createData( final String path ) {
-    final JSONObject data = (JSONObject) parseJSON( path + ".json" ).orElseGet( JSONObject::new );
+  private static RogueEntityData createData( final String path ) {
+    final JSONObject data = (JSONObject) parseJSON( path + ".json" )
+        .orElseGet( JSONObject::new );
     return new RogueEntityData( path, data );
   }
   
