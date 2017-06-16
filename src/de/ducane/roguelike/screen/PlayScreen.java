@@ -59,19 +59,10 @@ public final class PlayScreen extends RPGScreen {
       }
     } ) );
     
-    player = new Player( this, RogueEntites.createData( "player/Player" ), name );
+    player = new Player( RogueEntites.createData( "player/Player" ), name );
     camera.setFocus( Camera.focus( player ) );
     
     updateFloor();
-  }
-  
-  public boolean canAttack( final RogueEntity entity, final Direction dir ) {
-    final Point pos = entity.getPos();
-    
-    final int x = pos.x + dir.dx;
-    final int y = pos.y + dir.dy;
-    
-    return world.getEntity( new Point( x, y ) ) != null;
   }
   
   @ Override

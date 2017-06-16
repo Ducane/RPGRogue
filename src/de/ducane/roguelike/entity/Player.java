@@ -2,7 +2,6 @@ package de.ducane.roguelike.entity;
 
 import de.androbin.thread.*;
 import de.ducane.roguelike.item.*;
-import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -15,8 +14,8 @@ public final class Player extends RogueEntity {
   
   public boolean running;
   
-  public Player( final PlayScreen screen, final RogueEntityData data, final String name ) {
-    super( screen, null, data, new Point() );
+  public Player( final RogueEntityData data, final String name ) {
+    super( null, data, new Point() );
     
     this.name = name;
     

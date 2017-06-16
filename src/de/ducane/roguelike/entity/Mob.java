@@ -1,22 +1,20 @@
 package de.ducane.roguelike.entity;
 
 import de.androbin.rpg.*;
+import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
-import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.geom.*;
 
 public final class Mob extends RogueEntity {
   private Item item;
   
-  public Mob( final PlayScreen screen, final Level level, final RogueEntityData data,
-      final Point pos ) {
-    super( screen, level, data, pos );
+  public Mob( final Level level, final RogueEntityData data, final Point pos,
+      final MovingDark dark ) {
+    super( level, data, pos );
     
-    renderer = new MobRenderer( this, data.animation, screen.dark );
-    
-    viewDir = Direction.DOWN;
+    renderer = new MobRenderer( this, data.animation, dark );
   }
   
   public Direction aim( final Entity entity, final boolean move ) {

@@ -194,7 +194,7 @@ public final class Level extends World {
         success = getEntity( pos ) == null && getGameObject( pos ) == null;
       } while ( !success );
       
-      final Mob mob = new Mob( screen, this, RogueEntites.getData( "mob/" + monster ), pos );
+      final Mob mob = new Mob( this, RogueEntites.getData( "mob/" + monster ), pos, screen.dark );
       addEntity( mob );
     }
   }
