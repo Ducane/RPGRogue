@@ -8,16 +8,13 @@ import java.awt.*;
 import java.awt.geom.*;
 
 public final class Mob extends RogueEntity {
-  public final MobType type;
   private Item item;
   
-  public Mob( final PlayScreen screen, final Level level, final MobType type, final Point pos ) {
-    super( screen, level, pos );
+  public Mob( final PlayScreen screen, final Level level, final RogueEntityData data,
+      final Point pos ) {
+    super( screen, level, data, pos );
     
-    this.type = type;
-    baseStats.set( type.initialStats );
-    
-    renderer = new MobRenderer( this, type.animation, screen.dark );
+    renderer = new MobRenderer( this, data.animation, screen.dark );
     
     viewDir = Direction.DOWN;
   }

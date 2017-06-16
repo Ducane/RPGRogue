@@ -8,7 +8,9 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public abstract class RogueEntity extends Entity {
-  protected final PlayScreen screen;
+  protected final transient PlayScreen screen;
+  
+  public final RogueEntityData data;
   
   protected final Stats baseStats;
   
@@ -20,12 +22,14 @@ public abstract class RogueEntity extends Entity {
   protected int damage;
   protected Object damageSource;
   
-  public RogueEntity( final PlayScreen screen, final Level level, final Point pos ) {
+  public RogueEntity( final PlayScreen screen, final Level level, final RogueEntityData data,
+      final Point pos ) {
     super( level, pos );
     
     this.screen = screen;
+    this.data = data;
     
-    this.baseStats = new Stats();
+    baseStats = new Stats( data.stats );
     
     moveCallback = () -> ( (Level) world ).onEntityMoved( this );
   }

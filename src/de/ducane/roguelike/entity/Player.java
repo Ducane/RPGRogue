@@ -1,13 +1,9 @@
 package de.ducane.roguelike.entity;
 
-import de.androbin.gfx.util.*;
-import de.androbin.rpg.*;
 import de.androbin.thread.*;
-import de.androbin.util.txt.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
-import java.awt.image.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -22,14 +18,14 @@ public final class Player extends RogueEntity {
   
   public boolean running;
   
-  public Player( final PlayScreen screen, final String name ) {
-    super( screen, null, new Point() );
+  public Player( final PlayScreen screen, final RogueEntityData data, final String name ) {
+    super( screen, null, data, new Point() );
     
     this.name = name;
     
     inventory = new LockedList<>();
     
-    renderer = new EntityRenderer( this, prepareImages() );
+    renderer = new EntityRenderer( this, data.animation );
     
     baseStats.attack = 3;
     baseStats.defense = 1;
@@ -119,24 +115,7 @@ public final class Player extends RogueEntity {
   
   @ Override
   public float moveSpeed() {
-    return running ? 7f : 2f;
-  }
-  
-  private static BufferedImage[][] prepareImages() {
-    final BufferedImage[][] animation = new BufferedImage[ Direction.values().length ][];
-    
-    for ( int i = 0; i < animation.length; i++ ) {
-      final String dir = CaseUtil.toProperCase( Direction.values()[ i ].name() );
-      final BufferedImage image = ImageUtil.loadImage( "player/" + dir + ".png" );
-      
-      animation[ i ] = new BufferedImage[ image.getWidth() / 16 ];
-      
-      for ( int j = 0; j < animation[ i ].length; j++ ) {
-        animation[ i ][ j ] = image.getSubimage( j * 16, 0, 16, 18 );
-      }
-    }
-    
-    return animation;
+    return running ? 6f : 2f;
   }
   
   public Accessoire setAccessoire( final Accessoire accessoire ) {
