@@ -1,16 +1,19 @@
 package de.ducane.roguelike.screen;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
-import de.ducane.roguelike.entity.*;
-import de.ducane.roguelike.item.*;
+import static de.ducane.util.AWTUtil.*;
 import java.awt.*;
 import java.awt.geom.*;
+import java.awt.geom.Point2D.Float;
 import java.awt.image.*;
 import java.util.List;
+import de.androbin.gfx.util.*;
+import de.ducane.roguelike.entity.*;
+import de.ducane.roguelike.item.*;
 
 public enum Menu {
   Main {
-    private final String[] labels = { "Inventar", "Beenden" };
+    private final String[] labels = { "Inventory", "Character", "Exit" };
     
     private Rectangle2D.Float bounds;
     private Stroke stroke;
@@ -21,17 +24,17 @@ public enum Menu {
       
       bounds = new Rectangle2D.Float( 0f, 0.3f * height, 0.2f * width, 0.4f * height );
       
-      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
-          0.025f * width, 0.35f * height, 0.15f * width, 0.05f * height );
+      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float( 0.025f * width,
+          0.35f * height, 0.15f * width, 0.05f * height );
       
       final float buttonDY = 0.075f * height;
       
       buttonBounds = new Rectangle2D.Float[ labels.length ];
       
       for ( int i = 0; i < buttonBounds.length; i++ ) {
-        buttonBounds[ i ] = new Rectangle2D.Float(
-            singleButtonBounds.x, singleButtonBounds.y + buttonDY * i,
-            singleButtonBounds.width, singleButtonBounds.height );
+        buttonBounds[ i ] = new Rectangle2D.Float( singleButtonBounds.x,
+            singleButtonBounds.y + buttonDY * i, singleButtonBounds.width,
+            singleButtonBounds.height );
       }
     }
     
@@ -48,8 +51,7 @@ public enum Menu {
       for ( int i = 0; i < buttonBounds.length; i++ ) {
         final Rectangle2D.Float rect = buttonBounds[ i ];
         g.setColor( i == selection ? Color.YELLOW : Color.WHITE );
-        g.drawString( labels[ i ],
-            rect.x + ( rect.width - fm.stringWidth( labels[ i ] ) ) * 0.5f,
+        g.drawString( labels[ i ], rect.x + ( rect.width - fm.stringWidth( labels[ i ] ) ) * 0.5f,
             rect.y + ( rect.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
       }
     }
@@ -60,6 +62,8 @@ public enum Menu {
         case 0:
           return 1;
         case 1:
+          return 2;
+        case 2:
           return -2;
       }
       
@@ -118,28 +122,26 @@ public enum Menu {
       
       bounds = new Rectangle2D.Float( 0.25f * width, 0f, 0.25f * width, 0.7f * height );
       
-      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
-          0.3f * width, 0f * height, 0.15f * width, 0.075f * height );
+      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float( 0.3f * width, 0f * height,
+          0.15f * width, 0.075f * height );
       
       final float buttonDY = 0.075f * height;
       
       buttonBounds = new Rectangle2D.Float[ 8 ];
       
       for ( int i = 0; i < buttonBounds.length; i++ ) {
-        buttonBounds[ i ] = new Rectangle2D.Float(
-            singleButtonBounds.x, singleButtonBounds.y + buttonDY * i,
-            singleButtonBounds.width, singleButtonBounds.height );
+        buttonBounds[ i ] = new Rectangle2D.Float( singleButtonBounds.x,
+            singleButtonBounds.y + buttonDY * i, singleButtonBounds.width,
+            singleButtonBounds.height );
       }
       
       statBounds = new Rectangle2D.Float( 0f, 0f, 0.2f * width, 0.25f * height );
-      statImageBounds = new Rectangle2D.Float(
-          0.05f * width, 0.05f * height, 0.1f * width, 0.15f * height );
+      statImageBounds = new Rectangle2D.Float( 0.05f * width, 0.05f * height, 0.1f * width,
+          0.15f * height );
       
-      pageCursorLeft = new Rectangle2D.Float(
-          bounds.x + ( 0.1f * bounds.width ),
+      pageCursorLeft = new Rectangle2D.Float( bounds.x + ( 0.1f * bounds.width ),
           bounds.y + ( 0.95f * bounds.height ), 10f, 10f );
-      pageCursorRight = new Rectangle2D.Float(
-          bounds.x + ( 0.9f * bounds.width ),
+      pageCursorRight = new Rectangle2D.Float( bounds.x + ( 0.9f * bounds.width ),
           bounds.y + ( 0.95f * bounds.height ), 10f, 10f );
     }
     
@@ -160,8 +162,8 @@ public enum Menu {
         
         if ( i < inventory.size() ) {
           final String itemName = inventory.get( i ).name;
-          final String trimItemName = itemName.length() > 10
-              ? itemName.substring( 0, 10 ) : itemName;
+          final String trimItemName = itemName.length() > 10 ? itemName.substring( 0, 10 )
+              : itemName;
           g.setColor( i == selection ? Color.YELLOW : Color.WHITE );
           g.drawString( trimItemName,
               rect.x + ( rect.width - fm.stringWidth( trimItemName ) ) * 0.5f,
@@ -169,16 +171,14 @@ public enum Menu {
         } else {
           final String nothing = "----------";
           g.setColor( Color.WHITE );
-          g.drawString( nothing,
-              rect.x + ( rect.width - fm.stringWidth( nothing ) ) * 0.5f,
+          g.drawString( nothing, rect.x + ( rect.width - fm.stringWidth( nothing ) ) * 0.5f,
               rect.y + ( rect.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
         }
       }
       
       final String fold = ( pageIndex + 1 ) + "/" + ( ( inventory.size() - 1 ) / 8 + 1 );
       g.setColor( Color.WHITE );
-      g.drawString( fold,
-          bounds.x + ( bounds.width - fm.stringWidth( fold ) ) * 0.5f,
+      g.drawString( fold, bounds.x + ( bounds.width - fm.stringWidth( fold ) ) * 0.5f,
           bounds.y + 0.95f * bounds.height );
       fillRect( g, pageCursorLeft );
       fillRect( g, pageCursorRight );
@@ -206,43 +206,175 @@ public enum Menu {
         return 0;
       }
       
-      return 1;
+      return 3;
     }
   },
-  ItemSelect {
-    private final String[] labels = new String[ 2 ];
+  Stats {
+    private Stroke stroke;
     
     private Rectangle2D.Float bounds;
-    private Stroke stroke;
+    private Rectangle2D.Float statBounds;
+    
+    private String[] labels = { "Weapon", "Armor", "Accessoire" };
+    
+    @ Override
+    public int onClick( final Point2D.Float p, final PlayScreen screen ) {
+      final Player player = screen.getPlayer();
+      final Item[] items = { player.getWeapon(), player.getArmor(), player.getAccessoire() };
+      
+      for ( int i = 0; i < buttonBounds.length; i++ ) {
+        if ( buttonBounds[ i ].contains( p ) && items[ i ] != null ) {
+          return runCommand( screen );
+        }
+      }
+      
+      return 0;
+    }
     
     @ Override
     public void onResized( final int width, final int height ) {
       stroke = new BasicStroke( 0.005f * width );
-      bounds = new Rectangle2D.Float( 0.55f * width, 0f, 0.2f * width, 0.2f * height );
       
-      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
-          0.575f * width, 0.025f * height, 0.15f * width, 0.05f * height );
+      bounds = new Rectangle2D.Float( 0.25f * width, 0f, 0.5f * width, 0.7f * height );
       
-      final float buttonDY = 0.075f * height;
+      statBounds = new Rectangle2D.Float( 0.3f * width,
+          0.0525f * height,
+          0.15f * width, 0.56f * height );
       
       buttonBounds = new Rectangle2D.Float[ labels.length ];
       
       for ( int i = 0; i < buttonBounds.length; i++ ) {
-        buttonBounds[ i ] = new Rectangle2D.Float(
-            singleButtonBounds.x, singleButtonBounds.y + buttonDY * i,
-            singleButtonBounds.width, singleButtonBounds.height );
+        buttonBounds[ i ] = new Rectangle2D.Float( 0.65f * width,
+            ( i * 4 + 1 ) * 0.0525f * height, 0.05f * width,
+            0.05f * width );
       }
     }
     
     @ Override
     public void render( final Graphics2D g, final PlayScreen screen ) {
       g.setColor( Color.BLACK );
-      fillRect( g, bounds.x, bounds.y,
-          bounds.width, bounds.height );
+      fillRect( g, bounds );
       g.setStroke( stroke );
       g.setColor( Color.WHITE );
-      drawRect( g, bounds.x, bounds.y,
-          bounds.width, bounds.height );
+      drawRect( g, bounds );
+      
+      final FontMetrics fm = g.getFontMetrics();
+      
+      final Player player = screen.getPlayer();
+      final Stats stats = player.getStats();
+      
+      final Item[] items = { player.getWeapon(), player.getArmor(), player.getAccessoire() };
+      
+      final int hp = player.getAccessoire() == null ? 0 : player.getAccessoire().hp;
+      final int attack = player.getWeapon() == null ? 0 : player.getWeapon().attack;
+      final int defense = player.getArmor() == null ? 0 : player.getArmor().defense;
+      
+      final String[] statstrings = { "Stats:", "Level: " + stats.level(),
+          "HP: " + stats.hp + "/" + stats.maxHp + "(+" + hp + ")",
+          "ATK: " + stats.attack + "(+" + attack + ")",
+          "DEF: " + stats.defense + "(+" + defense + ")", "EXP: " + stats.exp,
+          "REXP: " + player.rexp() };
+      
+      for ( int i = 0; i < statstrings.length; i++ ) {
+        final String statstring = statstrings[ i ];
+        
+        g.drawString( statstring,
+            statBounds.x + ( statBounds.width - fm.stringWidth( statstring ) ) * 0.5f,
+            statBounds.y + ( i * 2f + 1 ) * fm.getAscent() );
+      }
+      
+      g.drawString( "Name: " + player.name,
+          bounds.x + ( bounds.width - fm.stringWidth( "Name: " + player.name ) ) * 0.5f,
+          statBounds.y + statBounds.height + fm.getAscent() );
+      
+      for ( int i = 0; i < labels.length; i++ ) {
+        final BufferedImage icon = ImageUtil
+            .loadImage( items[ i ] != null ? "menu/character/icon.png"
+                : "menu/character/" + labels[ i ] + "-Icon.png" );
+        drawImage( g, icon, buttonBounds[ i ] );
+      }
+      
+      for ( int i = 0; i < items.length; i++ ) {
+        final Item item = items[ i ];
+        
+        if ( item != null ) {
+          final Rectangle2D.Float rect = buttonBounds[ i ];
+          
+          drawImage( g, item.image, rect );
+          
+          final String trimWeaponName = item.name.length() > 10
+              ? item.name.substring( 0, 10 ) : item.name;
+          
+          g.drawString( trimWeaponName,
+              rect.x - fm.stringWidth( trimWeaponName )
+                  - rect.width * 0.5f,
+              rect.y + ( rect.height - fm.getHeight() ) * 0.5f
+                  + fm.getAscent() );
+        }
+      }
+    }
+    
+    @ Override
+    protected int runCommand( final PlayScreen screen ) {
+      final Player player = screen.getPlayer();
+      final List<Item> inventory = player.getInventory();
+      
+      switch ( selection ) {
+        case 0:
+          inventory.add( player.getWeapon() );
+          player.setWeapon( null );
+          break;
+        case 1:
+          inventory.add( player.getArmor() );
+          player.setArmor( null );
+          break;
+        case 2:
+          inventory.add( player.getAccessoire() );
+          player.setAccessoire( null );
+          break;
+      }
+      
+      return 0;
+    }
+  },
+  ItemSelect {
+    private final String[] labels = new String[ 3 ];
+    
+    private Rectangle2D.Float bounds;
+    private Stroke stroke;
+    
+    @ Override
+    public Float getOffset() {
+      final int selection = Inventory.selection % 8;
+      return new Point2D.Float( bounds.x, bounds.y + selection > 3 ? 0 : bounds.height );
+    }
+    
+    @ Override
+    public void onResized( final int width, final int height ) {
+      stroke = new BasicStroke( 0.005f * width );
+      bounds = new Rectangle2D.Float( 0.55f * width, 0f, 0.2f * width, 0.25f * height );
+      
+      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float( 0.575f * width,
+          0.025f * height, 0.15f * width, 0.05f * height );
+      
+      final float buttonDY = 0.075f * height;
+      
+      buttonBounds = new Rectangle2D.Float[ labels.length ];
+      
+      for ( int i = 0; i < buttonBounds.length; i++ ) {
+        buttonBounds[ i ] = new Rectangle2D.Float( singleButtonBounds.x,
+            singleButtonBounds.y + buttonDY * i, singleButtonBounds.width,
+            singleButtonBounds.height );
+      }
+    }
+    
+    @ Override
+    public void render( final Graphics2D g, final PlayScreen screen ) {
+      g.setColor( Color.BLACK );
+      fillRect( g, bounds.x, bounds.y, bounds.width, bounds.height );
+      g.setStroke( stroke );
+      g.setColor( Color.WHITE );
+      drawRect( g, bounds.x, bounds.y, bounds.width, bounds.height );
       
       final List<Item> inventory = screen.getPlayer().getInventory();
       final Item item = inventory.get( Inventory.selection );
@@ -254,6 +386,7 @@ public enum Menu {
       }
       
       labels[ 1 ] = "Throw";
+      labels[ 2 ] = "Description";
       
       final FontMetrics fm = g.getFontMetrics();
       
@@ -277,13 +410,67 @@ public enum Menu {
           screen.equip( Inventory.selection );
           return -1;
         case 1:
-          // TODO(Saltuk) display item info
-          return 0;
-        case 2:
           inventory.remove( item );
           return -1;
+        case 2:
+          return 4;
       }
       
+      return 0;
+    }
+  },
+  Description {
+    private BasicStroke stroke;
+    private Rectangle2D.Float bounds;
+    
+    @ Override
+    public boolean onHover( final Point2D.Float p ) {
+      return false;
+    }
+    
+    @ Override
+    public void onResized( final int width, final int height ) {
+      bounds = new Rectangle2D.Float( 0, 0.05f * height, 0.35f * width, 0.25f * height );
+      stroke = new BasicStroke( 0.005f * width );
+    }
+    
+    @ Override
+    public void render( final Graphics2D g, final PlayScreen screen ) {
+      final int selection = Inventory.selection % 8;
+      
+      g.setColor( Color.BLACK );
+      fillRect( g, bounds.x, selection > 3 ? -bounds.y - bounds.height : bounds.y,
+          bounds.width, bounds.height );
+      g.setStroke( stroke );
+      g.setColor( Color.WHITE );
+      drawRect( g, bounds.x, selection > 3 ? -bounds.y - bounds.height : bounds.y, bounds.width,
+          bounds.height );
+      
+      final Player player = screen.getPlayer();
+      final List<Item> inventory = player.getInventory();
+      final Item item = inventory.get( Inventory.selection );
+      
+      final FontMetrics fm = g.getFontMetrics();
+      
+      g.setColor( Color.RED );
+      g.drawString( item.name, bounds.width * 0.025f,
+          selection > 3 ? -bounds.height - bounds.y + fm.getAscent() + bounds.height * 0.025f
+              : bounds.height * 0.025f + bounds.y + fm.getAscent() );
+      
+      final List<String> splitName = wrapLines( item.description, fm,
+          (int) bounds.width - (int) stroke.getLineWidth() );
+      
+      g.setColor( Color.WHITE );
+      for ( int i = 0; i < splitName.size(); i++ ) {
+        g.drawString( splitName.get( i ), bounds.width * 0.025f,
+            selection > 3 ? -bounds.height - bounds.y + bounds.height * 0.025f + fm.getAscent() * 2
+                + fm.getAscent() * i
+                : bounds.height * 0.025f + bounds.y + fm.getAscent() * 2 + fm.getAscent() * i );
+      }
+    }
+    
+    @ Override
+    protected int runCommand( final PlayScreen screen ) {
       return 0;
     }
   };
@@ -312,10 +499,6 @@ public enum Menu {
   }
   
   public abstract void onResized( int width, int height );
-  
-  public Menu next() {
-    return values()[ ordinal() + 1 ];
-  }
   
   public abstract void render( Graphics2D g, PlayScreen screen );
   

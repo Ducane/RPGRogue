@@ -367,16 +367,12 @@ public final class PlayScreen extends RPGScreen {
         } );
         
         menus.write( menus -> {
-          switch ( code ) {
-            case -2:
-              game.gsm.close();
-              break;
-            case -1:
-              menus.remove( menus.size() - 1 );
-              break;
-            case 1:
-              menus.add( menus.get( menus.size() - 1 ).next() );
-              break;
+          if ( code > 0 ) {
+            menus.add( Menu.values()[ code ] );
+          } else if ( code == -1 ) {
+            menus.remove( menus.size() - 1 );
+          } else if ( code == -2 ) {
+            game.gsm.close();
           }
         } );
       } else if ( event.getButton() == MouseEvent.BUTTON3 ) {
