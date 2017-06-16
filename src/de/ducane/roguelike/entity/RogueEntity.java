@@ -2,13 +2,12 @@ package de.ducane.roguelike.entity;
 
 import de.androbin.rpg.*;
 import de.ducane.roguelike.level.*;
-import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 public abstract class RogueEntity extends Entity {
-  protected final PlayScreen screen;
+  public final RogueEntityData data;
   
   protected final Stats baseStats;
   
@@ -20,12 +19,12 @@ public abstract class RogueEntity extends Entity {
   protected int damage;
   protected Object damageSource;
   
-  public RogueEntity( final PlayScreen screen, final Level level, final Point pos ) {
+  public RogueEntity( final Level level, final RogueEntityData data, final Point pos ) {
     super( level, pos );
     
-    this.screen = screen;
+    this.data = data;
     
-    this.baseStats = new Stats();
+    baseStats = new Stats( data.stats );
     
     moveCallback = () -> ( (Level) world ).onEntityMoved( this );
   }
@@ -51,6 +50,15 @@ public abstract class RogueEntity extends Entity {
     entity.requestDamage( damage, this );
   }
   
+  private boolean canAttack( final Direction dir ) {
+    final Point pos = getPos();
+    
+    final int x = pos.x + dir.dx;
+    final int y = pos.y + dir.dy;
+    
+    return world.getEntity( new Point( x, y ) ) != null;
+  }
+  
   public Stats getStats() {
     return baseStats;
   }
@@ -60,7 +68,7 @@ public abstract class RogueEntity extends Entity {
   }
   
   public boolean requestAttack() {
-    if ( !screen.canAttack( this, viewDir ) ) {
+    if ( !canAttack( viewDir ) ) {
       return false;
     }
     

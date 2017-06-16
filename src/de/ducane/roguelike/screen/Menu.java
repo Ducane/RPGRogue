@@ -3,6 +3,7 @@ package de.ducane.roguelike.screen;
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import static de.ducane.util.AWTUtil.*;
 import de.androbin.gfx.util.*;
+import de.androbin.thread.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import java.awt.*;
@@ -24,8 +25,8 @@ public enum Menu {
       
       bounds = new Rectangle2D.Float( 0f, 0.3f * height, 0.2f * width, 0.4f * height );
       
-      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float( 0.025f * width,
-          0.35f * height, 0.15f * width, 0.05f * height );
+      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
+          0.025f * width, 0.35f * height, 0.15f * width, 0.05f * height );
       
       final float buttonDY = 0.075f * height;
       
@@ -51,7 +52,8 @@ public enum Menu {
       for ( int i = 0; i < buttonBounds.length; i++ ) {
         final Rectangle2D.Float rect = buttonBounds[ i ];
         g.setColor( i == selection ? Color.YELLOW : Color.WHITE );
-        g.drawString( labels[ i ], rect.x + ( rect.width - fm.stringWidth( labels[ i ] ) ) * 0.5f,
+        g.drawString( labels[ i ],
+            rect.x + ( rect.width - fm.stringWidth( labels[ i ] ) ) * 0.5f,
             rect.y + ( rect.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
       }
     }
@@ -99,7 +101,7 @@ public enum Menu {
       if ( pageCursorLeft.contains( p ) ) {
         pageIndex = Math.max( 0, pageIndex - 1 );
       } else if ( pageCursorRight.contains( p ) ) {
-        final List<Item> inventory = screen.getPlayer().getInventory();
+        final LockedList<Item> inventory = screen.getPlayer().inventory;
         pageIndex = Math.min( pageIndex + 1, ( inventory.size() - 1 ) / 8 );
       }
       
@@ -136,12 +138,14 @@ public enum Menu {
       }
       
       statBounds = new Rectangle2D.Float( 0f, 0f, 0.2f * width, 0.25f * height );
-      statImageBounds = new Rectangle2D.Float( 0.05f * width, 0.05f * height, 0.1f * width,
-          0.15f * height );
+      statImageBounds = new Rectangle2D.Float(
+          0.05f * width, 0.05f * height, 0.1f * width, 0.15f * height );
       
-      pageCursorLeft = new Rectangle2D.Float( bounds.x + ( 0.1f * bounds.width ),
+      pageCursorLeft = new Rectangle2D.Float(
+          bounds.x + ( 0.1f * bounds.width ),
           bounds.y + ( 0.95f * bounds.height ), 10f, 10f );
-      pageCursorRight = new Rectangle2D.Float( bounds.x + ( 0.9f * bounds.width ),
+      pageCursorRight = new Rectangle2D.Float(
+          bounds.x + ( 0.9f * bounds.width ),
           bounds.y + ( 0.95f * bounds.height ), 10f, 10f );
     }
     
@@ -153,7 +157,7 @@ public enum Menu {
       g.setColor( Color.WHITE );
       drawRect( g, bounds );
       
-      final List<Item> inventory = screen.getPlayer().getInventory();
+      final LockedList<Item> inventory = screen.getPlayer().inventory;
       
       final FontMetrics fm = g.getFontMetrics();
       
@@ -162,8 +166,8 @@ public enum Menu {
         
         if ( i < inventory.size() ) {
           final String itemName = inventory.get( i ).name;
-          final String trimItemName = itemName.length() > 10 ? itemName.substring( 0, 10 )
-              : itemName;
+          final String trimItemName = itemName.length() > 10
+              ? itemName.substring( 0, 10 ) : itemName;
           g.setColor( i == selection ? Color.YELLOW : Color.WHITE );
           g.drawString( trimItemName,
               rect.x + ( rect.width - fm.stringWidth( trimItemName ) ) * 0.5f,
@@ -171,14 +175,16 @@ public enum Menu {
         } else {
           final String nothing = "----------";
           g.setColor( Color.WHITE );
-          g.drawString( nothing, rect.x + ( rect.width - fm.stringWidth( nothing ) ) * 0.5f,
+          g.drawString( nothing,
+              rect.x + ( rect.width - fm.stringWidth( nothing ) ) * 0.5f,
               rect.y + ( rect.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
         }
       }
       
       final String fold = ( pageIndex + 1 ) + "/" + ( ( inventory.size() - 1 ) / 8 + 1 );
       g.setColor( Color.WHITE );
-      g.drawString( fold, bounds.x + ( bounds.width - fm.stringWidth( fold ) ) * 0.5f,
+      g.drawString( fold,
+          bounds.x + ( bounds.width - fm.stringWidth( fold ) ) * 0.5f,
           bounds.y + 0.95f * bounds.height );
       fillRect( g, pageCursorLeft );
       fillRect( g, pageCursorRight );
@@ -199,8 +205,7 @@ public enum Menu {
     
     @ Override
     protected int runCommand( final PlayScreen screen ) {
-      final Player player = screen.getPlayer();
-      final List<Item> inventory = player.getInventory();
+      final LockedList<Item> inventory = screen.getPlayer().inventory;
       
       if ( selection < inventory.size() ) {
         return ItemSelect.ordinal() + 1;
@@ -218,8 +223,12 @@ public enum Menu {
     
     @ Override
     public int onClick( final Point2D.Float p, final PlayScreen screen ) {
-      final Player player = screen.getPlayer();
-      final Item[] items = { player.getWeapon(), player.getArmor(), player.getAccessoire() };
+      final Equipment equipment = screen.getPlayer().equipment;
+      final Item[] items = {
+          equipment.getWeapon(),
+          equipment.getArmor(),
+          equipment.getAccessoire()
+      };
       
       for ( int i = 0; i < buttonBounds.length; i++ ) {
         if ( buttonBounds[ i ].contains( p ) && items[ i ] != null ) {
@@ -261,16 +270,20 @@ public enum Menu {
       g.setColor( Color.WHITE );
       drawRect( g, bounds );
       
-      final FontMetrics fm = g.getFontMetrics();
-      
       final Player player = screen.getPlayer();
+      
+      final Equipment equipment = player.equipment;
+      final Item[] items = {
+          equipment.getWeapon(),
+          equipment.getArmor(),
+          equipment.getAccessoire()
+      };
+      
+      final int hp = equipment.getAccessoire() == null ? 0 : equipment.getAccessoire().hp;
+      final int attack = equipment.getWeapon() == null ? 0 : equipment.getWeapon().attack;
+      final int defense = equipment.getArmor() == null ? 0 : equipment.getArmor().defense;
+      
       final Stats stats = player.getStats();
-      
-      final Item[] items = { player.getWeapon(), player.getArmor(), player.getAccessoire() };
-      
-      final int hp = player.getAccessoire() == null ? 0 : player.getAccessoire().hp;
-      final int attack = player.getWeapon() == null ? 0 : player.getWeapon().attack;
-      final int defense = player.getArmor() == null ? 0 : player.getArmor().defense;
       
       final String[] statstrings = {
           "Stats:",
@@ -280,6 +293,8 @@ public enum Menu {
           "DEF: " + stats.defense + "(+" + defense + ")", "EXP: " + stats.exp,
           "REXP: " + stats.remExp()
       };
+      
+      final FontMetrics fm = g.getFontMetrics();
       
       for ( int i = 0; i < statstrings.length; i++ ) {
         final String statstring = statstrings[ i ];
@@ -322,20 +337,18 @@ public enum Menu {
     @ Override
     protected int runCommand( final PlayScreen screen ) {
       final Player player = screen.getPlayer();
-      final List<Item> inventory = player.getInventory();
+      final LockedList<Item> inventory = player.inventory;
+      final Equipment equipment = player.equipment;
       
       switch ( selection ) {
         case 0:
-          inventory.add( player.getWeapon() );
-          player.setWeapon( null );
+          inventory.add( equipment.setWeapon( null ) );
           break;
         case 1:
-          inventory.add( player.getArmor() );
-          player.setArmor( null );
+          inventory.add( equipment.setArmor( null ) );
           break;
         case 2:
-          inventory.add( player.getAccessoire() );
-          player.setAccessoire( null );
+          inventory.add( equipment.setAccessoire( null ) );
           break;
       }
       
@@ -376,12 +389,12 @@ public enum Menu {
     @ Override
     public void render( final Graphics2D g, final PlayScreen screen ) {
       g.setColor( Color.BLACK );
-      fillRect( g, bounds.x, bounds.y, bounds.width, bounds.height );
+      fillRect( g, bounds );
       g.setStroke( stroke );
       g.setColor( Color.WHITE );
-      drawRect( g, bounds.x, bounds.y, bounds.width, bounds.height );
+      drawRect( g, bounds );
       
-      final List<Item> inventory = screen.getPlayer().getInventory();
+      final LockedList<Item> inventory = screen.getPlayer().inventory;
       final Item item = inventory.get( Inventory.selection );
       
       if ( item instanceof Food ) {
@@ -406,8 +419,7 @@ public enum Menu {
     
     @ Override
     public int runCommand( final PlayScreen screen ) {
-      final Player player = screen.getPlayer();
-      final List<Item> inventory = player.getInventory();
+      final LockedList<Item> inventory = screen.getPlayer().inventory;
       final Item item = inventory.get( Inventory.selection );
       
       switch ( selection ) {
@@ -446,7 +458,7 @@ public enum Menu {
       drawRect( g, bounds );
       
       final Player player = screen.getPlayer();
-      final List<Item> inventory = player.getInventory();
+      final LockedList<Item> inventory = player.inventory;
       final Item item = inventory.get( Inventory.selection );
       
       final FontMetrics fm = g.getFontMetrics();

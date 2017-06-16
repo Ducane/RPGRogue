@@ -81,7 +81,7 @@ public final class Level extends World {
       }
     } else if ( entity instanceof Player ) {
       final Player player = (Player) entity;
-      player.addItem( item );
+      player.inventory.add( item );
       field.setItem( null );
     }
   }
@@ -194,7 +194,7 @@ public final class Level extends World {
         success = getEntity( pos ) == null && getGameObject( pos ) == null;
       } while ( !success );
       
-      final Mob mob = new Mob( screen, this, MobType.get( monster ), pos );
+      final Mob mob = new Mob( this, RogueEntites.getData( "mob/" + monster ), pos, screen.dark );
       addEntity( mob );
     }
   }

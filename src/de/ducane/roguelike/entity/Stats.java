@@ -1,5 +1,7 @@
 package de.ducane.roguelike.entity;
 
+import org.json.simple.*;
+
 public final class Stats {
   public int exp;
   
@@ -14,6 +16,13 @@ public final class Stats {
   
   public Stats( final Stats stats ) {
     set( stats );
+  }
+  
+  public Stats( final JSONObject data ) {
+    attack = ( (Number) data.get( "attack" ) ).intValue();
+    defense = ( (Number) data.get( "defense" ) ).intValue();
+    exp = ( (Number) data.get( "exp" ) ).intValue();
+    hp = maxHp = ( (Number) data.get( "hp" ) ).intValue();
   }
   
   public int level() {

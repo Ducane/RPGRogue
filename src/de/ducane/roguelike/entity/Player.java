@@ -1,39 +1,32 @@
 package de.ducane.roguelike.entity;
 
-import de.androbin.gfx.util.*;
-import de.androbin.rpg.*;
-import de.androbin.util.txt.*;
+import de.androbin.thread.*;
 import de.ducane.roguelike.item.*;
-import de.ducane.roguelike.screen.*;
 import java.awt.*;
-import java.awt.image.*;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.*;
 
 public final class Player extends RogueEntity {
   public final String name;
   
-  private final List<Item> inventory;
-  
-  private Accessoire accessoire;
-  private Armor armor;
-  private Weapon weapon;
+  public final LockedList<Item> inventory;
+  public final Equipment equipment;
   
   public boolean running;
   
-  public Player( final PlayScreen screen, final String name ) {
-    super( screen, null, new Point() );
+  public Player( final RogueEntityData data, final String name ) {
+    super( null, data, new Point() );
     
     this.name = name;
     
-    inventory = new ArrayList<>();
+    inventory = new LockedList<>();
+    equipment = new Equipment();
     
-    renderer = new EntityRenderer( this, prepareImages() );
+    renderer = new EntityRenderer( this, data.animation );
     
     baseStats.attack = 3;
     baseStats.defense = 1;
-    baseStats.hp = 20;
+    baseStats.hp = 30;
     baseStats.maxHp = 30;
   }
   
@@ -77,14 +70,10 @@ public final class Player extends RogueEntity {
         
         if ( item != null ) {
           mob.setItem( null );
-          addItem( item );
+          inventory.add( item );
         }
       }
     }
-  }
-  
-  public void addItem( final Item item ) {
-    inventory.add( item );
   }
   
   public void eat( final Food food ) {
@@ -92,29 +81,11 @@ public final class Player extends RogueEntity {
     baseStats.hp += Math.min( food.hp, stats.maxHp - stats.hp );
   }
   
-  public Accessoire getAccessoire() {
-    return accessoire;
-  }
-  
-  public Armor getArmor() {
-    return armor;
-  }
-  
-  public List<Item> getInventory() {
-    return inventory;
-  }
-  
   @ Override
   public Stats getStats() {
     final Stats stats = new Stats( super.getStats() );
-    stats.attack += weapon == null ? 0 : weapon.attack;
-    stats.defense += armor == null ? 0 : armor.defense;
-    stats.maxHp += accessoire == null ? 0 : accessoire.hp;
+    equipment.applyTo( stats );
     return stats;
-  }
-  
-  public Weapon getWeapon() {
-    return weapon;
   }
   
   public void levelUp() {
@@ -127,41 +98,6 @@ public final class Player extends RogueEntity {
   
   @ Override
   public float moveSpeed() {
-    return running ? 7f : 2f;
-  }
-  
-  private static BufferedImage[][] prepareImages() {
-    final BufferedImage[][] animation = new BufferedImage[ Direction.values().length ][];
-    
-    for ( int i = 0; i < animation.length; i++ ) {
-      final String dir = CaseUtil.toProperCase( Direction.values()[ i ].name() );
-      final BufferedImage image = ImageUtil.loadImage( "player/" + dir + ".png" );
-      
-      animation[ i ] = new BufferedImage[ image.getWidth() / 16 ];
-      
-      for ( int j = 0; j < animation[ i ].length; j++ ) {
-        animation[ i ][ j ] = image.getSubimage( j * 16, 0, 16, 18 );
-      }
-    }
-    
-    return animation;
-  }
-  
-  public Accessoire setAccessoire( final Accessoire accessoire ) {
-    final Accessoire current = this.accessoire;
-    this.accessoire = accessoire;
-    return current;
-  }
-  
-  public Armor setArmor( final Armor armor ) {
-    final Armor current = this.armor;
-    this.armor = armor;
-    return current;
-  }
-  
-  public Weapon setWeapon( final Weapon weapon ) {
-    final Weapon current = this.weapon;
-    this.weapon = weapon;
-    return current;
+    return running ? 6f : 2f;
   }
 }
