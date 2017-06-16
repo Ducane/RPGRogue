@@ -27,7 +27,7 @@ public final class Player extends RogueEntity {
     
     this.name = name;
     
-    inventory = new LockedList<Item>();
+    inventory = new LockedList<>();
     
     renderer = new EntityRenderer( this, prepareImages() );
     

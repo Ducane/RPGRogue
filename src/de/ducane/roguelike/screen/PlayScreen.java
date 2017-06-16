@@ -19,7 +19,6 @@ import de.ducane.roguelike.obj.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.util.*;
 import java.util.List;
 import org.json.simple.*;
 
@@ -35,13 +34,13 @@ public final class PlayScreen extends RPGScreen {
   
   private Rectangle2D.Float barBounds;
   
-  private final Locked<List<Menu>> menus;
+  private final LockedList<Menu> menus;
   private Point2D.Float menuOffset;
   
   public PlayScreen( final Game game, final float scale, final String name ) {
     super( game, scale );
     
-    menus = new Locked<>( new ArrayList<>() );
+    menus = new LockedList<>();
     
     dark = new MovingDark( new Color( 0f, 0f, 0f, 0.8f ), scale );
     dark.pos = this::getDarkPos;
@@ -221,15 +220,13 @@ public final class PlayScreen extends RPGScreen {
     pos.x += menuOffset.x;
     pos.y += menuOffset.y;
     
-    menus.read( menus -> {
-      for ( final Menu menu : menus ) {
-        menu.render( g, this );
-        
-        final Point2D.Float offset = menu.getOffset();
-        g.translate( offset.x, offset.y );
-        pos.x += offset.x;
-        pos.y += offset.y;
-      }
+    menus.forEach( menu -> {
+      menu.render( g, this );
+      
+      final Point2D.Float offset = menu.getOffset();
+      g.translate( offset.x, offset.y );
+      pos.x += offset.x;
+      pos.y += offset.y;
     } );
     
     g.translate( -pos.x, -pos.y );
@@ -329,13 +326,11 @@ public final class PlayScreen extends RPGScreen {
           player.requestAttack();
           break;
         case KeyEvent.VK_M:
-          menus.write( menus -> {
-            if ( menus.isEmpty() ) {
-              menus.add( Menu.Main );
-            } else {
-              menus.clear();
-            }
-          } );
+          if ( menus.isEmpty() ) {
+            menus.add( Menu.Main );
+          } else {
+            menus.clear();
+          }
           
           break;
       }
@@ -345,55 +340,11 @@ public final class PlayScreen extends RPGScreen {
   private final class MouseInput extends MouseAdapter {
     @ Override
     public void mousePressed( final MouseEvent event ) {
-      if ( menus.readBack( List::isEmpty ) ) {
+      if ( menus.isEmpty() ) {
         return;
       }
       
       if ( event.getButton() == MouseEvent.BUTTON1 ) {
-        final int code = menus.readBack( menus -> {
-          final int index = menus.size() - 1;
-          
-          final Point2D.Float p = new Point2D.Float( event.getX(), event.getY() );
-          p.x -= menuOffset.x;
-          p.y -= menuOffset.y;
-          
-          for ( int i = 0; i < index; i++ ) {
-            final Point2D.Float offset = menus.get( i ).getOffset();
-            p.x -= offset.x;
-            p.y -= offset.y;
-          }
-          
-          final Menu menu = menus.get( index );
-          return menu.onClick( p, PlayScreen.this );
-        } );
-        
-        menus.write( menus -> {
-          switch ( code ) {
-            case -2:
-              game.gsm.close();
-              break;
-            case -1:
-              menus.remove( menus.size() - 1 );
-              break;
-            case 1:
-              menus.add( menus.get( menus.size() - 1 ).next() );
-              break;
-          }
-        } );
-      } else if ( event.getButton() == MouseEvent.BUTTON3 ) {
-        menus.write( menus -> menus.remove( menus.size() - 1 ) );
-      }
-    }
-  }
-  
-  private final class MouseMotionInput extends MouseAdapter {
-    @ Override
-    public void mouseMoved( final MouseEvent event ) {
-      if ( menus.readBack( List::isEmpty ) ) {
-        return;
-      }
-      
-      menus.read( menus -> {
         final int index = menus.size() - 1;
         
         final Point2D.Float p = new Point2D.Float( event.getX(), event.getY() );
@@ -407,8 +358,46 @@ public final class PlayScreen extends RPGScreen {
         }
         
         final Menu menu = menus.get( index );
-        menu.onHover( p );
-      } );
+        final int code = menu.onClick( p, PlayScreen.this );
+        
+        switch ( code ) {
+          case -2:
+            game.gsm.close();
+            break;
+          case -1:
+            menus.remove( menus.size() - 1 );
+            break;
+          case 1:
+            menus.add( menus.get( menus.size() - 1 ).next() );
+            break;
+        }
+      } else if ( event.getButton() == MouseEvent.BUTTON3 ) {
+        menus.remove( menus.size() - 1 );
+      }
+    }
+  }
+  
+  private final class MouseMotionInput extends MouseAdapter {
+    @ Override
+    public void mouseMoved( final MouseEvent event ) {
+      if ( menus.isEmpty() ) {
+        return;
+      }
+      
+      final int index = menus.size() - 1;
+      
+      final Point2D.Float p = new Point2D.Float( event.getX(), event.getY() );
+      p.x -= menuOffset.x;
+      p.y -= menuOffset.y;
+      
+      for ( int i = 0; i < index; i++ ) {
+        final Point2D.Float offset = menus.get( i ).getOffset();
+        p.x -= offset.x;
+        p.y -= offset.y;
+      }
+      
+      final Menu menu = menus.get( index );
+      menu.onHover( p );
     }
   }
 }
