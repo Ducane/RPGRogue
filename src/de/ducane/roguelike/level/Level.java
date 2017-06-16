@@ -81,7 +81,7 @@ public final class Level extends World {
       }
     } else if ( entity instanceof Player ) {
       final Player player = (Player) entity;
-      player.addItem( item );
+      player.inventory.add( item );
       field.setItem( null );
     }
   }

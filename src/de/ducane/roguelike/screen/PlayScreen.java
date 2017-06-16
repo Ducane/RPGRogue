@@ -1,7 +1,6 @@
 package de.ducane.roguelike.screen;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
-import de.androbin.*;
 import de.androbin.game.*;
 import de.androbin.game.listener.*;
 import de.androbin.rpg.*;
@@ -10,6 +9,7 @@ import de.androbin.rpg.event.Event;
 import de.androbin.rpg.gfx.*;
 import de.androbin.rpg.obj.*;
 import de.androbin.rpg.tile.*;
+import de.androbin.thread.*;
 import de.androbin.util.*;
 import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
@@ -107,7 +107,8 @@ public final class PlayScreen extends RPGScreen {
   
   protected void equip( final int index ) {
     final Player player = getPlayer();
-    final List<Item> inventory = player.getInventory();
+    final LockedList<Item> inventory = player.inventory;
+    
     final Item item = inventory.get( index );
     
     if ( item instanceof Food ) {

@@ -1,12 +1,11 @@
 package de.ducane.roguelike.screen;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
-import de.ducane.roguelike.entity.*;
+import de.androbin.thread.*;
 import de.ducane.roguelike.item.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
-import java.util.List;
 
 public enum Menu {
   Main {
@@ -95,7 +94,7 @@ public enum Menu {
       if ( pageCursorLeft.contains( p ) ) {
         pageIndex = Math.max( 0, pageIndex - 1 );
       } else if ( pageCursorRight.contains( p ) ) {
-        final List<Item> inventory = screen.getPlayer().getInventory();
+        final LockedList<Item> inventory = screen.getPlayer().inventory;
         pageIndex = Math.min( pageIndex + 1, ( inventory.size() - 1 ) / 8 );
       }
       
@@ -151,7 +150,7 @@ public enum Menu {
       g.setColor( Color.WHITE );
       drawRect( g, bounds );
       
-      final List<Item> inventory = screen.getPlayer().getInventory();
+      final LockedList<Item> inventory = screen.getPlayer().inventory;
       
       final FontMetrics fm = g.getFontMetrics();
       
@@ -199,8 +198,7 @@ public enum Menu {
     
     @ Override
     protected int runCommand( final PlayScreen screen ) {
-      final Player player = screen.getPlayer();
-      final List<Item> inventory = player.getInventory();
+      final LockedList<Item> inventory = screen.getPlayer().inventory;
       
       if ( selection >= inventory.size() ) {
         return 0;
@@ -244,7 +242,7 @@ public enum Menu {
       drawRect( g, bounds.x, bounds.y,
           bounds.width, bounds.height );
       
-      final List<Item> inventory = screen.getPlayer().getInventory();
+      final LockedList<Item> inventory = screen.getPlayer().inventory;
       final Item item = inventory.get( Inventory.selection );
       
       if ( item instanceof Food ) {
@@ -268,8 +266,7 @@ public enum Menu {
     
     @ Override
     public int runCommand( final PlayScreen screen ) {
-      final Player player = screen.getPlayer();
-      final List<Item> inventory = player.getInventory();
+      final LockedList<Item> inventory = screen.getPlayer().inventory;
       final Item item = inventory.get( Inventory.selection );
       
       switch ( selection ) {
@@ -277,9 +274,6 @@ public enum Menu {
           screen.equip( Inventory.selection );
           return -1;
         case 1:
-          // TODO(Saltuk) display item info
-          return 0;
-        case 2:
           inventory.remove( item );
           return -1;
       }

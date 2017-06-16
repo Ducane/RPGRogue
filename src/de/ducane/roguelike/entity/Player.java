@@ -2,19 +2,19 @@ package de.ducane.roguelike.entity;
 
 import de.androbin.gfx.util.*;
 import de.androbin.rpg.*;
+import de.androbin.thread.*;
 import de.androbin.util.txt.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.*;
 
 public final class Player extends RogueEntity {
   public final String name;
   
-  private final List<Item> inventory;
+  public final LockedList<Item> inventory;
   
   private Accessoire accessoire;
   private Armor armor;
@@ -27,13 +27,13 @@ public final class Player extends RogueEntity {
     
     this.name = name;
     
-    inventory = new ArrayList<>();
+    inventory = new LockedList<Item>();
     
     renderer = new EntityRenderer( this, prepareImages() );
     
     baseStats.attack = 3;
     baseStats.defense = 1;
-    baseStats.hp = 20;
+    baseStats.hp = 30;
     baseStats.maxHp = 30;
   }
   
@@ -77,14 +77,10 @@ public final class Player extends RogueEntity {
         
         if ( item != null ) {
           mob.setItem( null );
-          addItem( item );
+          inventory.add( item );
         }
       }
     }
-  }
-  
-  public void addItem( final Item item ) {
-    inventory.add( item );
   }
   
   public void eat( final Food food ) {
@@ -98,10 +94,6 @@ public final class Player extends RogueEntity {
   
   public Armor getArmor() {
     return armor;
-  }
-  
-  public List<Item> getInventory() {
-    return inventory;
   }
   
   @ Override
