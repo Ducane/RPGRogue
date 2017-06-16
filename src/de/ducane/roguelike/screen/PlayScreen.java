@@ -117,30 +117,24 @@ public final class PlayScreen extends RPGScreen {
         player.eat( (Food) item );
         inventory.remove( index );
       }
-    } else if ( item instanceof Accessoire ) {
-      if ( player.getAccessoire() == null ) {
-        inventory.remove( index );
-      } else {
-        inventory.set( index, player.setAccessoire( null ) );
+    } else {
+      final Equipment equipment = player.equipment;
+      
+      Item current = null;
+      
+      if ( item instanceof Accessoire ) {
+        current = equipment.setAccessoire( (Accessoire) item );
+      } else if ( item instanceof Armor ) {
+        current = equipment.setArmor( (Armor) item );
+      } else if ( item instanceof Weapon ) {
+        current = equipment.setWeapon( (Weapon) item );
       }
       
-      player.setAccessoire( (Accessoire) item );
-    } else if ( item instanceof Armor ) {
-      if ( player.getArmor() == null ) {
-        inventory.remove( index );
+      if ( current == null ) {
+        inventory.remove( item );
       } else {
-        inventory.set( index, player.setArmor( null ) );
+        inventory.set( index, current );
       }
-      
-      player.setArmor( (Armor) item );
-    } else if ( item instanceof Weapon ) {
-      if ( player.getWeapon() == null ) {
-        inventory.remove( index );
-      } else {
-        inventory.set( index, player.setWeapon( null ) );
-      }
-      
-      player.setWeapon( (Weapon) item );
     }
   }
   

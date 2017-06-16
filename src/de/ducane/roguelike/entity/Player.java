@@ -11,10 +11,7 @@ public final class Player extends RogueEntity {
   public final String name;
   
   public final LockedList<Item> inventory;
-  
-  private Accessoire accessoire;
-  private Armor armor;
-  private Weapon weapon;
+  public final Equipment equipment;
   
   public boolean running;
   
@@ -24,6 +21,7 @@ public final class Player extends RogueEntity {
     this.name = name;
     
     inventory = new LockedList<>();
+    equipment = new Equipment();
     
     renderer = new EntityRenderer( this, data.animation );
     
@@ -84,25 +82,11 @@ public final class Player extends RogueEntity {
     baseStats.hp += Math.min( food.hp, stats.maxHp - stats.hp );
   }
   
-  public Accessoire getAccessoire() {
-    return accessoire;
-  }
-  
-  public Armor getArmor() {
-    return armor;
-  }
-  
   @ Override
   public Stats getStats() {
     final Stats stats = new Stats( super.getStats() );
-    stats.attack += weapon == null ? 0 : weapon.attack;
-    stats.defense += armor == null ? 0 : armor.defense;
-    stats.maxHp += accessoire == null ? 0 : accessoire.hp;
+    equipment.applyTo( stats );
     return stats;
-  }
-  
-  public Weapon getWeapon() {
-    return weapon;
   }
   
   public void levelUp() {
@@ -116,23 +100,5 @@ public final class Player extends RogueEntity {
   @ Override
   public float moveSpeed() {
     return running ? 6f : 2f;
-  }
-  
-  public Accessoire setAccessoire( final Accessoire accessoire ) {
-    final Accessoire current = this.accessoire;
-    this.accessoire = accessoire;
-    return current;
-  }
-  
-  public Armor setArmor( final Armor armor ) {
-    final Armor current = this.armor;
-    this.armor = armor;
-    return current;
-  }
-  
-  public Weapon setWeapon( final Weapon weapon ) {
-    final Weapon current = this.weapon;
-    this.weapon = weapon;
-    return current;
   }
 }
