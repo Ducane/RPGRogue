@@ -99,7 +99,7 @@ public final class Player extends RogueEntity {
   public Armor getArmor() {
     return armor;
   }
-   
+  
   public List<Item> getInventory() {
     return inventory;
   }
@@ -163,11 +163,5 @@ public final class Player extends RogueEntity {
     final Weapon current = this.weapon;
     this.weapon = weapon;
     return current;
-  }
-
-  public int rexp()
-  {
-    final int nextLvl = baseStats.level() + 1;
-    return ( nextLvl * nextLvl ) * 25 - baseStats.exp;
   }
 }

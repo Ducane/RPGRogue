@@ -199,19 +199,6 @@ public final class Level extends World {
     }
   }
   
-  public void updateMiniMap( final MovingDark dark, final float scale ) {
-    for ( int y = 0; y < size.height; y++ ) {
-      for ( int x = 0; x < size.width; x++ ) {
-        final Point p = new Point( x, y );
-        final Point2D.Float center = new Point2D.Float( x + 0.5f, y + 0.5f );
-        
-        if ( !visitedTiles.contains( p ) && dark.contains( center ) ) {
-          visitedTiles.add( p );
-        }
-      }
-    }
-  }
-  
   public void update() {
     final List<Entity> toRemove = new ArrayList<>();
     
@@ -225,6 +212,19 @@ public final class Level extends World {
     
     for ( final Entity entity : toRemove ) {
       removeEntity( entity );
+    }
+  }
+  
+  public void updateMiniMap( final MovingDark dark, final float scale ) {
+    for ( int y = 0; y < size.height; y++ ) {
+      for ( int x = 0; x < size.width; x++ ) {
+        final Point p = new Point( x, y );
+        final Point2D.Float center = new Point2D.Float( x + 0.5f, y + 0.5f );
+        
+        if ( !visitedTiles.contains( p ) && dark.contains( center ) ) {
+          visitedTiles.add( p );
+        }
+      }
     }
   }
 }

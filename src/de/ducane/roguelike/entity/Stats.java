@@ -20,6 +20,14 @@ public final class Stats {
     return (int) Math.sqrt( exp / 25f );
   }
   
+  public int minExp( final int level ) {
+    return level * level * 25;
+  }
+  
+  public int remExp() {
+    return minExp( level() + 1 ) - exp;
+  }
+  
   public void set( final Stats stats ) {
     this.exp = stats.exp;
     

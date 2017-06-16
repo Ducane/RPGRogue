@@ -1,7 +1,6 @@
 package de.ducane.roguelike.screen;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
-import de.androbin.*;
 import de.androbin.game.*;
 import de.androbin.game.listener.*;
 import de.androbin.rpg.*;
@@ -10,6 +9,7 @@ import de.androbin.rpg.event.Event;
 import de.androbin.rpg.gfx.*;
 import de.androbin.rpg.obj.*;
 import de.androbin.rpg.tile.*;
+import de.androbin.thread.*;
 import de.androbin.util.*;
 import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
@@ -367,12 +367,18 @@ public final class PlayScreen extends RPGScreen {
         } );
         
         menus.write( menus -> {
-          if ( code > 0 ) {
-            menus.add( Menu.values()[ code ] );
-          } else if ( code == -1 ) {
-            menus.remove( menus.size() - 1 );
-          } else if ( code == -2 ) {
-            game.gsm.close();
+          switch ( code ) {
+            case -2:
+              game.gsm.close();
+              break;
+            case -1:
+              menus.remove( menus.size() - 1 );
+              break;
+            case 0:
+              break;
+            default:
+              menus.add( Menu.values()[ code - 1 ] );
+              break;
           }
         } );
       } else if ( event.getButton() == MouseEvent.BUTTON3 ) {
