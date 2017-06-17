@@ -39,7 +39,7 @@ public enum Menu {
     }
     
     @ Override
-    public void render( final Graphics2D g, final PlayScreen screen ) {
+    public void render( final Graphics2D g, final Player player ) {
       g.setColor( Color.BLACK );
       fillRect( g, bounds );
       g.setStroke( stroke );
@@ -58,7 +58,7 @@ public enum Menu {
     }
     
     @ Override
-    public int runCommand( final PlayScreen screen ) {
+    public int runCommand( final Player player ) {
       switch ( selection ) {
         case 0:
           return Inventory.ordinal() + 1;
@@ -90,21 +90,17 @@ public enum Menu {
     }
     
     @ Override
-    public int onClick( final Point2D.Float p, final PlayScreen screen ) {
-      for ( final Rectangle2D.Float bounds : buttonBounds ) {
-        if ( bounds.contains( p ) ) {
-          return runCommand( screen );
-        }
-      }
-      
+    public int onClick( final Point2D.Float p, final Player player ) {
       if ( pageCursorLeft.contains( p ) ) {
         pageIndex = Math.max( 0, pageIndex - 1 );
+        return 0;
       } else if ( pageCursorRight.contains( p ) ) {
-        final LockedList<Item> inventory = screen.getPlayer().inventory;
+        final LockedList<Item> inventory = player.inventory;
         pageIndex = Math.min( pageIndex + 1, ( inventory.size() - 1 ) / 8 );
+        return 0;
       }
       
-      return 0;
+      return super.onClick( p, player );
     }
     
     @ Override
@@ -149,14 +145,14 @@ public enum Menu {
     }
     
     @ Override
-    public void render( final Graphics2D g, final PlayScreen screen ) {
+    public void render( final Graphics2D g, final Player player ) {
       g.setColor( Color.BLACK );
       fillRect( g, bounds );
       g.setStroke( stroke );
       g.setColor( Color.WHITE );
       drawRect( g, bounds );
       
-      final LockedList<Item> inventory = screen.getPlayer().inventory;
+      final LockedList<Item> inventory = player.inventory;
       
       final FontMetrics fm = g.getFontMetrics();
       
@@ -203,8 +199,8 @@ public enum Menu {
     }
     
     @ Override
-    protected int runCommand( final PlayScreen screen ) {
-      final LockedList<Item> inventory = screen.getPlayer().inventory;
+    protected int runCommand( final Player player ) {
+      final LockedList<Item> inventory = player.inventory;
       
       if ( selection < inventory.size() ) {
         return ItemSelect.ordinal() + 1;
@@ -219,24 +215,6 @@ public enum Menu {
     private Rectangle2D.Float bounds;
     private Rectangle2D.Float statBounds;
     private Stroke stroke;
-    
-    @ Override
-    public int onClick( final Point2D.Float p, final PlayScreen screen ) {
-      final Equipment equipment = screen.getPlayer().equipment;
-      final Item[] items = {
-          equipment.getWeapon(),
-          equipment.getArmor(),
-          equipment.getAccessoire()
-      };
-      
-      for ( int i = 0; i < buttonBounds.length; i++ ) {
-        if ( buttonBounds[ i ].contains( p ) && items[ i ] != null ) {
-          return runCommand( screen );
-        }
-      }
-      
-      return 0;
-    }
     
     @ Override
     public void onResized( final int width, final int height ) {
@@ -262,14 +240,12 @@ public enum Menu {
     }
     
     @ Override
-    public void render( final Graphics2D g, final PlayScreen screen ) {
+    public void render( final Graphics2D g, final Player player ) {
       g.setColor( Color.BLACK );
       fillRect( g, bounds );
       g.setStroke( stroke );
       g.setColor( Color.WHITE );
       drawRect( g, bounds );
-      
-      final Player player = screen.getPlayer();
       
       final Equipment equipment = player.equipment;
       final Item[] items = {
@@ -283,7 +259,7 @@ public enum Menu {
       final Stats stats0 = new Stats();
       equipment.applyTo( stats0 );
       
-      final String[] statstrings = {
+      final String[] statStrings = {
           "Stats:",
           "Level: " + stats.level(),
           "HP: " + stats.hp + "/" + stats.maxHp + "(+" + stats0.hp + ")",
@@ -294,11 +270,11 @@ public enum Menu {
       
       final FontMetrics fm = g.getFontMetrics();
       
-      for ( int i = 0; i < statstrings.length; i++ ) {
-        final String statstring = statstrings[ i ];
+      for ( int i = 0; i < statStrings.length; i++ ) {
+        final String statString = statStrings[ i ];
         
-        g.drawString( statstring,
-            statBounds.x + ( statBounds.width - fm.stringWidth( statstring ) ) * 0.5f,
+        g.drawString( statString,
+            statBounds.x + ( statBounds.width - fm.stringWidth( statString ) ) * 0.5f,
             statBounds.y + ( i * 2f + 1 ) * fm.getAscent() );
       }
       
@@ -340,10 +316,19 @@ public enum Menu {
     }
     
     @ Override
-    protected int runCommand( final PlayScreen screen ) {
-      final Player player = screen.getPlayer();
-      final LockedList<Item> inventory = player.inventory;
+    protected int runCommand( final Player player ) {
       final Equipment equipment = player.equipment;
+      final Item[] items = {
+          equipment.getWeapon(),
+          equipment.getArmor(),
+          equipment.getAccessoire()
+      };
+      
+      if ( items[ selection ] == null ) {
+        return 0;
+      }
+      
+      final LockedList<Item> inventory = player.inventory;
       
       switch ( selection ) {
         case 0:
@@ -392,15 +377,19 @@ public enum Menu {
     }
     
     @ Override
-    public void render( final Graphics2D g, final PlayScreen screen ) {
+    public void render( final Graphics2D g, final Player player ) {
       g.setColor( Color.BLACK );
       fillRect( g, bounds );
       g.setStroke( stroke );
       g.setColor( Color.WHITE );
       drawRect( g, bounds );
       
-      final LockedList<Item> inventory = screen.getPlayer().inventory;
-      final Item item = inventory.get( Inventory.selection );
+      final LockedList<Item> inventory = player.inventory;
+      final Item item = inventory.tryGet( Inventory.selection );
+      
+      if ( item == null ) {
+        return;
+      }
       
       if ( item instanceof Food ) {
         labels[ 0 ] = "Eat";
@@ -423,13 +412,13 @@ public enum Menu {
     }
     
     @ Override
-    public int runCommand( final PlayScreen screen ) {
-      final LockedList<Item> inventory = screen.getPlayer().inventory;
+    public int runCommand( final Player player ) {
+      final LockedList<Item> inventory = player.inventory;
       final Item item = inventory.get( Inventory.selection );
       
       switch ( selection ) {
         case 0:
-          screen.equip( Inventory.selection );
+          player.equip( Inventory.selection );
           return -1;
         case 1:
           inventory.remove( item );
@@ -455,14 +444,13 @@ public enum Menu {
     }
     
     @ Override
-    public void render( final Graphics2D g, final PlayScreen screen ) {
+    public void render( final Graphics2D g, final Player player ) {
       g.setColor( Color.BLACK );
       fillRect( g, bounds );
       g.setStroke( stroke );
       g.setColor( Color.WHITE );
       drawRect( g, bounds );
       
-      final Player player = screen.getPlayer();
       final LockedList<Item> inventory = player.inventory;
       final Item item = inventory.get( Inventory.selection );
       
@@ -486,7 +474,7 @@ public enum Menu {
     }
     
     @ Override
-    protected int runCommand( final PlayScreen screen ) {
+    protected int runCommand( final Player player ) {
       return 0;
     }
   };
@@ -499,8 +487,14 @@ public enum Menu {
     return new Point2D.Float();
   }
   
-  public int onClick( final Point2D.Float p, final PlayScreen screen ) {
-    return runCommand( screen );
+  public int onClick( final Point2D.Float p, final Player player ) {
+    for ( final Rectangle2D.Float bounds : buttonBounds ) {
+      if ( bounds.contains( p ) ) {
+        return runCommand( player );
+      }
+    }
+    
+    return 0;
   }
   
   public boolean onHover( final Point2D.Float p ) {
@@ -516,7 +510,7 @@ public enum Menu {
   
   public abstract void onResized( int width, int height );
   
-  public abstract void render( Graphics2D g, PlayScreen screen );
+  public abstract void render( Graphics2D g, Player player );
   
-  protected abstract int runCommand( PlayScreen screen );
+  protected abstract int runCommand( Player player );
 }

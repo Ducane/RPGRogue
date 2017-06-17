@@ -81,6 +81,35 @@ public final class Player extends RogueEntity {
     baseStats.hp += Math.min( food.hp, stats.maxHp - stats.hp );
   }
   
+  public void equip( final int index ) {
+    final Item item = inventory.get( index );
+    
+    if ( item instanceof Food ) {
+      final Stats stats = getStats();
+      
+      if ( stats.hp < stats.maxHp ) {
+        eat( (Food) item );
+        inventory.remove( index );
+      }
+    } else {
+      Item current = null;
+      
+      if ( item instanceof Accessoire ) {
+        current = equipment.setAccessoire( (Accessoire) item );
+      } else if ( item instanceof Armor ) {
+        current = equipment.setArmor( (Armor) item );
+      } else if ( item instanceof Weapon ) {
+        current = equipment.setWeapon( (Weapon) item );
+      }
+      
+      if ( current == null ) {
+        inventory.remove( item );
+      } else {
+        inventory.set( index, current );
+      }
+    }
+  }
+  
   @ Override
   public Stats getStats() {
     final Stats stats = new Stats( super.getStats() );

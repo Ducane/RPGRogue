@@ -13,7 +13,6 @@ import de.androbin.thread.*;
 import de.androbin.util.*;
 import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
-import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
 import de.ducane.roguelike.obj.*;
 import java.awt.*;
@@ -95,40 +94,6 @@ public final class PlayScreen extends RPGScreen {
     return null;
   }
   
-  protected void equip( final int index ) {
-    final Player player = getPlayer();
-    final LockedList<Item> inventory = player.inventory;
-    
-    final Item item = inventory.get( index );
-    
-    if ( item instanceof Food ) {
-      final Stats stats = player.getStats();
-      
-      if ( stats.hp < stats.maxHp ) {
-        player.eat( (Food) item );
-        inventory.remove( index );
-      }
-    } else {
-      final Equipment equipment = player.equipment;
-      
-      Item current = null;
-      
-      if ( item instanceof Accessoire ) {
-        current = equipment.setAccessoire( (Accessoire) item );
-      } else if ( item instanceof Armor ) {
-        current = equipment.setArmor( (Armor) item );
-      } else if ( item instanceof Weapon ) {
-        current = equipment.setWeapon( (Weapon) item );
-      }
-      
-      if ( current == null ) {
-        inventory.remove( item );
-      } else {
-        inventory.set( index, current );
-      }
-    }
-  }
-  
   private Point2D.Float getDarkPos() {
     final Point2D.Float pos = getPlayer().getFloatPos();
     return room == null
@@ -206,7 +171,7 @@ public final class PlayScreen extends RPGScreen {
     pos.y += menuOffset.y;
     
     menus.forEach( menu -> {
-      menu.render( g, this );
+      menu.render( g, getPlayer() );
       
       final Point2D.Float offset = menu.getOffset();
       g.translate( offset.x, offset.y );
@@ -226,18 +191,19 @@ public final class PlayScreen extends RPGScreen {
     
     final float health = (float) stats.hp / stats.maxHp;
     
-    final Color color = new Color(
-        health <= 0.5f ? 0.5f : 1f - health,
-        health >= 0.5f ? 0.5f : health,
-        0f );
+    final Color color;
+    final Color border;
+    
+    if ( health <= 0.5f ) {
+      color = new Color( 0.5f, health, 0f );
+      border = new Color( 0.3f, health * 0.6f, 0f );
+    } else {
+      color = new Color( 1f - health, 0.5f, 0f );
+      border = new Color( ( 1f - health ) * 0.6f, 0.3f, 0f );
+    }
     
     g.setColor( color );
     fillRect( g, barBounds.x, barBounds.y, barBounds.width * health, barBounds.height );
-    
-    final Color border = new Color(
-        health <= 0.5f ? 0.3f : ( 1f - health ) * 0.6f,
-        health >= 0.5f ? 0.3f : health * 0.6f,
-        0f );
     
     g.setColor( border );
     g.setStroke( new BasicStroke( 0.0003f * getHeight() ) );
@@ -260,6 +226,10 @@ public final class PlayScreen extends RPGScreen {
   
   @ Override
   public void update( final float delta ) {
+    if ( !menus.isEmpty() ) {
+      return;
+    }
+    
     super.update( delta );
     level.update();
     
@@ -343,7 +313,7 @@ public final class PlayScreen extends RPGScreen {
         }
         
         final Menu menu = menus.get( index );
-        final int code = menu.onClick( p, PlayScreen.this );
+        final int code = menu.onClick( p, getPlayer() );
         
         switch ( code ) {
           case -2:
