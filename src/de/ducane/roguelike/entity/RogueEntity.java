@@ -5,19 +5,15 @@ import de.ducane.roguelike.level.*;
 import java.awt.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javafx.util.*;
 
 public abstract class RogueEntity extends Entity {
   public final RogueEntityData data;
   
   protected final Stats baseStats;
   
-  protected boolean attacking;
-  protected float attackProgress;
-  
-  protected boolean damaging;
-  protected float damageProgress;
-  protected int damage;
-  protected Object damageSource;
+  public final Handle<Boolean, RogueEntity> attack;
+  public final Handle<Pair<Integer, Object>, Void> damage;
   
   public RogueEntity( final Level level, final RogueEntityData data, final Point pos ) {
     super( level, pos );
@@ -26,37 +22,61 @@ public abstract class RogueEntity extends Entity {
     
     baseStats = new Stats( data.stats );
     
-    moveCallback = () -> ( (Level) world ).onEntityMoved( this );
-  }
-  
-  protected void attack() {
-    final Point pos = getPos();
-    final Point target = new Point( pos.x + viewDir.dx, pos.y + viewDir.dy );
-    final RogueEntity entity = (RogueEntity) world.getEntity( target );
+    move.callback = ( a, b ) -> ( (Level) world ).onEntityMoved( this );
     
-    if ( entity == null ) {
-      return;
-    }
+    attack = new Handle<Boolean, RogueEntity>() {
+      @ Override
+      protected boolean canHandle( final Boolean arg ) {
+        final Point target;
+        
+        if ( move.hasCurrent() ) {
+          target = viewDir.from( viewDir.from( getPos() ) );
+        } else {
+          target = viewDir.from( getPos() );
+        }
+        
+        return world.getEntity( target ) != null;
+      }
+      
+      @ Override
+      protected RogueEntity doHandle( final RPGScreen screen, final Boolean arg ) {
+        final Point target = viewDir.from( getPos() );
+        final RogueEntity entity = (RogueEntity) world.getEntity( target );
+        
+        if ( entity == null ) {
+          return null;
+        }
+        
+        final Random random = ThreadLocalRandom.current();
+        
+        final Stats stats = getStats();
+        final Stats stats2 = entity.getStats();
+        
+        final int minDamage = Math.max( stats.attack - stats2.defense, 0 );
+        final int maxDamage = minDamage + random.nextInt( stats.level() + 1 );
+        
+        final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
+        entity.damage.request( new Pair<>( damage, RogueEntity.this ) );
+        
+        return entity;
+      }
+    };
+    damage = new Handle<Pair<Integer, Object>, Void>() {
+      @ Override
+      protected Void doHandle( final RPGScreen screen, final Pair<Integer, Object> arg ) {
+        baseStats.hp = Math.max( baseStats.hp - arg.getKey(), 0 );
+        return null;
+      }
+      
+      @ Override
+      public void request( final Pair<Integer, Object> arg ) {
+        final int current = hasRequested() ? getRequested().getKey() : 0;
+        super.request( new Pair<>( current + arg.getKey(), arg.getValue() ) );
+      };
+    };
     
-    final Random random = ThreadLocalRandom.current();
-    
-    final Stats stats = getStats();
-    final Stats stats2 = entity.getStats();
-    
-    final int minDamage = Math.max( stats.attack - stats2.defense, 0 );
-    final int maxDamage = minDamage + random.nextInt( stats.level() + 1 );
-    
-    final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
-    entity.requestDamage( damage, this );
-  }
-  
-  private boolean canAttack( final Direction dir ) {
-    final Point pos = getPos();
-    
-    final int x = pos.x + dir.dx;
-    final int y = pos.y + dir.dy;
-    
-    return world.getEntity( new Point( x, y ) ) != null;
+    damage.requestCallback = ( requested, success ) -> onDamage(
+        requested.getKey(), requested.getValue() );
   }
   
   public Stats getStats() {
@@ -67,50 +87,19 @@ public abstract class RogueEntity extends Entity {
     return baseStats.hp == 0;
   }
   
-  public boolean requestAttack() {
-    if ( !canAttack( viewDir ) ) {
-      return false;
-    }
-    
-    attacking = true;
-    return true;
-  }
+  protected abstract void onDamage( final int damage, final Object source );
   
-  public boolean requestDamage( final int damage, final Object source ) {
-    this.damage += damage;
-    damaging = true;
-    return baseStats.hp - this.damage <= 0;
-  }
-  
-  private void takeDamage() {
-    baseStats.hp = Math.max( baseStats.hp - damage, 0 );
+  @ Override
+  public void updateStrong( final RPGScreen master ) {
+    super.updateStrong( master );
+    attack.updateStrong( master );
+    damage.updateStrong( master );
   }
   
   @ Override
-  public void update( final float delta ) {
-    super.update( delta );
-    
-    if ( attacking ) {
-      attackProgress += delta;
-      
-      if ( attackProgress >= 1f ) {
-        attack();
-        
-        attacking = false;
-        attackProgress = 0f;
-      }
-    }
-    
-    if ( damaging ) {
-      damageProgress += delta;
-      
-      if ( damageProgress >= 1f ) {
-        takeDamage();
-        
-        damaging = false;
-        damage = 0;
-        damageProgress = 0f;
-      }
-    }
+  public void updateWeak( final float delta ) {
+    super.updateWeak( delta );
+    attack.updateWeak( delta );
+    damage.updateWeak( delta );
   }
 }

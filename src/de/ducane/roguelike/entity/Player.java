@@ -28,6 +28,8 @@ public final class Player extends RogueEntity {
     baseStats.defense = 1;
     baseStats.hp = 30;
     baseStats.maxHp = 30;
+    
+    attack.callback = ( foo, entity ) -> loot( entity );
   }
   
   private void addExp( final int exp ) {
@@ -40,38 +42,21 @@ public final class Player extends RogueEntity {
     }
   }
   
-  @ Override
-  protected void attack() {
-    final Point pos = getPos();
-    final Point target = new Point( pos.x + viewDir.dx, pos.y + viewDir.dy );
-    final RogueEntity entity = (RogueEntity) world.getEntity( target );
-    
+  private void loot( final RogueEntity entity ) {
     if ( entity == null ) {
       return;
     }
     
-    final Random random = ThreadLocalRandom.current();
+    final Stats stats = entity.getStats();
+    addExp( stats.exp );
     
-    final Stats stats = getStats();
-    final Stats stats2 = entity.getStats();
-    
-    final int minDamage = Math.max( stats.attack - stats2.defense, 0 );
-    final int maxDamage = minDamage + random.nextInt( stats.level() + 1 );
-    
-    final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
-    final boolean dead = entity.requestDamage( damage, this );
-    
-    if ( dead ) {
-      addExp( stats2.exp );
+    if ( entity instanceof Mob ) {
+      final Mob mob = (Mob) entity;
+      final Item item = mob.getItem();
       
-      if ( entity instanceof Mob ) {
-        final Mob mob = (Mob) entity;
-        final Item item = mob.getItem();
-        
-        if ( item != null ) {
-          mob.setItem( null );
-          inventory.add( item );
-        }
+      if ( item != null ) {
+        mob.setItem( null );
+        inventory.add( item );
       }
     }
   }
@@ -128,5 +113,9 @@ public final class Player extends RogueEntity {
   @ Override
   public float moveSpeed() {
     return running ? 6f : 2f;
+  }
+  
+  @ Override
+  protected void onDamage( final int damage, final Object source ) {
   }
 }

@@ -31,6 +31,8 @@ public final class PlayScreen extends RPGScreen {
   private List<Rectangle> rooms;
   private Rectangle room;
   
+  private boolean attack;
+  
   private Rectangle2D.Float barBounds;
   
   private final LockedList<Menu> menus;
@@ -49,7 +51,7 @@ public final class PlayScreen extends RPGScreen {
     Tiles.builder = data -> RogueTiles.create( data, dark );
     GameObjects.builder = ( data, pos ) -> RogueObjects.create( data, pos, dark );
     
-    Events.BUILDERS.put( "downstairs", args0 -> Event.func( "downstairs", args1 -> {
+    Events.BUILDERS.put( "downstairs", args0 -> Event.func( "downstairs", ( master, args1 ) -> {
       final Entity entity = (Entity) args1.get( "entity" );
       final Player player = getPlayer();
       
@@ -206,7 +208,7 @@ public final class PlayScreen extends RPGScreen {
     fillRect( g, barBounds.x, barBounds.y, barBounds.width * health, barBounds.height );
     
     g.setColor( border );
-    g.setStroke( new BasicStroke( 0.0003f * getHeight() ) );
+    g.setStroke( new BasicStroke( 0.002f * getHeight() ) );
     drawRect( g, barBounds );
   }
   
@@ -228,6 +230,11 @@ public final class PlayScreen extends RPGScreen {
   public void update( final float delta ) {
     if ( !menus.isEmpty() ) {
       return;
+    }
+    
+    if ( attack ) {
+      getPlayer().attack.request( true );
+      attack = false;
     }
     
     super.update( delta );
@@ -278,7 +285,7 @@ public final class PlayScreen extends RPGScreen {
       
       switch ( event.getKeyCode() ) {
         case KeyEvent.VK_SPACE:
-          player.requestAttack();
+          attack = true;
           break;
         case KeyEvent.VK_M:
           if ( menus.isEmpty() ) {

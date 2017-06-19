@@ -88,9 +88,9 @@ public final class Level extends World {
   
   public void moveMobs() {
     for ( final Entity entity : listEntities() ) {
-      if ( entity instanceof Mob && entity.moveRequestDir == null ) {
+      if ( entity instanceof Mob && !entity.move.hasRequested() ) {
         final Mob mob = (Mob) entity;
-        mob.moveRequestDir = mob.aim( screen.getPlayer(), true );
+        mob.move.request( mob.aim( screen.getPlayer(), true ) );
       }
     }
   }
