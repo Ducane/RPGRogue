@@ -1,7 +1,10 @@
 package de.ducane.roguelike.level;
 
+import static de.androbin.collection.util.ObjectCollectionUtil.*;
 import de.androbin.rpg.tile.*;
 import de.androbin.util.*;
+import de.ducane.roguelike.dark.*;
+import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.screen.*;
 import de.ducane.util.*;
@@ -12,22 +15,22 @@ import java.util.concurrent.*;
 import org.json.simple.*;
 
 public final class LevelGenerator {
-  private LevelGenerator() {
-  }
+  private TileType[][] types;
+  private List<Rectangle> rooms;
+  private Level level;
   
-  private static void addIfAdjacentWall( final TileType[][] types, final List<Point> neighbours,
-      final Point pos ) {
-    if ( checkBounds( types, pos ) && types[ pos.y ][ pos.x ] == TileType.WALL ) {
+  private void addIfAdjacentWall( final List<Point> neighbours, final Point pos ) {
+    if ( checkBounds( pos ) && types[ pos.y ][ pos.x ] == TileType.WALL ) {
       neighbours.add( pos );
     }
   }
   
-  private static boolean checkBounds( final TileType[][] types, final Point pos ) {
+  private boolean checkBounds( final Point pos ) {
     return pos.x >= 0 && pos.x < types[ 0 ].length
         && pos.y >= 0 && pos.y < types.length;
   }
   
-  private static Point entryPoint( final TileType[][] types ) {
+  private Point entryPoint() {
     for ( int y = 0; y < types.length; y += 2 ) {
       for ( int x = 0; x < types[ 0 ].length; x += 2 ) {
         if ( types[ y ][ x ] == TileType.WALL ) {
@@ -40,8 +43,10 @@ public final class LevelGenerator {
   }
   
   @ SuppressWarnings( "unchecked" )
-  public static Level generate( final PlayScreen screen, final String name,
+  public Level generate( final PlayScreen screen, final String name,
       final JSONObject data ) {
+    final Random random = ThreadLocalRandom.current();
+    
     final JSONObject droprateData = (JSONObject) data.get( "droprate" );
     final String[] monsters = JSONUtil.toStringArray( data.get( "monsters" ) );
     
@@ -57,38 +62,36 @@ public final class LevelGenerator {
     final int minHeight = ( (Number) mapData.get( "minHeight" ) ).intValue();
     final int maxHeight = ( (Number) mapData.get( "maxHeight" ) ).intValue();
     
-    final Random random = ThreadLocalRandom.current();
-    
     final int width = minWidth + random.nextInt( maxWidth - minWidth + 1 );
     final int height = minHeight + random.nextInt( maxHeight - minHeight + 1 );
     
-    final TileType[][] types = new TileType[ height * 2 - 1 ][ width * 2 - 1 ];
-    final List<Rectangle> rooms = generateRooms( types, mapData, random, width, height );
-    generateBlueprint( types, random, rooms, width, height );
+    types = new TileType[ height * 2 - 1 ][ width * 2 - 1 ];
+    rooms = generateRooms( mapData, width, height );
+    generateBlueprint( width, height );
     
     final Dimension size = new Dimension( types[ 0 ].length, types.length );
-    final Level level = new Level( screen, name, size, rooms, monsters );
+    level = new Level( screen, name, size, rooms );
     
-    translate( level, types );
-    placeItems( level, droprates );
-    placeStairs( level );
-    level.spawnMobs();
+    translate();
+    placeItems( droprates );
+    placeStairs();
+    spawnMobs( monsters, screen.dark );
     
     return level;
   }
   
-  private static void generateBlueprint( final TileType[][] tileTypes, final Random random,
-      final List<Rectangle> rooms, final int width, final int height ) {
-    for ( int y = 0; y < tileTypes.length; y++ ) {
-      for ( int x = 0; x < tileTypes[ 0 ].length; x++ ) {
-        if ( tileTypes[ y ][ x ] == null ) {
-          tileTypes[ y ][ x ] = TileType.WALL;
+  private void generateBlueprint( final int width, final int height ) {
+    final Random random = ThreadLocalRandom.current();
+    
+    for ( int y = 0; y < types.length; y++ ) {
+      for ( int x = 0; x < types[ 0 ].length; x++ ) {
+        if ( types[ y ][ x ] == null ) {
+          types[ y ][ x ] = TileType.WALL;
         }
       }
     }
     
-    final Point entry = entryPoint( tileTypes );
-    generatePath( tileTypes, entry );
+    generatePath();
     
     for ( final Rectangle room : rooms ) {
       final int x;
@@ -106,12 +109,14 @@ public final class LevelGenerator {
         x = ( room.x + random.nextInt( room.width ) ) * 2;
       }
       
-      tileTypes[ y ][ x ] = TileType.DOOR;
+      types[ y ][ x ] = TileType.DOOR;
     }
   }
   
-  private static List<Rectangle> generateRooms( final TileType[][] tileTypes, final JSONObject data,
-      final Random random, final int width, final int height ) {
+  private List<Rectangle> generateRooms( final JSONObject data,
+      final int width, final int height ) {
+    final Random random = ThreadLocalRandom.current();
+    
     final int minRooms = ( (Number) data.get( "minRooms" ) ).intValue();
     final int maxRooms = ( (Number) data.get( "maxRooms" ) ).intValue();
     final int minRoomWidth = ( (Number) data.get( "minRoomWidth" ) ).intValue();
@@ -150,7 +155,7 @@ public final class LevelGenerator {
           
           for ( int y = startY; y <= endY; y++ ) {
             for ( int x = startX; x <= endX; x++ ) {
-              tileTypes[ y ][ x ] = TileType.GRANITE;
+              types[ y ][ x ] = TileType.GRANITE;
             }
           }
           
@@ -163,23 +168,23 @@ public final class LevelGenerator {
     return rooms;
   }
   
-  private static void generatePath( final TileType[][] types, final Point entry ) {
-    final Deque<Point> deque = new ArrayDeque<>();
+  private void generatePath() {
     final Random random = ThreadLocalRandom.current();
+    final Deque<Point> deque = new ArrayDeque<>();
     
     Point lastDirection = null;
     
-    Point current = entry;
+    Point current = entryPoint();
     types[ current.y ][ current.x ] = TileType.FLOOR;
     deque.add( current );
     
     while ( !deque.isEmpty() ) {
       final List<Point> neighbours = new ArrayList<>();
       
-      addIfAdjacentWall( types, neighbours, new Point( current.x + 2, current.y ) );
-      addIfAdjacentWall( types, neighbours, new Point( current.x - 2, current.y ) );
-      addIfAdjacentWall( types, neighbours, new Point( current.x, current.y + 2 ) );
-      addIfAdjacentWall( types, neighbours, new Point( current.x, current.y - 2 ) );
+      addIfAdjacentWall( neighbours, new Point( current.x + 2, current.y ) );
+      addIfAdjacentWall( neighbours, new Point( current.x - 2, current.y ) );
+      addIfAdjacentWall( neighbours, new Point( current.x, current.y + 2 ) );
+      addIfAdjacentWall( neighbours, new Point( current.x, current.y - 2 ) );
       
       if ( hasUnvisitedNeighbours( neighbours, types ) ) {
         final Point neighbour;
@@ -197,7 +202,9 @@ public final class LevelGenerator {
         
         deque.push( current );
         
-        final Point between = pointBetween( current, neighbour );
+        final Point between = new Point(
+            ( current.x + neighbour.x ) / 2,
+            ( current.y + neighbour.y ) / 2 );
         types[ between.y ][ between.x ] = TileType.FLOOR;
         lastDirection = new Point( neighbour.x - current.x, neighbour.y - current.y );
         current = neighbour;
@@ -208,8 +215,7 @@ public final class LevelGenerator {
     }
   }
   
-  private static boolean hasUnvisitedNeighbours( final List<Point> neighbours,
-      final TileType[][] types ) {
+  private boolean hasUnvisitedNeighbours( final List<Point> neighbours, final TileType[][] types ) {
     for ( int i = 0; i < neighbours.size(); i++ ) {
       final Point pos = neighbours.get( i );
       
@@ -221,7 +227,7 @@ public final class LevelGenerator {
     return false;
   }
   
-  private static void placeItems( final Level level, final Map<String, Float> droprates ) {
+  private void placeItems( final Map<String, Float> droprates ) {
     final Random random = ThreadLocalRandom.current();
     
     final int minItems = 4;
@@ -263,7 +269,7 @@ public final class LevelGenerator {
     }
   }
   
-  private static void placeStairs( final Level level ) {
+  private void placeStairs() {
     final Random random = ThreadLocalRandom.current();
     
     Point up;
@@ -289,11 +295,29 @@ public final class LevelGenerator {
     level.setDownStairsPos( down );
   }
   
-  private static Point pointBetween( final Point a, final Point b ) {
-    return new Point( ( a.x + b.x ) / 2, ( a.y + b.y ) / 2 );
+  private void spawnMobs( final String[] monsters, final MovingDark dark ) {
+    final Random random = ThreadLocalRandom.current();
+    
+    for ( final Rectangle room : rooms ) {
+      final String monster = randomElement( monsters, null );
+      
+      Point pos;
+      boolean success;
+      
+      do {
+        final int x = ( random.nextInt( room.width ) + room.x ) * 2;
+        final int y = ( random.nextInt( room.height ) + room.y ) * 2;
+        pos = new Point( x, y );
+        
+        success = level.getEntity( pos ) == null && level.getGameObject( pos ) == null;
+      } while ( !success );
+      
+      final Mob mob = new Mob( level, RogueEntites.getData( "mob/" + monster ), pos, dark );
+      level.addEntity( mob );
+    }
   }
   
-  private static void translate( final Level level, final TileType[][] types ) {
+  private void translate() {
     for ( int y = 0; y < types.length; y++ ) {
       for ( int x = 0; x < types[ y ].length; x++ ) {
         final Point pos = new Point( x, y );

@@ -26,7 +26,7 @@ public abstract class RogueEntity extends Entity {
     
     attack = new Handle<Boolean, RogueEntity>() {
       @ Override
-      protected boolean canHandle( final Boolean arg ) {
+      public boolean canHandle( final Boolean arg ) {
         final Point target;
         
         if ( move.hasCurrent() ) {

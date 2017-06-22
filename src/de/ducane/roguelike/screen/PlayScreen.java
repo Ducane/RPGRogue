@@ -74,7 +74,8 @@ public final class PlayScreen extends RPGScreen {
     final String path = "level/level" + index + ".json";
     final JSONObject data = (JSONObject) JSONUtil.parseJSON( path ).get();
     
-    return LevelGenerator.generate( this, name, data );
+    final LevelGenerator generator = new LevelGenerator();
+    return generator.generate( this, name, data );
   }
   
   private Rectangle currentRoom() {
@@ -126,7 +127,7 @@ public final class PlayScreen extends RPGScreen {
     this.room = currentRoom();
     updateDark();
     
-    level.moveMobs();
+    level.moveMobs( getPlayer() );
   }
   
   @ Override

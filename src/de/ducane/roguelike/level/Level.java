@@ -1,6 +1,5 @@
 package de.ducane.roguelike.level;
 
-import static de.androbin.collection.util.ObjectCollectionUtil.*;
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.rpg.*;
 import de.androbin.rpg.obj.*;
@@ -14,13 +13,11 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.*;
 
 public final class Level extends World {
   private final PlayScreen screen;
   
   private final List<Point> visitedTiles = new ArrayList<>();
-  private final String[] monsters;
   
   private final List<Rectangle> rooms;
   
@@ -28,13 +25,12 @@ public final class Level extends World {
   private Point upStairsPos;
   
   public Level( final PlayScreen screen, final String name, final Dimension size,
-      final List<Rectangle> rooms, final String[] monsters ) {
+      final List<Rectangle> rooms ) {
     super( size, name );
     
     this.screen = screen;
     
     this.rooms = rooms;
-    this.monsters = monsters;
   }
   
   public Point getDownStairsPos() {
@@ -86,11 +82,11 @@ public final class Level extends World {
     }
   }
   
-  public void moveMobs() {
+  public void moveMobs( final Entity target ) {
     for ( final Entity entity : listEntities() ) {
       if ( entity instanceof Mob && !entity.move.hasRequested() ) {
         final Mob mob = (Mob) entity;
-        mob.move.request( mob.aim( screen.getPlayer(), true ) );
+        mob.move.request( mob.aim( target, true ) );
       }
     }
   }
@@ -175,28 +171,6 @@ public final class Level extends World {
   protected void setDownStairsPos( final Point pos ) {
     this.downStairsPos = pos;
     setTile( pos, Tiles.create( "downstairs" ) );
-  }
-  
-  protected void spawnMobs() {
-    final Random random = ThreadLocalRandom.current();
-    
-    for ( final Rectangle room : getRooms() ) {
-      final String monster = randomElement( monsters, null );
-      
-      Point pos;
-      boolean success;
-      
-      do {
-        final int x = ( random.nextInt( room.width ) + room.x ) * 2;
-        final int y = ( random.nextInt( room.height ) + room.y ) * 2;
-        pos = new Point( x, y );
-        
-        success = getEntity( pos ) == null && getGameObject( pos ) == null;
-      } while ( !success );
-      
-      final Mob mob = new Mob( this, RogueEntites.getData( "mob/" + monster ), pos, screen.dark );
-      addEntity( mob );
-    }
   }
   
   public void update() {
