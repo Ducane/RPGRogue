@@ -153,24 +153,15 @@ public final class PlayScreen extends RPGScreen {
   @ Override
   public void render( final Graphics2D g ) {
     super.render( g );
-    
     dark.darken( g, trans );
     
     getLevel().miniMap.render( g, getPlayer().getFloatPos(), scale, getWidth() );
     
-    renderHPBar( g );
-    
-    g.setColor( Color.WHITE );
-    g.setFont( new Font( "Determination Mono", 0, (int) ( 0.04f * getHeight() ) ) );
-    
-    final Player player = getPlayer();
-    final Stats stats = player.getStats();
-    
-    g.drawString( "Lv " + stats.level(), barBounds.x - 0.1f * getWidth(), barBounds.y );
-    g.drawString( "E" + floor, barBounds.x - 0.175f * getWidth(), barBounds.y );
-    g.drawString( "HP " + stats.hp + "/" + stats.maxHp,
-        barBounds.x, barBounds.y - 0.01f * getHeight() );
-    
+    renderStats( g );
+    renderMenus( g );
+  }
+  
+  private void renderMenus( final Graphics2D g ) {
     final Point2D.Float pos = new Point2D.Float();
     g.translate( menuOffset.x, menuOffset.y );
     pos.x += menuOffset.x;
@@ -188,7 +179,7 @@ public final class PlayScreen extends RPGScreen {
     g.translate( -pos.x, -pos.y );
   }
   
-  private void renderHPBar( final Graphics2D g ) {
+  private void renderStats( final Graphics2D g ) {
     g.setColor( Color.BLACK );
     fillRect( g, barBounds );
     
@@ -214,6 +205,14 @@ public final class PlayScreen extends RPGScreen {
     g.setColor( border );
     g.setStroke( new BasicStroke( 0.002f * getHeight() ) );
     drawRect( g, barBounds );
+    
+    g.setColor( Color.WHITE );
+    g.setFont( new Font( "Determination Mono", 0, (int) ( 0.04f * getHeight() ) ) );
+    
+    g.drawString( "Lv " + stats.level(), barBounds.x - 0.1f * getWidth(), barBounds.y );
+    g.drawString( "E" + floor, barBounds.x - 0.175f * getWidth(), barBounds.y );
+    g.drawString( "HP " + stats.hp + "/" + stats.maxHp,
+        barBounds.x, barBounds.y - 0.01f * getHeight() );
   }
   
   public void requestNextFloor() {
