@@ -34,7 +34,11 @@ public final class Player extends RogueEntity {
       final Level level = (Level) world;
       
       if ( !running ) {
-        inventory.add( level.takeItem( getPos() ) );
+        final Item item = level.takeItem( getPos() );
+        
+        if ( item != null ) {
+          inventory.add( item );
+        }
       }
       
       level.onPlayerMoved( this );

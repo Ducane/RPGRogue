@@ -68,12 +68,14 @@ public enum Menu {
       final int i = index + 8 * pageIndex;
       final LockedList<Item> inventory = player.inventory;
       
-      if ( i < inventory.size() ) {
-        final String name = inventory.get( i ).name;
-        return name.length() > 10 ? name.substring( 0, 10 ) : name;
-      } else {
+      final Item item = inventory.tryGet( i );
+      
+      if ( item == null ) {
         return "----------";
       }
+      
+      final String name = item.name;
+      return name.length() > 10 ? name.substring( 0, 10 ) : name;
     }
     
     @ Override
@@ -152,17 +154,15 @@ public enum Menu {
       fillRect( g, pageCursorLeft );
       fillRect( g, pageCursorRight );
       
-      if ( selection < inventory.size() ) {
+      final Item item = inventory.tryGet( selection );
+      
+      if ( item != null ) {
         g.setColor( Color.BLACK );
         fillRect( g, statBounds );
         g.setStroke( stroke );
         g.setColor( Color.WHITE );
         drawRect( g, statBounds.x, bounds.y, statBounds.width, statBounds.height );
-      }
-      
-      if ( inventory.size() > selection ) {
-        final BufferedImage image = inventory.get( selection ).image;
-        drawImage( g, image, statImageBounds );
+        drawImage( g, item.image, statImageBounds );
       }
     }
     
