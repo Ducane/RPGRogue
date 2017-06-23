@@ -184,21 +184,7 @@ public enum Menu {
     
     @ Override
     protected String getLabel( final int index, final Player player ) {
-      final Equipment equipment = player.equipment;
-      final Item[] items = {
-          equipment.getWeapon(),
-          equipment.getArmor(),
-          equipment.getAccessoire()
-      };
-      
-      final Item item = items[ index ];
-      
-      if ( item == null ) {
-        return null;
-      }
-      
-      final String name = item.name;
-      return name.length() > 10 ? name.substring( 0, 10 ) : name;
+      return null;
     }
     
     @ Override
@@ -250,6 +236,7 @@ public enum Menu {
       };
       
       final FontMetrics fm = g.getFontMetrics();
+      g.setColor( Color.WHITE );
       
       for ( int i = 0; i < statStrings.length; i++ ) {
         final String statString = statStrings[ i ];
@@ -275,6 +262,26 @@ public enum Menu {
           drawImage( g, frame, buttonBounds[ i ] );
           drawImage( g, icon, buttonBounds[ i ] );
         }
+      }
+      
+      for ( int i = 0; i < items.length; i++ ) {
+        final Item item = items[ i ];
+        
+        if ( item == null ) {
+          continue;
+        }
+        
+        final Rectangle2D.Float rect = buttonBounds[ i ];
+        
+        drawImage( g, item.image, rect );
+        
+        final String name = item.name;
+        final String trimName = name.length() > 10
+            ? name.substring( 0, 10 ) : name;
+        
+        g.drawString( trimName,
+            rect.x - fm.stringWidth( trimName ) - rect.width * 0.5f,
+            rect.y + ( rect.height - fm.getHeight() ) * 0.5f + fm.getAscent() );
       }
     }
     

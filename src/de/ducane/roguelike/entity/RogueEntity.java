@@ -15,76 +15,39 @@ public abstract class RogueEntity extends Entity {
   public final Handle<Boolean, RogueEntity> attack;
   public final Handle<Pair<Integer, Object>, Void> damage;
   
-  public RogueEntity( final Level level, final RogueEntityData data, final Point pos ) {
+  public RogueEntity( final World level, final RogueEntityData data, final Point pos ) {
     super( level, pos );
     
     this.data = data;
     
     baseStats = new Stats( data.stats );
     
-    move.callback = ( a, b ) -> ( (Level) world ).onEntityMoved( this );
+    move.callback = ( a, b ) -> ( (Level) this.world ).onEntityMoved( this );
     
-    attack = new Handle<Boolean, RogueEntity>() {
-      @ Override
-      public boolean canHandle( final Boolean arg ) {
-        final Point target;
-        
-        if ( move.hasCurrent() ) {
-          target = viewDir.from( viewDir.from( getPos() ) );
-        } else {
-          target = viewDir.from( getPos() );
-        }
-        
-        return world.getEntity( target ) != null;
-      }
-      
-      @ Override
-      protected RogueEntity doHandle( final RPGScreen screen, final Boolean arg ) {
-        final Point target = viewDir.from( getPos() );
-        final RogueEntity entity = (RogueEntity) world.getEntity( target );
-        
-        if ( entity == null ) {
-          return null;
-        }
-        
-        final Random random = ThreadLocalRandom.current();
-        
-        final Stats stats = getStats();
-        final Stats stats2 = entity.getStats();
-        
-        final int minDamage = Math.max( stats.attack - stats2.defense, 0 );
-        final int maxDamage = minDamage + random.nextInt( stats.level() + 1 );
-        
-        final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
-        entity.damage.request( new Pair<>( damage, RogueEntity.this ) );
-        
-        return entity;
-      }
-    };
-    damage = new Handle<Pair<Integer, Object>, Void>() {
-      @ Override
-      protected Void doHandle( final RPGScreen screen, final Pair<Integer, Object> arg ) {
-        baseStats.hp = Math.max( baseStats.hp - arg.getKey(), 0 );
-        return null;
-      }
-      
-      @ Override
-      public void request( final Pair<Integer, Object> arg ) {
-        final int current = hasRequested() ? getRequested().getKey() : 0;
-        super.request( new Pair<>( current + arg.getKey(), arg.getValue() ) );
-      };
-    };
-    
-    damage.requestCallback = ( requested, success ) -> onDamage(
-        requested.getKey(), requested.getValue() );
+    attack = new AttackHandle();
+    damage = new DamageHandle();
   }
   
   public Stats getStats() {
     return baseStats;
   }
   
-  public boolean isDead() {
-    return baseStats.hp == 0;
+  public boolean isDead( final boolean decay ) {
+    if ( decay ) {
+      return baseStats.hp == 0;
+    } else {
+      int totalDamage = 0;
+      
+      if ( damage.hasCurrent() ) {
+        totalDamage += damage.getCurrent().getKey();
+      }
+      
+      if ( damage.hasRequested() ) {
+        totalDamage += damage.getRequested().getKey();
+      }
+      
+      return baseStats.hp <= totalDamage;
+    }
   }
   
   protected abstract void onDamage( final int damage, final Object source );
@@ -101,5 +64,67 @@ public abstract class RogueEntity extends Entity {
     super.updateWeak( delta );
     attack.updateWeak( delta );
     damage.updateWeak( delta );
+  }
+  
+  private final class AttackHandle extends Handle<Boolean, RogueEntity> {
+    private final RogueEntity entity = RogueEntity.this;
+    
+    @ Override
+    public boolean canHandle( final Boolean arg ) {
+      return getTargetPoint() != null;
+    }
+    
+    @ Override
+    protected RogueEntity doHandle( final RPGScreen screen, final Boolean arg ) {
+      final RogueEntity target = getTarget();
+      
+      if ( target == null ) {
+        return null;
+      }
+      
+      final Random random = ThreadLocalRandom.current();
+      
+      final Stats stats = getStats();
+      final Stats stats2 = target.getStats();
+      
+      final int minDamage = Math.max( stats.attack - stats2.defense, 0 );
+      final int maxDamage = minDamage + random.nextInt( stats.level() + 1 );
+      
+      final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
+      target.damage.request( new Pair<>( damage, entity ) );
+      
+      return target.isDead( false ) ? target : null;
+    }
+    
+    private RogueEntity getTarget() {
+      return (RogueEntity) world.getEntity( getTargetPoint() );
+    }
+    
+    private Point getTargetPoint() {
+      if ( move.hasCurrent() ) {
+        return viewDir.from( viewDir.from( getPos() ) );
+      } else {
+        return viewDir.from( getPos() );
+      }
+    }
+  }
+  
+  private final class DamageHandle extends Handle<Pair<Integer, Object>, Void> {
+    public DamageHandle() {
+      requestCallback = ( requested, success ) -> onDamage(
+          requested.getKey(), requested.getValue() );
+    }
+    
+    @ Override
+    protected Void doHandle( final RPGScreen screen, final Pair<Integer, Object> arg ) {
+      baseStats.hp = Math.max( baseStats.hp - arg.getKey(), 0 );
+      return null;
+    }
+    
+    @ Override
+    public void request( final Pair<Integer, Object> arg ) {
+      final int current = hasRequested() ? getRequested().getKey() : 0;
+      super.request( new Pair<>( current + arg.getKey(), arg.getValue() ) );
+    }
   }
 }

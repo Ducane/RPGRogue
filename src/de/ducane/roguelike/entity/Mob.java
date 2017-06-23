@@ -42,7 +42,7 @@ public final class Mob extends RogueEntity {
       final Entity entity = (Entity) source;
       viewDir = aim( entity, false );
       
-      if ( !isDead() ) {
+      if ( !isDead( false ) ) {
         attack.request( true );
       }
     }

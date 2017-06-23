@@ -22,7 +22,6 @@ import java.util.List;
 import org.json.simple.*;
 
 public final class PlayScreen extends RPGScreen {
-  private Level level;
   private int floor;
   private int requestedFloor;
   
@@ -109,6 +108,10 @@ public final class PlayScreen extends RPGScreen {
     return new TeeKeyListener( new KeyInput(), super.getKeyListener() );
   }
   
+  private Level getLevel() {
+    return (Level) world;
+  }
+  
   @ Override
   public MouseListener getMouseListener() {
     return new MouseInput();
@@ -127,7 +130,7 @@ public final class PlayScreen extends RPGScreen {
     this.room = currentRoom();
     updateDark();
     
-    level.moveMobs( getPlayer() );
+    getLevel().moveMobs( getPlayer() );
   }
   
   @ Override
@@ -153,7 +156,7 @@ public final class PlayScreen extends RPGScreen {
     
     dark.darken( g, trans );
     
-    level.renderMiniMap( g, getPlayer().getFloatPos(), scale, getWidth() );
+    getLevel().miniMap.render( g, getPlayer().getFloatPos(), scale, getWidth() );
     
     renderHPBar( g );
     
@@ -222,12 +225,6 @@ public final class PlayScreen extends RPGScreen {
   }
   
   @ Override
-  public void switchWorld( final String name, final Point pos ) {
-    super.switchWorld( name, pos );
-    level = (Level) world;
-  }
-  
-  @ Override
   public void update( final float delta ) {
     if ( !menus.isEmpty() ) {
       return;
@@ -239,7 +236,7 @@ public final class PlayScreen extends RPGScreen {
     }
     
     super.update( delta );
-    level.update();
+    getLevel().update();
     
     if ( floor != requestedFloor ) {
       floor = requestedFloor;
@@ -254,7 +251,7 @@ public final class PlayScreen extends RPGScreen {
       dark.dark = new RectDark( scale * room.width, scale * room.height );
     }
     
-    level.updateMiniMap( dark, scale );
+    getLevel().miniMap.update( dark, scale );
   }
   
   public void updateFloor() {

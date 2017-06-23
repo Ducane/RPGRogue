@@ -1,25 +1,21 @@
 package de.ducane.roguelike.level;
 
-import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.rpg.*;
 import de.androbin.rpg.obj.*;
 import de.androbin.rpg.tile.*;
-import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.obj.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
-import java.awt.geom.*;
 import java.util.*;
 import java.util.List;
 
 public final class Level extends World {
   private final PlayScreen screen;
-  
-  private final List<Point> visitedTiles = new ArrayList<>();
-  
   private final List<Rectangle> rooms;
+  
+  public final MiniMap miniMap;
   
   private Point downStairsPos;
   private Point upStairsPos;
@@ -29,8 +25,9 @@ public final class Level extends World {
     super( size, name );
     
     this.screen = screen;
-    
     this.rooms = rooms;
+    
+    this.miniMap = new MiniMap( this );
   }
   
   public Point getDownStairsPos() {
@@ -60,26 +57,34 @@ public final class Level extends World {
     return upStairsPos;
   }
   
-  protected void giveItem( final RogueEntity entity ) {
-    final RogueTile field = getTile( entity.getPos() );
-    final Item item = field.getItem();
+  private void giveItem( final RogueEntity entity ) {
+    final RogueTile tile = getTile( entity.getPos() );
+    final Item item = tile.getItem();
     
     if ( item == null ) {
       return;
     }
     
+    if ( giveItem( entity, item ) ) {
+      tile.setItem( null );
+    }
+  }
+  
+  private static boolean giveItem( final RogueEntity entity, final Item item ) {
     if ( entity instanceof Mob ) {
       final Mob mob = (Mob) entity;
       
       if ( mob.getItem() == null ) {
         mob.setItem( item );
-        field.setItem( null );
+        return true;
       }
     } else if ( entity instanceof Player ) {
       final Player player = (Player) entity;
       player.inventory.add( item );
-      field.setItem( null );
+      return true;
     }
+    
+    return false;
   }
   
   public void moveMobs( final Entity target ) {
@@ -117,52 +122,6 @@ public final class Level extends World {
     }
   }
   
-  public void renderMiniMap( final Graphics2D g, final Point2D.Float playerPos,
-      final float scale, final int width ) {
-    final float size = scale * 0.2f;
-    
-    for ( final Point pos : visitedTiles ) {
-      final RogueTile tile = getTile( pos );
-      
-      Color color;
-      
-      switch ( tile.data.name ) {
-        case "granite":
-          color = new Color( 0.8f, 0.8f, 0.8f, 0.7f );
-          break;
-        
-        case "floor":
-        case "door":
-          color = new Color( 0.2f, 0.8f, 1f, 0.7f );
-          break;
-        
-        default:
-          color = new Color( 0f, 0f, 0f, 0f );
-          break;
-      }
-      
-      if ( pos.equals( upStairsPos ) ) {
-        color = new Color( 0.3f, 0.3f, 0.3f, 0.7f );
-      } else if ( pos.equals( downStairsPos ) ) {
-        color = new Color( 0.15f, 0.15f, 0.15f, 0.7f );
-      }
-      
-      if ( tile.getItem() != null ) {
-        color = new Color( 1f, 0.25f, 0.25f, 0.7f );
-      }
-      
-      final float x = width - this.size.width * size + pos.x * size;
-      final float y = pos.y * size;
-      
-      g.setColor( color );
-      fillRect( g, x, y, size, size );
-    }
-    
-    g.setColor( Color.GREEN );
-    fillRect( g, width - ( this.size.width - playerPos.x ) * size,
-        playerPos.y * size, size, size );
-  }
-  
   protected void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
     addGameObject( GameObjects.create( "upstairs", pos ) );
@@ -179,26 +138,13 @@ public final class Level extends World {
     for ( final Entity entity : listEntities() ) {
       final RogueEntity rogueEntity = (RogueEntity) entity;
       
-      if ( rogueEntity.isDead() ) {
+      if ( rogueEntity.isDead( true ) ) {
         toRemove.add( rogueEntity );
       }
     }
     
     for ( final Entity entity : toRemove ) {
       removeEntity( entity );
-    }
-  }
-  
-  public void updateMiniMap( final MovingDark dark, final float scale ) {
-    for ( int y = 0; y < size.height; y++ ) {
-      for ( int x = 0; x < size.width; x++ ) {
-        final Point p = new Point( x, y );
-        final Point2D.Float center = new Point2D.Float( x + 0.5f, y + 0.5f );
-        
-        if ( !visitedTiles.contains( p ) && dark.contains( center ) ) {
-          visitedTiles.add( p );
-        }
-      }
     }
   }
 }
