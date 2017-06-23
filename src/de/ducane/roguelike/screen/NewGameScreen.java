@@ -1,6 +1,5 @@
 package de.ducane.roguelike.screen;
 
-// import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.game.*;
 import de.androbin.gfx.transition.*;
 import java.awt.*;
@@ -17,27 +16,16 @@ public final class NewGameScreen extends Screen {
   public NewGameScreen( final Game game ) {
     super( game );
     
+    inputs.keyboard = new KeyInput();
+    inputs.mouse = new MouseInput();
+    inputs.mouseMotion = new MouseMotionInput();
+    
     name = new StringBuilder();
   }
   
   private void startGame() {
     game.gsm.crossfadeSwitch( new PlayScreen( game, 48f, name.toString() ),
         ColorCrossfade.BLACK, 1f );
-  }
-  
-  @ Override
-  public KeyListener getKeyListener() {
-    return new NameKeyListener();
-  }
-  
-  @ Override
-  public MouseListener getMouseListener() {
-    return new NameMouseListener();
-  }
-  
-  @ Override
-  public MouseMotionListener getMouseMotionListener() {
-    return new NameMouseMotionListener();
   }
   
   public String getName() {
@@ -79,7 +67,7 @@ public final class NewGameScreen extends Screen {
   public void update( final float delta ) {
   }
   
-  private class NameKeyListener extends KeyAdapter {
+  private final class KeyInput extends KeyAdapter {
     @ Override
     public void keyPressed( final KeyEvent event ) {
       final char c = event.getKeyChar();
@@ -101,7 +89,7 @@ public final class NewGameScreen extends Screen {
     }
   }
   
-  private class NameMouseListener extends MouseAdapter {
+  private final class MouseInput extends MouseAdapter {
     @ Override
     public void mousePressed( final MouseEvent event ) {
       if ( buttonSelection && name.length() > 0 ) {
@@ -110,7 +98,7 @@ public final class NewGameScreen extends Screen {
     }
   }
   
-  private class NameMouseMotionListener extends MouseAdapter {
+  private final class MouseMotionInput extends MouseAdapter {
     @ Override
     public void mouseMoved( final MouseEvent event ) {
       if ( buttonBounds.contains( event.getPoint() ) ) {

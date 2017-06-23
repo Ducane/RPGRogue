@@ -34,22 +34,11 @@ public final class MenuScreen extends Screen {
   public MenuScreen( final Game game ) {
     super( game );
     
+    inputs.keyboard = new KeyInput();
+    inputs.mouse = new MouseInput();
+    inputs.mouseMotion = new MouseMotionInput();
+    
     this.rm = new DefaultResourceManager<>();
-  }
-  
-  @ Override
-  public KeyListener getKeyListener() {
-    return new MenuKeyListener();
-  }
-  
-  @ Override
-  public MouseListener getMouseListener() {
-    return new MenuMouseListener();
-  }
-  
-  @ Override
-  public MouseMotionListener getMouseMotionListener() {
-    return new MenuMouseMotionListener();
   }
   
   @ Override
@@ -209,7 +198,7 @@ public final class MenuScreen extends Screen {
     }
   }
   
-  private class MenuKeyListener extends KeyAdapter {
+  private final class KeyInput extends KeyAdapter {
     @ Override
     public void keyPressed( final KeyEvent event ) {
       switch ( event.getKeyCode() ) {
@@ -232,14 +221,14 @@ public final class MenuScreen extends Screen {
     }
   }
   
-  private class MenuMouseListener extends MouseAdapter {
+  private final class MouseInput extends MouseAdapter {
     @ Override
     public void mousePressed( final MouseEvent event ) {
       runCommand( selection );
     }
   }
   
-  private class MenuMouseMotionListener extends MouseMotionAdapter {
+  private final class MouseMotionInput extends MouseMotionAdapter {
     @ Override
     public void mouseMoved( final MouseEvent event ) {
       for ( int i = 0; i < buttonBounds.length; i++ ) {

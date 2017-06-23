@@ -40,6 +40,10 @@ public final class PlayScreen extends RPGScreen {
   public PlayScreen( final Game game, final float scale, final String name ) {
     super( game, scale );
     
+    inputs.keyboard = new TeeKeyListener( new KeyInput(), inputs.keyboard );
+    inputs.mouse = new MouseInput();
+    inputs.mouseMotion = new MouseMotionInput();
+    
     menus = new LockedList<>();
     
     dark = new MovingDark( new Color( 0f, 0f, 0f, 0.8f ), scale );
@@ -103,23 +107,8 @@ public final class PlayScreen extends RPGScreen {
         : new Point2D.Float( room.x, room.y );
   }
   
-  @ Override
-  public KeyListener getKeyListener() {
-    return new TeeKeyListener( new KeyInput(), super.getKeyListener() );
-  }
-  
   private Level getLevel() {
     return (Level) world;
-  }
-  
-  @ Override
-  public MouseListener getMouseListener() {
-    return new MouseInput();
-  }
-  
-  @ Override
-  public MouseMotionListener getMouseMotionListener() {
-    return new MouseMotionInput();
   }
   
   public Player getPlayer() {

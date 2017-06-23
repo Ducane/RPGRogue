@@ -31,6 +31,8 @@ public final class IntroScreen extends Screen {
   public IntroScreen( final Game game ) {
     super( game );
     
+    inputs.keyboard = new KeyInput();
+    
     charSpeed = TEXT_SPEED;
     stepwiseOutput = true;
     
@@ -39,11 +41,6 @@ public final class IntroScreen extends Screen {
     for ( int i = 0; i < images.length; i++ ) {
       images[ i ] = ImageUtil.loadImage( "intro/intro" + i + ".png" );
     }
-  }
-  
-  @ Override
-  public KeyListener getKeyListener() {
-    return new InterludeKeyListener();
   }
   
   @ Override
@@ -128,7 +125,7 @@ public final class IntroScreen extends Screen {
     }
   }
   
-  private class InterludeKeyListener extends KeyAdapter {
+  private final class KeyInput extends KeyAdapter {
     @ Override
     public void keyReleased( final KeyEvent event ) {
       switch ( event.getKeyCode() ) {
