@@ -15,14 +15,12 @@ public abstract class RogueEntity extends Entity {
   public final Handle<Boolean, RogueEntity> attack;
   public final Handle<Pair<Integer, Object>, Void> damage;
   
-  public RogueEntity( final World level, final RogueEntityData data, final Point pos ) {
+  public RogueEntity( final Level level, final RogueEntityData data, final Point pos ) {
     super( level, pos );
     
     this.data = data;
     
     baseStats = new Stats( data.stats );
-    
-    move.callback = ( a, b ) -> ( (Level) this.world ).onEntityMoved( this );
     
     attack = new AttackHandle();
     damage = new DamageHandle();

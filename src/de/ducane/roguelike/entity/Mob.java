@@ -15,6 +15,12 @@ public final class Mob extends RogueEntity {
     super( level, data, pos );
     
     renderer = new MobRenderer( this, data.animation, dark );
+    
+    move.callback = ( dir, foo ) -> {
+      if ( item == null ) {
+        item = ( (Level) world ).takeItem( getPos() );
+      }
+    };
   }
   
   public Direction aim( final Entity entity, final boolean moving ) {

@@ -2,6 +2,7 @@ package de.ducane.roguelike.entity;
 
 import de.androbin.thread.*;
 import de.ducane.roguelike.item.*;
+import de.ducane.roguelike.level.*;
 import java.awt.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -29,6 +30,15 @@ public final class Player extends RogueEntity {
     baseStats.hp = 30;
     baseStats.maxHp = 30;
     
+    move.callback = ( dir, foo ) -> {
+      final Level level = (Level) world;
+      
+      if ( !running ) {
+        inventory.add( level.takeItem( getPos() ) );
+      }
+      
+      level.onPlayerMoved( this );
+    };
     attack.callback = ( foo, entity ) -> loot( entity );
   }
   

@@ -57,34 +57,12 @@ public final class Level extends World {
     return upStairsPos;
   }
   
-  private void giveItem( final RogueEntity entity ) {
-    final RogueTile tile = getTile( entity.getPos() );
+  public Item takeItem( final Point pos ) {
+    final RogueTile tile = getTile( pos );
     final Item item = tile.getItem();
     
-    if ( item == null ) {
-      return;
-    }
-    
-    if ( giveItem( entity, item ) ) {
-      tile.setItem( null );
-    }
-  }
-  
-  private static boolean giveItem( final RogueEntity entity, final Item item ) {
-    if ( entity instanceof Mob ) {
-      final Mob mob = (Mob) entity;
-      
-      if ( mob.getItem() == null ) {
-        mob.setItem( item );
-        return true;
-      }
-    } else if ( entity instanceof Player ) {
-      final Player player = (Player) entity;
-      player.inventory.add( item );
-      return true;
-    }
-    
-    return false;
+    tile.setItem( null );
+    return item;
   }
   
   public void moveMobs( final Entity target ) {
@@ -96,29 +74,13 @@ public final class Level extends World {
     }
   }
   
-  public void onEntityMoved( final RogueEntity entity ) {
-    if ( entity instanceof Mob ) {
-      final Mob mob = (Mob) entity;
-      
-      if ( mob.getItem() == null ) {
-        giveItem( mob );
-      }
-    }
+  public void onPlayerMoved( final Player player ) {
+    screen.onPlayerMoved();
     
-    if ( entity instanceof Player ) {
-      screen.onPlayerMoved();
-      
-      final Player player = (Player) entity;
-      
-      if ( !player.running ) {
-        giveItem( player );
-      }
-      
-      final RogueObject object = getGameObject( player.getPos() );
-      
-      if ( object != null ) {
-        object.onPlayerEntered( screen );
-      }
+    final RogueObject object = getGameObject( player.getPos() );
+    
+    if ( object != null ) {
+      object.onPlayerEntered( screen );
     }
   }
   
