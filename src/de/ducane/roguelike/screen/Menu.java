@@ -64,11 +64,16 @@ public enum Menu {
     private Rectangle2D.Float pageCursorLeft;
     
     @ Override
+    protected int getDataIndex() {
+      return selection + pageIndex * 8;
+    }
+    
+    @ Override
     protected String getLabel( final int index, final Player player ) {
-      final int i = index + 8 * pageIndex;
+      final int itemIndex = index + pageIndex * 8;
       final LockedList<Item> inventory = player.inventory;
       
-      final Item item = inventory.tryGet( i );
+      final Item item = inventory.tryGet( itemIndex );
       
       if ( item == null ) {
         return "----------";
@@ -80,7 +85,7 @@ public enum Menu {
     
     @ Override
     public Point2D.Float getOffset() {
-      return new Point2D.Float( 0f, buttonBounds[ selection % 8 ].y );
+      return new Point2D.Float( 0f, buttonBounds[ selection ].y );
     }
     
     @ Override
@@ -95,16 +100,6 @@ public enum Menu {
       }
       
       return super.onClick( p, player );
-    }
-    
-    @ Override
-    public boolean onHover( final Point2D.Float p ) {
-      if ( super.onHover( p ) ) {
-        selection += pageIndex * 8;
-        return true;
-      } else {
-        return false;
-      }
     }
     
     @ Override
@@ -154,7 +149,7 @@ public enum Menu {
       fillRect( g, pageCursorLeft );
       fillRect( g, pageCursorRight );
       
-      final Item item = inventory.tryGet( selection );
+      final Item item = inventory.tryGet( getDataIndex() );
       
       if ( item != null ) {
         g.setColor( Color.BLACK );
@@ -170,7 +165,7 @@ public enum Menu {
     protected int runCommand( final Player player ) {
       final LockedList<Item> inventory = player.inventory;
       
-      if ( selection < inventory.size() ) {
+      if ( getDataIndex() < inventory.size() ) {
         return ItemSelect.ordinal() + 1;
       }
       
@@ -229,7 +224,7 @@ public enum Menu {
       final String[] statStrings = {
           "Stats:",
           "Level: " + stats.level(),
-          "HP: " + stats.hp + "/" + stats.maxHp + "(+" + stats0.hp + ")",
+          "HP: " + stats.hp + "/" + stats.maxHp + "(+" + stats0.maxHp + ")",
           "ATK: " + stats.attack + "(+" + stats0.attack + ")",
           "DEF: " + stats.defense + "(+" + stats0.defense + ")", "EXP: " + stats.exp,
           "REXP: " + stats.remExp()
@@ -319,7 +314,8 @@ public enum Menu {
     @ Override
     protected String getLabel( final int index, final Player player ) {
       final LockedList<Item> inventory = player.inventory;
-      final Item item = inventory.tryGet( Inventory.selection );
+      final int itemIndex = Inventory.getDataIndex();
+      final Item item = inventory.tryGet( itemIndex );
       
       if ( item == null ) {
         return null;
@@ -339,7 +335,7 @@ public enum Menu {
     
     @ Override
     public Point2D.Float getOffset() {
-      final int selection = Inventory.selection % 8;
+      final int selection = Inventory.selection;
       return new Point2D.Float( 0f, ( selection > 3 ? -1.4f : 1f ) * bounds.height );
     }
     
@@ -365,11 +361,12 @@ public enum Menu {
     @ Override
     public int runCommand( final Player player ) {
       final LockedList<Item> inventory = player.inventory;
-      final Item item = inventory.get( Inventory.selection );
+      final int itemIndex = Inventory.getDataIndex();
+      final Item item = inventory.get( itemIndex );
       
       switch ( selection ) {
         case 0:
-          player.equip( Inventory.selection );
+          player.equip( itemIndex );
           return -1;
         case 1:
           inventory.remove( item );
@@ -434,6 +431,10 @@ public enum Menu {
   protected BasicStroke stroke;
   protected Rectangle2D.Float bounds;
   
+  protected int getDataIndex() {
+    return -1;
+  }
+  
   protected abstract String getLabel( int index, Player player );
   
   public Point2D.Float getOffset() {
@@ -450,15 +451,12 @@ public enum Menu {
     return 0;
   }
   
-  public boolean onHover( final Point2D.Float p ) {
+  public void onHover( final Point2D.Float p ) {
     for ( int i = 0; i < buttonBounds.length; i++ ) {
       if ( buttonBounds[ i ].contains( p ) ) {
         selection = i;
-        return true;
       }
     }
-    
-    return false;
   }
   
   public abstract void onResized( int width, int height );

@@ -1,5 +1,6 @@
 package de.ducane.roguelike.entity;
 
+import de.androbin.rpg.*;
 import de.androbin.thread.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
@@ -16,7 +17,7 @@ public final class Player extends RogueEntity {
   public boolean running;
   
   public Player( final RogueEntityData data, final String name ) {
-    super( null, data, new Point() );
+    super( data );
     
     this.name = name;
     
@@ -34,11 +35,15 @@ public final class Player extends RogueEntity {
       final Level level = (Level) world;
       
       if ( !running ) {
-        final Item item = level.takeItem( getPos() );
+        final Rectangle extent = dir.inner( getBounds() );
         
-        if ( item != null ) {
-          inventory.add( item );
-        }
+        LoopUtil.forEach( extent, pos -> {
+          final Item item = level.takeItem( pos );
+          
+          if ( item != null ) {
+            inventory.add( item );
+          }
+        } );
       }
       
       level.onPlayerMoved( this );

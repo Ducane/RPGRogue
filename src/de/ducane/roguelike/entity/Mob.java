@@ -10,16 +10,20 @@ import java.awt.geom.*;
 public final class Mob extends RogueEntity {
   private Item item;
   
-  public Mob( final Level level, final RogueEntityData data, final Point pos,
-      final MovingDark dark ) {
-    super( level, data, pos );
+  public Mob( final RogueEntityData data, final MovingDark dark ) {
+    super( data );
     
     renderer = new MobRenderer( this, data.animation, dark );
     
     move.callback = ( dir, foo ) -> {
-      if ( item == null ) {
-        item = ( (Level) world ).takeItem( getPos() );
-      }
+      final Level level = (Level) world;
+      final Rectangle extent = dir.inner( getBounds() );
+      
+      LoopUtil.forEach( extent, pos -> {
+        if ( item == null ) {
+          item = level.takeItem( pos );
+        }
+      } );
     };
   }
   

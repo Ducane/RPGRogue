@@ -1,6 +1,7 @@
 package de.ducane.roguelike.level;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
+import de.androbin.rpg.*;
 import de.ducane.roguelike.dark.*;
 import java.awt.*;
 import java.awt.geom.*;
@@ -63,15 +64,16 @@ public final class MiniMap {
   }
   
   public void update( final MovingDark dark, final float scale ) {
-    for ( int y = 0; y < level.size.height; y++ ) {
-      for ( int x = 0; x < level.size.width; x++ ) {
-        final Point p = new Point( x, y );
-        final Point2D.Float center = new Point2D.Float( x + 0.5f, y + 0.5f );
-        
-        if ( !visited.contains( p ) && dark.contains( center ) ) {
-          visited.add( p );
-        }
+    LoopUtil.forEach( level.size, p -> {
+      if ( visited.contains( p ) ) {
+        return;
       }
-    }
+      
+      final Point2D.Float center = new Point2D.Float( p.x + 0.5f, p.y + 0.5f );
+      
+      if ( dark.contains( center ) ) {
+        visited.add( p );
+      }
+    } );
   }
 }

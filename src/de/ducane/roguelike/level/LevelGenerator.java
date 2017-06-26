@@ -312,8 +312,8 @@ public final class LevelGenerator {
         success = level.getEntity( pos ) == null && level.getGameObject( pos ) == null;
       } while ( !success );
       
-      final Mob mob = new Mob( level, RogueEntites.getData( "mob/" + monster ), pos, dark );
-      level.addEntity( mob );
+      final Mob mob = new Mob( RogueEntites.getData( "mob/" + monster ), dark );
+      level.addEntity( mob, pos );
     }
   }
   

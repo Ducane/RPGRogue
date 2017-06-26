@@ -1,7 +1,6 @@
 package de.ducane.roguelike.entity;
 
 import de.androbin.rpg.*;
-import de.ducane.roguelike.level.*;
 import java.awt.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -15,9 +14,7 @@ public abstract class RogueEntity extends Entity {
   public final Handle<Boolean, RogueEntity> attack;
   public final Handle<Pair<Integer, Object>, Void> damage;
   
-  public RogueEntity( final Level level, final RogueEntityData data, final Point pos ) {
-    super( level, pos );
-    
+  public RogueEntity( final RogueEntityData data ) {
     this.data = data;
     
     baseStats = new Stats( data.stats );
