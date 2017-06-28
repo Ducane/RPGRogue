@@ -16,7 +16,7 @@ public enum Menu {
     private final String[] labels = { "Inventory", "Character", "Exit" };
     
     @ Override
-    protected String getLabel( final int index, final Player player ) {
+    protected String getLabel( final int index, final LockedList<Item> inventory ) {
       return labels[ index ];
     }
     
@@ -26,18 +26,12 @@ public enum Menu {
       
       bounds = new Rectangle2D.Float( 0f, 0.3f * height, 0.2f * width, 0.4f * height );
       
-      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
-          0.025f * width, 0.35f * height, 0.15f * width, 0.05f * height );
-      
-      final float buttonDY = 0.075f * height;
-      
       buttonBounds = new Rectangle2D.Float[ labels.length ];
       
-      for ( int i = 0; i < buttonBounds.length; i++ ) {
-        buttonBounds[ i ] = new Rectangle2D.Float(
-            singleButtonBounds.x, singleButtonBounds.y + buttonDY * i,
-            singleButtonBounds.width, singleButtonBounds.height );
-      }
+      final Rectangle2D.Float singleButton = new Rectangle2D.Float(
+          0.025f * width, 0.35f * height, 0.15f * width, 0.05f * height );
+      
+      resizeButtons( singleButton, 0.075f * height );
     }
     
     @ Override
@@ -69,9 +63,8 @@ public enum Menu {
     }
     
     @ Override
-    protected String getLabel( final int index, final Player player ) {
+    protected String getLabel( final int index, final LockedList<Item> inventory ) {
       final int itemIndex = index + pageIndex * 8;
-      final LockedList<Item> inventory = player.inventory;
       
       final Item item = inventory.tryGet( itemIndex );
       
@@ -108,18 +101,12 @@ public enum Menu {
       
       bounds = new Rectangle2D.Float( 0.25f * width, 0f, 0.25f * width, 0.7f * height );
       
-      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
-          0.3f * width, 0.01f * height, 0.15f * width, 0.075f * height );
-      
-      final float buttonDY = 0.075f * height;
-      
       buttonBounds = new Rectangle2D.Float[ 8 ];
       
-      for ( int i = 0; i < buttonBounds.length; i++ ) {
-        buttonBounds[ i ] = new Rectangle2D.Float(
-            singleButtonBounds.x, singleButtonBounds.y + buttonDY * i,
-            singleButtonBounds.width, singleButtonBounds.height );
-      }
+      final Rectangle2D.Float singleButton = new Rectangle2D.Float(
+          0.3f * width, 0.01f * height, 0.15f * width, 0.075f * height );
+      
+      resizeButtons( singleButton, 0.075f * height );
       
       statBounds = new Rectangle2D.Float( 0f, 0f, 0.2f * width, 0.25f * height );
       statImageBounds = new Rectangle2D.Float(
@@ -178,11 +165,6 @@ public enum Menu {
     private Rectangle2D.Float statBounds;
     
     @ Override
-    protected String getLabel( final int index, final Player player ) {
-      return null;
-    }
-    
-    @ Override
     public void onResized( final int width, final int height ) {
       stroke = new BasicStroke( 0.005f * width );
       
@@ -191,18 +173,12 @@ public enum Menu {
       statBounds = new Rectangle2D.Float(
           0.3f * width, 0.0525f * height, 0.15f * width, 0.56f * height );
       
-      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
-          0.65f * width, 0.0525f * height, 0.05f * width, 0.05f * width );
-      
-      final float buttonDY = 0.21f * height;
-      
       buttonBounds = new Rectangle2D.Float[ 3 ];
       
-      for ( int i = 0; i < buttonBounds.length; i++ ) {
-        buttonBounds[ i ] = new Rectangle2D.Float(
-            singleButtonBounds.x, singleButtonBounds.y + buttonDY * i,
-            singleButtonBounds.width, singleButtonBounds.height );
-      }
+      final Rectangle2D.Float singleButton = new Rectangle2D.Float(
+          0.65f * width, 0.0525f * height, 0.05f * width, 0.05f * width );
+      
+      resizeButtons( singleButton, 0.21f * height );
     }
     
     @ Override
@@ -238,7 +214,7 @@ public enum Menu {
         
         g.drawString( statString,
             statBounds.x + ( statBounds.width - fm.stringWidth( statString ) ) * 0.5f,
-            statBounds.y + ( i * 2f + 1 ) * fm.getAscent() );
+            statBounds.y + ( i * 2f + 1f ) * fm.getAscent() );
       }
       
       g.drawString( "Name: " + player.name,
@@ -272,7 +248,8 @@ public enum Menu {
         
         final String name = item.name;
         final String trimName = name.length() > 10
-            ? name.substring( 0, 10 ) : name;
+            ? name.substring( 0, 10 )
+            : name;
         
         g.drawString( trimName,
             rect.x - fm.stringWidth( trimName ) - rect.width * 0.5f,
@@ -312,8 +289,7 @@ public enum Menu {
   },
   ItemSelect {
     @ Override
-    protected String getLabel( final int index, final Player player ) {
-      final LockedList<Item> inventory = player.inventory;
+    protected String getLabel( final int index, final LockedList<Item> inventory ) {
       final int itemIndex = Inventory.getDataIndex();
       final Item item = inventory.tryGet( itemIndex );
       
@@ -342,20 +318,15 @@ public enum Menu {
     @ Override
     public void onResized( final int width, final int height ) {
       stroke = new BasicStroke( 0.005f * width );
+      
       bounds = new Rectangle2D.Float( 0.55f * width, 0f, 0.2f * width, 0.25f * height );
-      
-      final Rectangle2D.Float singleButtonBounds = new Rectangle2D.Float(
-          0.575f * width, 0.025f * height, 0.15f * width, 0.05f * height );
-      
-      final float buttonDY = 0.075f * height;
       
       buttonBounds = new Rectangle2D.Float[ 3 ];
       
-      for ( int i = 0; i < buttonBounds.length; i++ ) {
-        buttonBounds[ i ] = new Rectangle2D.Float(
-            singleButtonBounds.x, singleButtonBounds.y + buttonDY * i,
-            singleButtonBounds.width, singleButtonBounds.height );
-      }
+      final Rectangle2D.Float singleButton = new Rectangle2D.Float(
+          0.575f * width, 0.025f * height, 0.15f * width, 0.05f * height );
+      
+      resizeButtons( singleButton, 0.075f * height );
     }
     
     @ Override
@@ -380,13 +351,9 @@ public enum Menu {
   },
   Description {
     @ Override
-    protected String getLabel( final int index, final Player player ) {
-      return null;
-    }
-    
-    @ Override
     public void onResized( final int width, final int height ) {
       stroke = new BasicStroke( 0.005f * width );
+      
       bounds = new Rectangle2D.Float(
           0.55f * width, 0.05f * height, 0.35f * width, 0.25f * height );
       
@@ -418,11 +385,6 @@ public enum Menu {
             bounds.y + bounds.height * 0.45f + fm.getAscent() * i );
       }
     }
-    
-    @ Override
-    protected int runCommand( final Player player ) {
-      return 0;
-    }
   };
   
   protected int selection;
@@ -435,7 +397,9 @@ public enum Menu {
     return -1;
   }
   
-  protected abstract String getLabel( int index, Player player );
+  protected String getLabel( final int index, final LockedList<Item> inventory ) {
+    return null;
+  }
   
   public Point2D.Float getOffset() {
     return new Point2D.Float();
@@ -451,7 +415,7 @@ public enum Menu {
     return 0;
   }
   
-  public void onHover( final Point2D.Float p ) {
+  public final void onHover( final Point2D.Float p ) {
     for ( int i = 0; i < buttonBounds.length; i++ ) {
       if ( buttonBounds[ i ].contains( p ) ) {
         selection = i;
@@ -468,10 +432,12 @@ public enum Menu {
     g.setColor( Color.WHITE );
     drawRect( g, bounds );
     
+    final LockedList<Item> inventory = player.inventory;
+    
     final FontMetrics fm = g.getFontMetrics();
     
     for ( int i = 0; i < buttonBounds.length; i++ ) {
-      final String label = getLabel( i, player );
+      final String label = getLabel( i, inventory );
       
       if ( label == null ) {
         continue;
@@ -485,5 +451,14 @@ public enum Menu {
     }
   }
   
-  protected abstract int runCommand( Player player );
+  protected final void resizeButtons( final Rectangle2D.Float single, final float dy ) {
+    for ( int i = 0; i < buttonBounds.length; i++ ) {
+      buttonBounds[ i ] = new Rectangle2D.Float(
+          single.x, single.y + dy * i, single.width, single.height );
+    }
+  }
+  
+  protected int runCommand( final Player player ) {
+    return 0;
+  }
 }
