@@ -14,6 +14,8 @@ import de.androbin.util.*;
 import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.level.*;
+import de.ducane.roguelike.menu.*;
+import de.ducane.roguelike.menu.Menu;
 import de.ducane.roguelike.obj.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -132,8 +134,8 @@ public final class PlayScreen extends RPGScreen {
     barBounds = new Rectangle2D.Float(
         0.2f * width, 0.075f * height, 0.4f * width, 0.025f * height );
     
-    for ( final Menu menu : Menu.values() ) {
-      menu.onResized( width, height );
+    if ( menus != null ) {
+      menus.forEach( menu -> menu.onResized( width, height ) );
     }
     
     menuOffset = new Point2D.Float( 0.05f * getWidth(), 0.2f * getHeight() );
@@ -275,7 +277,9 @@ public final class PlayScreen extends RPGScreen {
           break;
         case KeyEvent.VK_M:
           if ( menus.isEmpty() ) {
-            menus.add( Menu.Main );
+            final Menu menu = new MainMenu();
+            menu.onResized( getWidth(), getHeight() );
+            menus.add( menu );
           } else {
             menus.clear();
           }
@@ -306,20 +310,15 @@ public final class PlayScreen extends RPGScreen {
         }
         
         final Menu menu = menus.get( index );
-        final int code = menu.onClick( p, getPlayer() );
+        final Menu next = menu.onClick( p, getPlayer() );
         
-        switch ( code ) {
-          case -2:
-            game.gsm.close();
-            break;
-          case -1:
-            menus.remove( menus.size() - 1 );
-            break;
-          case 0:
-            break;
-          default:
-            menus.add( Menu.values()[ code - 1 ] );
-            break;
+        if ( next == null ) {
+          game.gsm.close();
+        } else if ( next == menu.parent ) {
+          menus.remove( menus.size() - 1 );
+        } else if ( next != menu ) {
+          next.onResized( getWidth(), getHeight() );
+          menus.add( next );
         }
       } else if ( event.getButton() == MouseEvent.BUTTON3 ) {
         menus.remove( menus.size() - 1 );
