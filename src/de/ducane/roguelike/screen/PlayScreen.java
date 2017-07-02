@@ -126,17 +126,13 @@ public final class PlayScreen extends RPGScreen {
   
   @ Override
   public void onResized( final int width, final int height ) {
-    if ( dark != null ) {
-      dark.width = width;
-      dark.height = height;
-    }
+    dark.width = width;
+    dark.height = height;
     
     barBounds = new Rectangle2D.Float(
         0.2f * width, 0.075f * height, 0.4f * width, 0.025f * height );
     
-    if ( menus != null ) {
-      menus.forEach( menu -> menu.onResized( width, height ) );
-    }
+    menus.forEach( menu -> menu.onResized( width, height ) );
     
     menuOffset = new Point2D.Float( 0.05f * getWidth(), 0.2f * getHeight() );
   }
