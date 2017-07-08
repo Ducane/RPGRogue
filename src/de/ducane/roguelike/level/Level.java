@@ -20,9 +20,9 @@ public final class Level extends World {
   private Point downStairsPos;
   private Point upStairsPos;
   
-  public Level( final PlayScreen screen, final String name, final Dimension size,
+  public Level( final Identifier id, final Dimension size, final PlayScreen screen,
       final List<Rectangle> rooms ) {
-    super( size, name );
+    super( id, size );
     
     this.screen = screen;
     this.rooms = rooms;

@@ -24,7 +24,7 @@ public final class Player extends RogueEntity {
     inventory = new LockedList<>();
     equipment = new Equipment();
     
-    renderer = new EntityRenderer( this, data.animation );
+    renderer = new RogueEntityRenderer( this, data.animation );
     
     baseStats.attack = 3;
     baseStats.defense = 1;

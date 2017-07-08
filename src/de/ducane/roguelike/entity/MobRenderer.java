@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 
-public final class MobRenderer extends EntityRenderer {
+public final class MobRenderer extends RogueEntityRenderer {
   private final MovingDark dark;
   
   public MobRenderer( final Mob mob, final BufferedImage[][] animation, final MovingDark dark ) {

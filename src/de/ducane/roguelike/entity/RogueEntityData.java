@@ -14,11 +14,14 @@ public final class RogueEntityData {
   public RogueEntityData( final String path, final JSONObject data ) {
     name = path.split( "/" )[ 1 ];
     stats = new Stats( data );
-    
+    animation = createSheet( path );
+  }
+  
+  private static BufferedImage[][] createSheet( final String path ) {
     final Direction[] directions = Direction.values();
-    animation = new BufferedImage[ directions.length ][];
+    final BufferedImage[][] animation = new BufferedImage[ directions.length ][];
     
-    for ( int i = 0; i < directions.length; i++ ) {
+    for ( int i = 0; i < animation.length; i++ ) {
       final String dir = CaseUtil.toProperCase( directions[ i ].name() );
       final BufferedImage image = ImageUtil.loadImage( path + dir + ".png" );
       
@@ -27,11 +30,13 @@ public final class RogueEntityData {
       final int width = image.getWidth() / ratio;
       final int height = image.getHeight();
       
-      animation[ i ] = new BufferedImage[ image.getWidth() / width ];
+      animation[ i ] = new BufferedImage[ ratio ];
       
       for ( int j = 0; j < animation[ i ].length; j++ ) {
         animation[ i ][ j ] = image.getSubimage( j * width, 0, width, height );
       }
     }
+    
+    return animation;
   }
 }

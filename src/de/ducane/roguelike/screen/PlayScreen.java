@@ -72,15 +72,15 @@ public final class PlayScreen extends RPGScreen {
   }
   
   @ Override
-  public Level createWorld( final String name ) {
-    final int floor = Integer.parseInt( name.split( "-" )[ 1 ] );
+  public Level createWorld( final Identifier id ) {
+    final int floor = Integer.parseInt( id.lastElement().split( "-" )[ 1 ] );
     final int index = Math.min( ( floor / 4 + 1 ), 5 );
     
     final String path = "level/level" + index + ".json";
     final JSONObject data = (JSONObject) JSONUtil.parseJSON( path ).get();
     
     final LevelGenerator generator = new LevelGenerator();
-    return generator.generate( this, name, data );
+    return generator.generate( id, data, this );
   }
   
   private Rectangle currentRoom() {
@@ -241,9 +241,9 @@ public final class PlayScreen extends RPGScreen {
   }
   
   public void updateFloor() {
-    final String name = "floor-" + floor;
-    final Level level = (Level) getWorld( name );
-    switchWorld( name, level.getUpStairsPos() );
+    final Identifier id = Identifier.fromSerial( "floor-" + floor );
+    final Level level = (Level) getWorld( id );
+    switchWorld( id, level.getUpStairsPos() );
     rooms = level.getRooms();
     room = currentRoom();
     updateDark();
@@ -252,19 +252,15 @@ public final class PlayScreen extends RPGScreen {
   private final class KeyInput extends KeyAdapter {
     @ Override
     public void keyPressed( final KeyEvent event ) {
-      final Player player = getPlayer();
-      
       if ( event.isShiftDown() ) {
-        player.running = true;
+        getPlayer().running = true;
       }
     }
     
     @ Override
     public void keyReleased( final KeyEvent event ) {
-      final Player player = getPlayer();
-      
       if ( !event.isShiftDown() ) {
-        player.running = false;
+        getPlayer().running = false;
       }
       
       switch ( event.getKeyCode() ) {

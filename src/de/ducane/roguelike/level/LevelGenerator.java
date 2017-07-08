@@ -1,6 +1,7 @@
 package de.ducane.roguelike.level;
 
 import static de.androbin.collection.util.ObjectCollectionUtil.*;
+import de.androbin.rpg.*;
 import de.androbin.rpg.tile.*;
 import de.androbin.util.*;
 import de.ducane.roguelike.dark.*;
@@ -43,8 +44,7 @@ public final class LevelGenerator {
   }
   
   @ SuppressWarnings( "unchecked" )
-  public Level generate( final PlayScreen screen, final String name,
-      final JSONObject data ) {
+  public Level generate( final Identifier id, final JSONObject data, final PlayScreen screen ) {
     final Random random = ThreadLocalRandom.current();
     
     final JSONObject droprateData = (JSONObject) data.get( "droprate" );
@@ -70,7 +70,7 @@ public final class LevelGenerator {
     generateBlueprint( width, height );
     
     final Dimension size = new Dimension( types[ 0 ].length, types.length );
-    level = new Level( screen, name, size, rooms );
+    level = new Level( id, size, screen, rooms );
     
     translate();
     placeItems( droprates );
@@ -101,11 +101,13 @@ public final class LevelGenerator {
       
       if ( random.nextBoolean() ) {
         x = room.x != 0 && ( room.x + room.width == width || sign )
-            ? room.x * 2 - 1 : ( room.x + room.width - 1 ) * 2 + 1;
+            ? room.x * 2 - 1
+            : ( room.x + room.width - 1 ) * 2 + 1;
         y = ( room.y + random.nextInt( room.height ) ) * 2;
       } else {
         y = room.y != 0 && ( room.y + room.height == height || sign )
-            ? room.y * 2 - 1 : ( room.y + room.height - 1 ) * 2 + 1;
+            ? room.y * 2 - 1
+            : ( room.y + room.height - 1 ) * 2 + 1;
         x = ( room.x + random.nextInt( room.width ) ) * 2;
       }
       

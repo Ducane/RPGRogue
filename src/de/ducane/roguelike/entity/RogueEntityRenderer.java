@@ -8,22 +8,22 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 
-public class EntityRenderer extends Renderer {
-  protected final RogueEntity entity;
-  protected final BufferedImage[][] animation;
-  
-  public EntityRenderer( final RogueEntity entity, final BufferedImage[][] animation ) {
-    this.entity = entity;
-    this.animation = animation;
-  }
-  
-  @ Override
-  public Rectangle2D.Float getBounds() {
-    return new Rectangle2D.Float( 0f, 0f, scale, scale );
+public class RogueEntityRenderer extends EntityRenderer {
+  public RogueEntityRenderer( final RogueEntity entity, final BufferedImage[][] animation ) {
+    super( entity, animation );
   }
   
   @ Override
   public void render( final Graphics2D g ) {
+    final Rectangle2D.Float bounds = getBounds();
+    
+    bounds.x *= scale;
+    bounds.y *= scale;
+    bounds.width *= scale;
+    bounds.height *= scale;
+    
+    final RogueEntity entity = (RogueEntity) this.entity;
+    
     final int i = entity.viewDir.ordinal();
     
     if ( entity.damage.hasCurrent() ) {
@@ -31,13 +31,13 @@ public class EntityRenderer extends Renderer {
       
       final float d = -0.25f * scale * (float) Math.sin( entity.damage.getProgress() * Math.PI );
       
-      final float dx = d * dir.dx;
-      final float dy = d * dir.dy;
+      bounds.x += d * dir.dx;
+      bounds.y += d * dir.dy;
       
-      drawImage( g, animation[ i ][ 0 ], dx, dy, scale, scale );
+      drawImage( g, animation[ i ][ 0 ], bounds );
     } else {
       final int j = (int) ( entity.move.getProgress() * animation[ i ].length );
-      drawImage( g, animation[ i ][ j ], 0f, 0f, scale, scale );
+      drawImage( g, animation[ i ][ j ], bounds );
     }
     
     if ( entity.damage.hasCurrent() ) {
@@ -48,12 +48,10 @@ public class EntityRenderer extends Renderer {
       
       final FontMetrics fm = g.getFontMetrics();
       
-      final float x = ( scale - fm.stringWidth( damageText ) ) * 0.5f;
-      final float y = ( scale - fm.stringWidth( damageText ) ) * 0.5f;
+      final float x = bounds.x + ( scale - fm.stringWidth( damageText ) ) * 0.5f;
+      final float y = bounds.y + ( scale - fm.stringWidth( damageText ) ) * 0.5f;
       
-      final float maxY = y + 0.5f * scale;
-      
-      drawBorderedString( g, damageText, x, y + ( y - maxY )
+      drawBorderedString( g, damageText, x, y - 0.5f * scale
           * (float) Math.sin( entity.damage.getProgress() * Math.PI ),
           scale * 0.05f, Color.BLACK, Color.WHITE );
     }
