@@ -7,7 +7,7 @@ import de.androbin.rpg.*;
 import de.androbin.rpg.event.*;
 import de.androbin.rpg.event.Event;
 import de.androbin.rpg.gfx.*;
-import de.androbin.rpg.obj.*;
+import de.androbin.rpg.phantom.*;
 import de.androbin.rpg.tile.*;
 import de.androbin.thread.*;
 import de.androbin.util.*;
@@ -16,7 +16,7 @@ import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.level.*;
 import de.ducane.roguelike.menu.*;
 import de.ducane.roguelike.menu.Menu;
-import de.ducane.roguelike.obj.*;
+import de.ducane.roguelike.phantom.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
@@ -54,7 +54,7 @@ public final class PlayScreen extends RPGScreen {
     dark.height = getHeight();
     
     Tiles.builder = data -> RogueTiles.create( data, dark );
-    GameObjects.builder = ( data, pos ) -> RogueObjects.create( data, pos, dark );
+    Phantoms.builder = ( data, pos ) -> RoguePhantoms.create( data, pos, dark );
     
     Events.BUILDERS.put( "downstairs", args0 -> Event.func( "downstairs", ( master, args1 ) -> {
       final Entity entity = (Entity) args1.get( "entity" );

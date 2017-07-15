@@ -1,11 +1,11 @@
 package de.ducane.roguelike.level;
 
 import de.androbin.rpg.*;
-import de.androbin.rpg.obj.*;
+import de.androbin.rpg.phantom.*;
 import de.androbin.rpg.tile.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
-import de.ducane.roguelike.obj.*;
+import de.ducane.roguelike.phantom.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.util.*;
@@ -35,8 +35,8 @@ public final class Level extends World {
   }
   
   @ Override
-  public RogueObject getGameObject( final Point pos ) {
-    return (RogueObject) super.getGameObject( pos );
+  public RoguePhantom getPhantom( final Point pos ) {
+    return (RoguePhantom) super.getPhantom( pos );
   }
   
   @ Override
@@ -77,16 +77,16 @@ public final class Level extends World {
   public void onPlayerMoved( final Player player ) {
     screen.onPlayerMoved();
     
-    final RogueObject object = getGameObject( player.getPos() );
+    final RoguePhantom phantom = getPhantom( player.getPos() );
     
-    if ( object != null ) {
-      object.onPlayerEntered( screen );
+    if ( phantom != null ) {
+      phantom.onPlayerEntered( screen );
     }
   }
   
   protected void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
-    addGameObject( GameObjects.create( "upstairs", pos ) );
+    addPhantom( Phantoms.create( "upstairs", pos ) );
   }
   
   protected void setDownStairsPos( final Point pos ) {

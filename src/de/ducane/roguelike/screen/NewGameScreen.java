@@ -23,15 +23,6 @@ public final class NewGameScreen extends Screen {
     name = new StringBuilder();
   }
   
-  private void startGame() {
-    game.gsm.crossfadeSwitch( new PlayScreen( game, 48f, name.toString() ),
-        ColorCrossfade.BLACK, 1f );
-  }
-  
-  public String getName() {
-    return name.toString();
-  }
-  
   @ Override
   public void onResized( final int width, final int height ) {
     fm = game.getFontMetrics( new Font( "Determination Mono", 0, (int) ( 0.1f * getHeight() ) ) );
@@ -55,12 +46,16 @@ public final class NewGameScreen extends Screen {
         0.05f * getWidth(), fm.getAscent() + 0.1f * getHeight() );
     
     g.setColor( buttonSelection ? Color.YELLOW : Color.WHITE );
-    // drawRect( g, buttonBounds );
     g.drawString( "OK", buttonBounds.x, buttonBounds.y
         + ( buttonBounds.height - fm.getAscent() - fm.getLeading() ) * 0.5f + fm.getAscent() );
     
     g.setColor( Color.WHITE );
     g.drawString( output, ( getWidth() - fm.stringWidth( output ) ) * 0.5f, getHeight() * 0.5f );
+  }
+  
+  private void startGame() {
+    game.gsm.crossfadeSwitch( new PlayScreen( game, 48f, name.toString() ),
+        ColorCrossfade.BLACK, 1f );
   }
   
   @ Override

@@ -1,15 +1,15 @@
-package de.ducane.roguelike.obj;
+package de.ducane.roguelike.phantom;
 
-import de.androbin.rpg.obj.*;
+import de.androbin.rpg.phantom.*;
 import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.geom.*;
 
-public abstract class RogueObject extends GameObject {
+public abstract class RoguePhantom extends Phantom {
   private final MovingDark dark;
   
-  protected RogueObject( final GameObjectData data, final Point pos, final MovingDark dark ) {
+  protected RoguePhantom( final PhantomData data, final Point pos, final MovingDark dark ) {
     super( data, pos );
     this.dark = dark;
   }
@@ -30,6 +30,6 @@ public abstract class RogueObject extends GameObject {
   }
   
   public interface Builder {
-    RogueObject build( GameObjectData data, Point pos, MovingDark dark );
+    RoguePhantom build( PhantomData data, Point pos, MovingDark dark );
   }
 }

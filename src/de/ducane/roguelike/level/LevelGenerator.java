@@ -245,7 +245,7 @@ public final class LevelGenerator {
         final int y = random.nextInt( level.size.height );
         
         tile = level.getTile( new Point( x, y ) );
-      } while ( tile.data.passEvent == null );
+      } while ( tile.data.event == null );
       
       final Set<String> keySet = droprates.keySet();
       final String[] keyArray = keySet.toArray( new String[ keySet.size() ] );
@@ -311,7 +311,7 @@ public final class LevelGenerator {
         final int y = ( random.nextInt( room.height ) + room.y ) * 2;
         pos = new Point( x, y );
         
-        success = level.getEntity( pos ) == null && level.getGameObject( pos ) == null;
+        success = level.getEntity( pos ) == null && level.getThing( pos ) == null;
       } while ( !success );
       
       final Mob mob = new Mob( RogueEntites.getData( "mob/" + monster ), dark );
