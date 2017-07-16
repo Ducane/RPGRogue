@@ -15,6 +15,11 @@ public final class CircleDark implements Dark {
   }
   
   @ Override
+  public void clip( final Graphics2D g, final float x, final float y ) {
+    g.clip( new Ellipse2D.Float( x - r, y - r, 2 * r, 2 * r ) );
+  }
+  
+  @ Override
   public boolean contains( final Point2D.Float c, final Point2D.Float p ) {
     final float dx = p.x - c.x;
     final float dy = p.y - c.y;

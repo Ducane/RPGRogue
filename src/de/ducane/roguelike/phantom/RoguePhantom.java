@@ -4,7 +4,6 @@ import de.androbin.rpg.phantom.*;
 import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
-import java.awt.geom.*;
 
 public abstract class RoguePhantom extends Phantom {
   private final MovingDark dark;
@@ -18,15 +17,7 @@ public abstract class RoguePhantom extends Phantom {
   
   @ Override
   public void render( final Graphics2D g, final float scale ) {
-    final Point2D.Float center = new Point2D.Float(
-        pos.x + data.size.width * 0.5f,
-        pos.y + data.size.height * 0.5f );
-    
-    if ( !dark.contains( center ) ) {
-      return;
-    }
-    
-    super.render( g, scale );
+    super.render( dark.clip( g ), scale );
   }
   
   public interface Builder {

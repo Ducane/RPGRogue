@@ -14,6 +14,11 @@ public final class RectDark implements Dark {
   }
   
   @ Override
+  public void clip( final Graphics2D g, final float x, final float y ) {
+    g.clip( new Rectangle2D.Float( x, y, width, height ) );
+  }
+  
+  @ Override
   public boolean contains( final Point2D.Float c, final Point2D.Float p ) {
     return p.x >= c.x && p.x < c.x + width && p.y >= c.y && p.y < c.y + height;
   }

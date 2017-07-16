@@ -29,17 +29,12 @@ public class RogueTile extends Tile {
   public void render( final Graphics2D g, final Point pos, final float scale ) {
     super.render( g, pos, scale );
     
-    final Point2D.Float center = new Point2D.Float( pos.x + 0.5f, pos.y + 0.5f );
-    
-    if ( !dark.contains( center ) ) {
-      return;
-    }
-    
     final Item item = getItem();
     
     if ( item != null ) {
+      final Graphics2D g2 = dark.clip( g );
       final Point2D.Float pos0 = new Point2D.Float( pos.x * scale, pos.y * scale );
-      drawImage( g, item.image, pos0, scale, scale );
+      drawImage( g2, item.image, pos0, scale, scale );
     }
   }
 }

@@ -19,16 +19,26 @@ public final class MovingDark {
     this.scale = scale;
   }
   
-  public boolean contains( final Point2D.Float p0 ) {
+  private Point2D.Float calcPos() {
     final Point2D.Float pos0 = pos.get();
-    final Point2D.Float pos1 = new Point2D.Float( pos0.x * scale, pos0.y * scale );
+    return new Point2D.Float( pos0.x * scale, pos0.y * scale );
+  }
+  
+  public Graphics2D clip( final Graphics2D g ) {
+    final Graphics2D g2 = (Graphics2D) g.create();
+    final Point2D.Float pos = calcPos();
+    dark.clip( g2, pos.x, pos.y );
+    return g2;
+  }
+  
+  public boolean contains( final Point2D.Float p0 ) {
+    final Point2D.Float pos = calcPos();
     final Point2D.Float p1 = new Point2D.Float( p0.x * scale, p0.y * scale );
-    return dark.contains( pos1, p1 );
+    return dark.contains( pos, p1 );
   }
   
   public void darken( final Graphics2D g, final Point2D.Float p ) {
-    final Point2D.Float pos0 = pos.get();
-    final Point2D.Float pos1 = new Point2D.Float( pos0.x * scale, pos0.y * scale );
-    dark.darken( g, color, pos1.x + p.x, pos1.y + p.y, width, height );
+    final Point2D.Float pos = calcPos();
+    dark.darken( g, color, pos.x + p.x, pos.y + p.y, width, height );
   }
 }
