@@ -86,7 +86,7 @@ public final class Level extends World {
   
   protected void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
-    addPhantom( Phantoms.create( "upstairs", pos ) );
+    addPhantom( Phantoms.create( "upstairs" ), pos );
   }
   
   protected void setDownStairsPos( final Point pos ) {

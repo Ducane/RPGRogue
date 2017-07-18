@@ -8,8 +8,8 @@ import java.awt.*;
 public abstract class RoguePhantom extends Phantom {
   private final MovingDark dark;
   
-  protected RoguePhantom( final PhantomData data, final Point pos, final MovingDark dark ) {
-    super( data, pos );
+  protected RoguePhantom( final PhantomData data, final MovingDark dark ) {
+    super( data );
     this.dark = dark;
   }
   
@@ -21,6 +21,6 @@ public abstract class RoguePhantom extends Phantom {
   }
   
   public interface Builder {
-    RoguePhantom build( PhantomData data, Point pos, MovingDark dark );
+    RoguePhantom build( PhantomData data, MovingDark dark );
   }
 }

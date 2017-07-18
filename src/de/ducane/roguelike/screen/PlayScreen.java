@@ -54,7 +54,7 @@ public final class PlayScreen extends RPGScreen {
     dark.height = getHeight();
     
     Tiles.builder = data -> RogueTiles.create( data, dark );
-    Phantoms.builder = ( data, pos ) -> RoguePhantoms.create( data, pos, dark );
+    Phantoms.builder = data -> RoguePhantoms.create( data, dark );
     
     Events.BUILDERS.put( "downstairs", args0 -> Event.func( "downstairs", ( master, args1 ) -> {
       final Entity entity = (Entity) args1.get( "entity" );

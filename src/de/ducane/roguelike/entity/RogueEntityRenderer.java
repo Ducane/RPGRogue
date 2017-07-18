@@ -14,8 +14,8 @@ public class RogueEntityRenderer extends EntityRenderer {
   }
   
   @ Override
-  public void render( final Graphics2D g ) {
-    final Rectangle2D.Float bounds = getBounds();
+  public void render( final Graphics2D g, final Point2D.Float pos, final float scale ) {
+    final Rectangle2D.Float bounds = getBounds( pos );
     
     bounds.x *= scale;
     bounds.y *= scale;

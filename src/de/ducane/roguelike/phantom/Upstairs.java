@@ -5,11 +5,10 @@ import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.screen.*;
-import java.awt.*;
 
 public final class Upstairs extends RoguePhantom {
-  public Upstairs( final PhantomData data, final Point pos, final MovingDark dark ) {
-    super( data, pos, dark );
+  public Upstairs( final PhantomData data, final MovingDark dark ) {
+    super( data, dark );
   }
   
   @ Override

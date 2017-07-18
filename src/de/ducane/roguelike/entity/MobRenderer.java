@@ -13,7 +13,7 @@ public final class MobRenderer extends RogueEntityRenderer {
   }
   
   @ Override
-  public void render( final Graphics2D g ) {
-    super.render( dark.clip( g ) );
+  public void render( final Graphics2D g, final float scale ) {
+    super.render( dark.clip( g ), scale );
   }
 }
