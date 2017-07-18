@@ -2,6 +2,7 @@ package de.ducane.roguelike.entity;
 
 import de.ducane.roguelike.dark.*;
 import java.awt.*;
+import java.awt.geom.*;
 import java.awt.image.*;
 
 public final class MobRenderer extends RogueEntityRenderer {
@@ -13,7 +14,7 @@ public final class MobRenderer extends RogueEntityRenderer {
   }
   
   @ Override
-  public void render( final Graphics2D g, final float scale ) {
-    super.render( dark.clip( g ), scale );
+  public void render( final Graphics2D g, final Point2D.Float pos, final float scale ) {
+    super.render( dark.clip( g ), pos, scale );
   }
 }
