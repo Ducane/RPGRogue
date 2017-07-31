@@ -311,7 +311,9 @@ public final class LevelGenerator {
         final int y = ( random.nextInt( room.height ) + room.y ) * 2;
         pos = new Point( x, y );
         
-        success = level.getEntity( pos ) == null && level.getThing( pos ) == null;
+        success = level.getEntity( pos ) == null
+            && level.getPhantom( pos ) == null
+            && level.getThing( pos ) == null;
       } while ( !success );
       
       final Mob mob = new Mob( RogueEntites.getData( "mob/" + monster ), dark );
