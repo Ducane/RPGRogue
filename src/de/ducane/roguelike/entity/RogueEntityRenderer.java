@@ -36,7 +36,7 @@ public class RogueEntityRenderer extends EntityRenderer {
       
       drawImage( g, animation[ i ][ 0 ], bounds );
     } else {
-      final int j = (int) ( entity.move.getProgress() * animation[ i ].length );
+      final int j = (int) ( entity.move.getModProgress() * animation[ i ].length );
       drawImage( g, animation[ i ][ j ], bounds );
     }
     
@@ -52,7 +52,7 @@ public class RogueEntityRenderer extends EntityRenderer {
       final float y = bounds.y + ( scale - fm.stringWidth( damageText ) ) * 0.5f;
       
       drawBorderedString( g, damageText, x, y - 0.5f * scale
-          * (float) Math.sin( entity.damage.getProgress() * Math.PI ),
+          * (float) Math.sin( entity.damage.getModProgress() * Math.PI ),
           scale * 0.05f, Color.BLACK, Color.WHITE );
     }
   }

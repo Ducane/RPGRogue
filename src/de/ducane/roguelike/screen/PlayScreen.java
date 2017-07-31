@@ -141,6 +141,7 @@ public final class PlayScreen extends RPGScreen {
   public void render( final Graphics2D g ) {
     super.render( g );
     dark.darken( g, trans );
+    dark.disposeAll();
     
     getLevel().miniMap.render( g, getPlayer().getFloatPos(), scale, getWidth() );
     
