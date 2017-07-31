@@ -29,7 +29,7 @@ public class RogueEntityRenderer extends EntityRenderer {
     if ( entity.damage.hasCurrent() ) {
       final Direction dir = entity.viewDir;
       
-      final float d = -0.25f * scale * (float) Math.sin( entity.damage.getProgress() * Math.PI );
+      final float d = -0.25f * scale * (float) Math.sin( entity.damage.getModProgress() * Math.PI );
       
       bounds.x += d * dir.dx;
       bounds.y += d * dir.dy;
