@@ -2,15 +2,21 @@ package de.ducane.roguelike.screen;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import static de.androbin.math.util.floats.FloatMathUtil.*;
+import static de.ducane.roguelike.Configuration.gui_.intro_.BACKGROUND_COLOR;
 import static de.ducane.roguelike.Configuration.gui_.menu_.*;
-import de.androbin.game.*;
-import de.androbin.gfx.transition.*;
 import de.androbin.math.util.ints.*;
+import de.androbin.screen.*;
+import de.androbin.screen.transit.*;
+import de.androbin.shell.*;
+import de.androbin.shell.gfx.*;
+import de.androbin.shell.input.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 
-public final class MenuScreen extends Screen {
+public final class MenuScreen extends BasicShell implements AWTGraphics {
+  private final SmoothScreenManager<AWTTransition> screens;
+  
   private final ResourceManager<String> rm;
   
   private int selection;
@@ -31,14 +37,14 @@ public final class MenuScreen extends Screen {
   
   private boolean cursorDirection;
   
-  public MenuScreen( final Game game ) {
-    super( game );
+  public MenuScreen( final SmoothScreenManager<AWTTransition> screens ) {
+    this.screens = screens;
     
-    inputs.keyboard = new KeyInput();
-    inputs.mouse = new MouseInput();
-    inputs.mouseMotion = new MouseMotionInput();
+    addKeyInput( new MenuKeyInput() );
+    addMouseInput( new MenuMouseInput() );
+    addMouseMotionInput( new MenuMouseMotionInput() );
     
-    this.rm = new DefaultResourceManager<>();
+    this.rm = new SimpleResourceManager<>();
   }
   
   @ Override
@@ -49,7 +55,7 @@ public final class MenuScreen extends Screen {
   }
   
   @ Override
-  public void onResized( final int width, final int height ) {
+  protected void onResized( final int width, final int height ) {
     backgroundDecoDY = BACKGROUND_DECO_Y_OFFSET * height;
     
     buttonFont = new Font( BUTTON_FONT_NAME, BUTTON_FONT_STYLE,
@@ -82,6 +88,11 @@ public final class MenuScreen extends Screen {
   }
   
   @ Override
+  public void onStopped() {
+    rm.release();
+  }
+  
+  @ Override
   public void render( final Graphics2D g ) {
     renderBackground( g );
     renderButtons( g );
@@ -96,7 +107,8 @@ public final class MenuScreen extends Screen {
     g.setColor( BACKGROUND_DECO_COLOR );
     
     drawLine( g, 0f, backgroundDecoDY, getWidth(), backgroundDecoDY );
-    drawLine( g, 0f, getHeight() - backgroundDecoDY, getWidth(), getHeight() - backgroundDecoDY );
+    drawLine( g, 0f, getHeight() - backgroundDecoDY, getWidth(),
+        getHeight() - backgroundDecoDY );
   }
   
   private void renderCursor( final Graphics2D g ) {
@@ -169,10 +181,11 @@ public final class MenuScreen extends Screen {
   private void runCommand( final int selection ) {
     switch ( selection ) {
       case 0:
-        game.gsm.crossfadeSwitch( new NewGameScreen( game ), ColorCrossfade.BLACK, 1f );
+        screens.fadeSwitchTo( new NewGameScreen( screens ),
+            new AWTColorCrossfade( Color.BLACK, 0.5f, 1f ) );
         break;
       case 1:
-        game.gsm.close();
+        screens.close();
         break;
     }
   }
@@ -194,14 +207,14 @@ public final class MenuScreen extends Screen {
     passedTime += delta;
     
     if ( passedTime > RETURN_TIME ) {
-      game.gsm.crossfadeClose( ColorCrossfade.BLACK, 1f );
+      screens.fadeClose( new AWTColorCrossfade( Color.BLACK, 0.5f, 1f ) );
     }
   }
   
-  private final class KeyInput extends KeyAdapter {
+  private final class MenuKeyInput implements KeyInput {
     @ Override
-    public void keyPressed( final KeyEvent event ) {
-      switch ( event.getKeyCode() ) {
+    public void keyPressed( final int keycode ) {
+      switch ( keycode ) {
         case KeyEvent.VK_ENTER:
         case KeyEvent.VK_SPACE:
           runCommand( selection );
@@ -215,24 +228,20 @@ public final class MenuScreen extends Screen {
           break;
       }
     }
-    
-    @ Override
-    public void keyReleased( final KeyEvent event ) {
-    }
   }
   
-  private final class MouseInput extends MouseAdapter {
+  private final class MenuMouseInput implements MouseInput {
     @ Override
-    public void mousePressed( final MouseEvent event ) {
+    public void mousePressed( final int x, final int y, final int button ) {
       runCommand( selection );
     }
   }
   
-  private final class MouseMotionInput extends MouseMotionAdapter {
+  private final class MenuMouseMotionInput implements MouseMotionInput {
     @ Override
-    public void mouseMoved( final MouseEvent event ) {
+    public void mouseMoved( final int x, final int y ) {
       for ( int i = 0; i < buttonBounds.length; i++ ) {
-        if ( buttonBounds[ i ].contains( event.getPoint() ) ) {
+        if ( buttonBounds[ i ].contains( x, y ) ) {
           selection = i;
         }
       }

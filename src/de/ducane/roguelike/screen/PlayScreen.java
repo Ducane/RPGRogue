@@ -1,14 +1,15 @@
 package de.ducane.roguelike.screen;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
-import de.androbin.game.*;
-import de.androbin.game.listener.*;
 import de.androbin.rpg.*;
 import de.androbin.rpg.event.*;
 import de.androbin.rpg.event.Event;
 import de.androbin.rpg.gfx.*;
 import de.androbin.rpg.phantom.*;
 import de.androbin.rpg.tile.*;
+import de.androbin.screen.*;
+import de.androbin.screen.transit.*;
+import de.androbin.shell.input.*;
 import de.androbin.thread.*;
 import de.androbin.util.*;
 import de.ducane.roguelike.dark.*;
@@ -24,6 +25,8 @@ import java.util.List;
 import org.json.simple.*;
 
 public final class PlayScreen extends RPGScreen {
+  private final SmoothScreenManager<AWTTransition> screens;
+  
   private int floor;
   private int requestedFloor;
   
@@ -39,12 +42,15 @@ public final class PlayScreen extends RPGScreen {
   private final LockedList<Menu> menus;
   private Point2D.Float menuOffset;
   
-  public PlayScreen( final Game game, final float scale, final String name ) {
-    super( game, scale );
+  public PlayScreen( final SmoothScreenManager<AWTTransition> screens,
+      final float scale, final String name ) {
+    super( scale );
     
-    inputs.keyboard = new TeeKeyListener( new KeyInput(), inputs.keyboard );
-    inputs.mouse = new MouseInput();
-    inputs.mouseMotion = new MouseMotionInput();
+    this.screens = screens;
+    
+    addKeyInput( new PlayKeyInput() );
+    addMouseInput( new PlayMouseInput() );
+    addMouseMotionInput( new PlayMouseMotionInput() );
     
     menus = new LockedList<>();
     
@@ -125,7 +131,7 @@ public final class PlayScreen extends RPGScreen {
   }
   
   @ Override
-  public void onResized( final int width, final int height ) {
+  protected void onResized( final int width, final int height ) {
     dark.width = width;
     dark.height = height;
     
@@ -140,6 +146,7 @@ public final class PlayScreen extends RPGScreen {
   @ Override
   public void render( final Graphics2D g ) {
     super.render( g );
+    
     dark.darken( g, trans );
     dark.disposeAll();
     
@@ -250,21 +257,20 @@ public final class PlayScreen extends RPGScreen {
     updateDark();
   }
   
-  private final class KeyInput extends KeyAdapter {
+  private final class PlayKeyInput implements KeyInput {
     @ Override
-    public void keyPressed( final KeyEvent event ) {
-      if ( event.isShiftDown() ) {
+    public void keyPressed( final int keycode ) {
+      if ( keycode == KeyEvent.VK_SHIFT ) {
         getPlayer().running = true;
       }
     }
     
     @ Override
-    public void keyReleased( final KeyEvent event ) {
-      if ( !event.isShiftDown() ) {
-        getPlayer().running = false;
-      }
-      
-      switch ( event.getKeyCode() ) {
+    public void keyReleased( final int keycode ) {
+      switch ( keycode ) {
+        case KeyEvent.VK_SHIFT:
+          getPlayer().running = false;
+          break;
         case KeyEvent.VK_SPACE:
           attack = true;
           break;
@@ -282,17 +288,17 @@ public final class PlayScreen extends RPGScreen {
     }
   }
   
-  private final class MouseInput extends MouseAdapter {
+  private final class PlayMouseInput implements MouseInput {
     @ Override
-    public void mousePressed( final MouseEvent event ) {
+    public void mousePressed( final int x, final int y, final int button ) {
       if ( menus.isEmpty() ) {
         return;
       }
       
-      if ( event.getButton() == MouseEvent.BUTTON1 ) {
+      if ( button == MouseEvent.BUTTON1 ) {
         final int index = menus.size() - 1;
         
-        final Point2D.Float p = new Point2D.Float( event.getX(), event.getY() );
+        final Point2D.Float p = new Point2D.Float( x, y );
         p.x -= menuOffset.x;
         p.y -= menuOffset.y;
         
@@ -306,29 +312,29 @@ public final class PlayScreen extends RPGScreen {
         final Menu next = menu.onClick( p, getPlayer() );
         
         if ( next == null ) {
-          game.gsm.close();
+          screens.close();
         } else if ( next == menu.parent ) {
           menus.remove( menus.size() - 1 );
         } else if ( next != menu ) {
           next.onResized( getWidth(), getHeight() );
           menus.add( next );
         }
-      } else if ( event.getButton() == MouseEvent.BUTTON3 ) {
+      } else if ( button == MouseEvent.BUTTON3 ) {
         menus.remove( menus.size() - 1 );
       }
     }
   }
   
-  private final class MouseMotionInput extends MouseAdapter {
+  private final class PlayMouseMotionInput implements MouseMotionInput {
     @ Override
-    public void mouseMoved( final MouseEvent event ) {
+    public void mouseMoved( final int x, final int y ) {
       if ( menus.isEmpty() ) {
         return;
       }
       
       final int index = menus.size() - 1;
       
-      final Point2D.Float p = new Point2D.Float( event.getX(), event.getY() );
+      final Point2D.Float p = new Point2D.Float( x, y );
       p.x -= menuOffset.x;
       p.y -= menuOffset.y;
       

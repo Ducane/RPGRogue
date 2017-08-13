@@ -2,8 +2,10 @@ package de.ducane.roguelike;
 
 import static de.ducane.roguelike.Configuration.window_.*;
 import static de.ducane.util.FontUtil.*;
-import de.androbin.game.*;
 import de.androbin.gfx.*;
+import de.androbin.screen.*;
+import de.androbin.screen.transit.*;
+import de.androbin.shell.env.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -16,31 +18,37 @@ public final class Main {
   }
   
   public static void main( final String[] args ) {
+    final SmoothScreenManager<AWTTransition> screens = new AWTScreenManager();
+    final AWTEnv env = new AWTEnv( screens, FPS );
+    env.start( TITLE );
+    
+    final CustomPane canvas = env.canvas;
+    
     SwingUtilities.invokeLater( () -> {
       installFonts();
-      
-      final Game game = new Game();
       
       final JFrame window = new JFrame( TITLE );
       window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
       window.setResizable( RESIZABLE );
       window.setSize( getSize() );
       window.setLocationRelativeTo( null );
-      window.setContentPane( game );
+      window.setContentPane( canvas );
+      window.setVisible( true );
+      
+      if ( DEBUG ) {
+        screens.call( new PlayScreen( screens, 48f, "Herbert2000" ) );
+      } else {
+        screens.call( new IntroScreen( screens ) );
+      }
       
       window.addWindowListener( new WindowAdapter() {
         @ Override
         public void windowClosing( final WindowEvent event ) {
-          game.stop();
+          screens.setRunning( false );
         }
       } );
       
-      window.setVisible( true );
-      
-      game.start();
-      game.gsm.call( DEBUG ? new PlayScreen( game, 48f, "Herbert2000" ) : new IntroScreen( game ) );
-      
-      game.addKeyListener( new KeyAdapter() {
+      canvas.addKeyListener( new KeyAdapter() {
         @ Override
         public void keyReleased( final KeyEvent event ) {
           if ( event.getKeyCode() != KeyEvent.VK_F11 ) {
@@ -56,7 +64,7 @@ public final class Main {
           graphicsDevice.setFullScreenWindow( fullscreen ? null : window );
           window.setVisible( true );
           
-          game.requestFocusInWindow();
+          canvas.requestFocusInWindow();
         }
       } );
     } );

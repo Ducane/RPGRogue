@@ -1,7 +1,7 @@
 {
 	"window":
 	{
-		"fps": 24,
+		"fps": 60,
 		"resizable": true,
 		"scale": 0.6,
 		"title": "Roguelike - RPG",

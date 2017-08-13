@@ -3,9 +3,12 @@ package de.ducane.roguelike.screen;
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import static de.androbin.math.util.floats.FloatMathUtil.*;
 import static de.ducane.roguelike.Configuration.gui_.intro_.*;
-import de.androbin.game.*;
-import de.androbin.gfx.transition.*;
 import de.androbin.gfx.util.*;
+import de.androbin.screen.*;
+import de.androbin.screen.transit.*;
+import de.androbin.shell.*;
+import de.androbin.shell.gfx.*;
+import de.androbin.shell.input.*;
 import de.ducane.util.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -13,7 +16,9 @@ import java.awt.image.*;
 import java.util.*;
 import java.util.List;
 
-public final class IntroScreen extends Screen {
+public final class IntroScreen extends BasicShell implements AWTGraphics {
+  private final SmoothScreenManager<AWTTransition> screens;
+  
   private final BufferedImage[] images;
   
   private Font font;
@@ -28,10 +33,10 @@ public final class IntroScreen extends Screen {
   private boolean stepwiseOutput;
   private boolean imageShown;
   
-  public IntroScreen( final Game game ) {
-    super( game );
+  public IntroScreen( final SmoothScreenManager<AWTTransition> screens ) {
+    this.screens = screens;
     
-    inputs.keyboard = new KeyInput();
+    addKeyInput( new IntroKeyInput() );
     
     charSpeed = TEXT_SPEED;
     stepwiseOutput = true;
@@ -44,6 +49,13 @@ public final class IntroScreen extends Screen {
   }
   
   @ Override
+  protected void onResized( final int width, final int height ) {
+    padding = TEXT_DX * width;
+    
+    font = new Font( TEXT_FONT_NAME, TEXT_FONT_STYLE, (int) ( TEXT_FONT_SIZE * height ) );
+  }
+  
+  @ Override
   public void onResumed() {
     super.onResumed();
     
@@ -51,13 +63,6 @@ public final class IntroScreen extends Screen {
     charProgress = 0f;
     stepwiseOutput = true;
     imageShown = false;
-  }
-  
-  @ Override
-  public void onResized( final int width, final int height ) {
-    padding = TEXT_DX * width;
-    
-    font = new Font( TEXT_FONT_NAME, TEXT_FONT_STYLE, (int) ( TEXT_FONT_SIZE * height ) );
   }
   
   @ Override
@@ -112,7 +117,8 @@ public final class IntroScreen extends Screen {
     if ( !imageShown ) {
       final float alpha = inter( 1f, charProgress / TEXT[ pageIndex ].length(), 0f );
       g.setColor( new Color( 0f, 0f, 0f, alpha ) );
-      fillRect( g, getWidth() * 0.1f, getHeight() * 0.1f, getWidth() * 0.8f, getHeight() * 0.6f );
+      fillRect( g, getWidth() * 0.1f, getHeight() * 0.1f, getWidth() * 0.8f,
+          getHeight() * 0.6f );
     }
   }
   
@@ -125,10 +131,10 @@ public final class IntroScreen extends Screen {
     }
   }
   
-  private final class KeyInput extends KeyAdapter {
+  private final class IntroKeyInput implements KeyInput {
     @ Override
-    public void keyReleased( final KeyEvent event ) {
-      switch ( event.getKeyCode() ) {
+    public void keyReleased( final int keycode ) {
+      switch ( keycode ) {
         case KeyEvent.VK_SPACE:
         case KeyEvent.VK_ENTER: {
           stepwiseOutput ^= true;
@@ -139,7 +145,8 @@ public final class IntroScreen extends Screen {
               charProgress = 0f;
               imageShown = false;
             } else {
-              game.gsm.crossfadeCall( new MenuScreen( game ), ColorCrossfade.BLACK, 1f );
+              screens.fadeCall( new MenuScreen( screens ),
+                  new AWTColorCrossfade( Color.BLACK, 0.5f, 1f ) );
             }
           } else {
             imageShown = true;
