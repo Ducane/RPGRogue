@@ -1,7 +1,8 @@
 package de.ducane.roguelike.entity;
 
 import de.androbin.rpg.*;
-import de.ducane.roguelike.dark.*;
+import de.androbin.rpg.dir.*;
+import de.androbin.rpg.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
 import java.awt.*;
@@ -10,14 +11,12 @@ import java.awt.geom.*;
 public final class Mob extends RogueEntity {
   private Item item;
   
-  public Mob( final RogueEntityData data, final MovingDark dark ) {
-    super( data );
-    
-    renderer = new MobRenderer( this, data.animation, dark );
+  public Mob( final RogueEntityData data ) {
+    super( data, 0 );
     
     move.callback = ( dir, foo ) -> {
       final Level level = (Level) world;
-      final Rectangle extent = dir.inner( getBounds() );
+      final Rectangle extent = dir.first.inner( getBounds() );
       
       LoopUtil.forEach( extent, pos -> {
         if ( item == null ) {
@@ -25,6 +24,7 @@ public final class Mob extends RogueEntity {
         }
       } );
     };
+    move.speed = 2f;
   }
   
   public Direction aim( final Entity entity, final boolean moving ) {
@@ -42,18 +42,13 @@ public final class Mob extends RogueEntity {
   }
   
   @ Override
-  public float moveSpeed() {
-    return 2f;
-  }
-  
-  @ Override
   protected void onDamage( final int damage, final Object source ) {
     if ( source instanceof Entity ) {
       final Entity entity = (Entity) source;
-      viewDir = aim( entity, false );
+      orientation = aim( entity, false );
       
       if ( !isDead( false ) ) {
-        attack.request( true );
+        attack.makeNext( true );
       }
     }
   }

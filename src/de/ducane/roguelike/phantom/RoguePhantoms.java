@@ -1,7 +1,6 @@
 package de.ducane.roguelike.phantom;
 
-import de.androbin.rpg.phantom.*;
-import de.ducane.roguelike.dark.*;
+import de.androbin.rpg.entity.*;
 import java.util.*;
 
 public final class RoguePhantoms {
@@ -14,8 +13,8 @@ public final class RoguePhantoms {
   private RoguePhantoms() {
   }
   
-  public static RoguePhantom create( final PhantomData data, final MovingDark dark ) {
+  public static RoguePhantom create( final EntityData data, final int id ) {
     final RoguePhantom.Builder builder = BUILDERS.get( data.name );
-    return builder.build( data, dark );
+    return builder.build( data, id );
   }
 }

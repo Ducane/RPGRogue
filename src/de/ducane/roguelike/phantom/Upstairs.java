@@ -1,14 +1,13 @@
 package de.ducane.roguelike.phantom;
 
-import de.androbin.rpg.phantom.*;
-import de.ducane.roguelike.dark.*;
+import de.androbin.rpg.entity.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.screen.*;
 
 public final class Upstairs extends RoguePhantom {
-  public Upstairs( final PhantomData data, final MovingDark dark ) {
-    super( data, dark );
+  public Upstairs( final EntityData data, final int id ) {
+    super( data, id );
   }
   
   @ Override

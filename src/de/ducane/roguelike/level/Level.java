@@ -1,7 +1,8 @@
 package de.ducane.roguelike.level;
 
 import de.androbin.rpg.*;
-import de.androbin.rpg.phantom.*;
+import de.androbin.rpg.dir.*;
+import de.androbin.rpg.entity.*;
 import de.androbin.rpg.tile.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
@@ -20,7 +21,7 @@ public final class Level extends World {
   private Point downStairsPos;
   private Point upStairsPos;
   
-  public Level( final Identifier id, final Dimension size, final PlayScreen screen,
+  public Level( final Ident id, final Dimension size, final PlayScreen screen,
       final List<Rectangle> rooms ) {
     super( id, size );
     
@@ -34,14 +35,12 @@ public final class Level extends World {
     return downStairsPos;
   }
   
-  @ Override
   public RoguePhantom getPhantom( final Point pos ) {
-    return (RoguePhantom) super.getPhantom( pos );
+    return (RoguePhantom) super.getEntity( false, pos );
   }
   
-  @ Override
   public RogueEntity getEntity( final Point pos ) {
-    return (RogueEntity) super.getEntity( pos );
+    return (RogueEntity) super.getEntity( true, pos );
   }
   
   @ Override
@@ -67,9 +66,9 @@ public final class Level extends World {
   
   public void moveMobs( final Entity target ) {
     for ( final Entity entity : listEntities() ) {
-      if ( entity instanceof Mob && !entity.move.hasRequested() ) {
+      if ( entity instanceof Mob && !entity.move.hasNext() ) {
         final Mob mob = (Mob) entity;
-        mob.move.request( mob.aim( target, true ) );
+        mob.move.makeNext( new DirectionPair( mob.aim( target, true ) ) );
       }
     }
   }
@@ -77,7 +76,7 @@ public final class Level extends World {
   public void onPlayerMoved( final Player player ) {
     screen.onPlayerMoved();
     
-    final RoguePhantom phantom = getPhantom( player.getPos() );
+    final RoguePhantom phantom = getPhantom( player.pos );
     
     if ( phantom != null ) {
       phantom.onPlayerEntered( screen );
@@ -86,18 +85,18 @@ public final class Level extends World {
   
   protected void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
-    addPhantom( Phantoms.create( "upstairs" ), pos );
+    addEntity( Entities.create( Ident.fromSerial( "phantom/upstairs" ), 0 ), pos );
   }
   
   protected void setDownStairsPos( final Point pos ) {
     this.downStairsPos = pos;
-    setTile( pos, Tiles.create( "downstairs" ) );
+    setTile( pos, Tiles.create( Downstairs.TYPE ) );
   }
   
   public void update() {
     final List<Entity> toRemove = new ArrayList<>();
     
-    for ( final Entity entity : listEntities() ) {
+    for ( final Entity entity : listEntities( true ) ) {
       final RogueEntity rogueEntity = (RogueEntity) entity;
       
       if ( rogueEntity.isDead( true ) ) {

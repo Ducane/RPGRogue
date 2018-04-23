@@ -1,22 +1,21 @@
 package de.ducane.roguelike.entity;
 
-import static de.androbin.util.JSONUtil.*;
+import de.androbin.json.*;
+import de.androbin.rpg.*;
 import java.util.*;
-import org.json.simple.*;
 
 public final class RogueEntites {
-  public static final Map<String, RogueEntityData> DATA = new HashMap<>();
+  public static final Map<Ident, RogueEntityData> DATA = new HashMap<>();
   
   private RogueEntites() {
   }
   
-  private static RogueEntityData createData( final String path ) {
-    final JSONObject data = (JSONObject) parseJSON( path + ".json" )
-        .orElseGet( JSONObject::new );
-    return new RogueEntityData( path, data );
+  private static RogueEntityData createData( final Ident type ) {
+    final XObject data = JSONUtil.readJSONObject( "entity/" + type + ".json" );
+    return new RogueEntityData( type, data );
   }
   
-  public static RogueEntityData getData( final String path ) {
-    return DATA.computeIfAbsent( path, RogueEntites::createData );
+  public static RogueEntityData getData( final Ident type ) {
+    return DATA.computeIfAbsent( type, RogueEntites::createData );
   }
 }

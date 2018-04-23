@@ -1,6 +1,6 @@
 package de.ducane.roguelike.entity;
 
-import org.json.simple.*;
+import de.androbin.json.*;
 
 public final class Stats {
   public int exp;
@@ -18,11 +18,11 @@ public final class Stats {
     set( stats );
   }
   
-  public Stats( final JSONObject data ) {
-    attack = ( (Number) data.get( "attack" ) ).intValue();
-    defense = ( (Number) data.get( "defense" ) ).intValue();
-    exp = ( (Number) data.get( "exp" ) ).intValue();
-    hp = maxHp = ( (Number) data.get( "hp" ) ).intValue();
+  public Stats( final XObject data ) {
+    attack = data.get( "attack" ).asInt();
+    defense = data.get( "defense" ).asInt();
+    exp = data.get( "exp" ).asInt();
+    hp = maxHp = data.get( "hp" ).asInt();
   }
   
   public int level() {

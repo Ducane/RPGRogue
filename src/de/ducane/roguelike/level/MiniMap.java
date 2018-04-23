@@ -2,7 +2,7 @@ package de.ducane.roguelike.level;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.rpg.*;
-import de.ducane.roguelike.dark.*;
+import de.ducane.roguelike.gfx.dark.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.util.*;

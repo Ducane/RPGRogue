@@ -1,10 +1,9 @@
 package de.ducane.roguelike.level;
 
 import static de.androbin.collection.util.ObjectCollectionUtil.*;
+import de.androbin.json.*;
 import de.androbin.rpg.*;
 import de.androbin.rpg.tile.*;
-import de.androbin.util.*;
-import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.screen.*;
@@ -13,7 +12,6 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
-import org.json.simple.*;
 
 public final class LevelGenerator {
   private TileType[][] types;
@@ -43,24 +41,22 @@ public final class LevelGenerator {
     return null;
   }
   
-  @ SuppressWarnings( "unchecked" )
-  public Level generate( final Identifier id, final JSONObject data, final PlayScreen screen ) {
+  public Level generate( final Ident id, final XObject data, final PlayScreen screen ) {
     final Random random = ThreadLocalRandom.current();
     
-    final JSONObject droprateData = (JSONObject) data.get( "droprate" );
-    final String[] monsters = JSONUtil.toStringArray( data.get( "monsters" ) );
+    final XObject droprateData = data.get( "droprate" ).asObject();
+    final String[] monsters = data.get( "monsters" ).asStringArray();
     
     final Map<String, Float> droprates = new HashMap<>();
     
-    droprateData.forEach( ( type, rate ) -> droprates.put(
-        (String) type, ( (Number) rate ).floatValue() ) );
+    droprateData.forEach( ( type, rate ) -> droprates.put( type, rate.asFloat() ) );
     
-    final JSONObject mapData = (JSONObject) data.get( "mapdata" );
+    final XObject mapData = data.get( "mapdata" ).asObject();
     
-    final int minWidth = ( (Number) mapData.get( "minWidth" ) ).intValue();
-    final int maxWidth = ( (Number) mapData.get( "maxWidth" ) ).intValue();
-    final int minHeight = ( (Number) mapData.get( "minHeight" ) ).intValue();
-    final int maxHeight = ( (Number) mapData.get( "maxHeight" ) ).intValue();
+    final int minWidth = mapData.get( "minWidth" ).asInt();
+    final int maxWidth = mapData.get( "maxWidth" ).asInt();
+    final int minHeight = mapData.get( "minHeight" ).asInt();
+    final int maxHeight = mapData.get( "maxHeight" ).asInt();
     
     final int width = minWidth + random.nextInt( maxWidth - minWidth + 1 );
     final int height = minHeight + random.nextInt( maxHeight - minHeight + 1 );
@@ -75,7 +71,7 @@ public final class LevelGenerator {
     translate();
     placeItems( droprates );
     placeStairs();
-    spawnMobs( monsters, screen.dark );
+    spawnMobs( monsters );
     
     return level;
   }
@@ -115,16 +111,16 @@ public final class LevelGenerator {
     }
   }
   
-  private List<Rectangle> generateRooms( final JSONObject data,
+  private List<Rectangle> generateRooms( final XObject data,
       final int width, final int height ) {
     final Random random = ThreadLocalRandom.current();
     
-    final int minRooms = ( (Number) data.get( "minRooms" ) ).intValue();
-    final int maxRooms = ( (Number) data.get( "maxRooms" ) ).intValue();
-    final int minRoomWidth = ( (Number) data.get( "minRoomWidth" ) ).intValue();
-    final int maxRoomWidth = ( (Number) data.get( "maxRoomWidth" ) ).intValue();
-    final int minRoomHeight = ( (Number) data.get( "minRoomHeight" ) ).intValue();
-    final int maxRoomHeight = ( (Number) data.get( "maxRoomHeight" ) ).intValue();
+    final int minRooms = data.get( "minRooms" ).asInt();
+    final int maxRooms = data.get( "maxRooms" ).asInt();
+    final int minRoomWidth = data.get( "minRoomWidth" ).asInt();
+    final int maxRoomWidth = data.get( "maxRoomWidth" ).asInt();
+    final int minRoomHeight = data.get( "minRoomHeight" ).asInt();
+    final int maxRoomHeight = data.get( "maxRoomHeight" ).asInt();
     
     final int nRooms = minRooms + random.nextInt( maxRooms - minRooms + 1 );
     
@@ -245,7 +241,7 @@ public final class LevelGenerator {
         final int y = random.nextInt( level.size.height );
         
         tile = level.getTile( new Point( x, y ) );
-      } while ( tile.data.event == null );
+      } while ( !tile.data.passable );
       
       final Set<String> keySet = droprates.keySet();
       final String[] keyArray = keySet.toArray( new String[ keySet.size() ] );
@@ -297,7 +293,7 @@ public final class LevelGenerator {
     level.setDownStairsPos( down );
   }
   
-  private void spawnMobs( final String[] monsters, final MovingDark dark ) {
+  private void spawnMobs( final String[] monsters ) {
     final Random random = ThreadLocalRandom.current();
     
     for ( final Rectangle room : rooms ) {
@@ -312,11 +308,10 @@ public final class LevelGenerator {
         pos = new Point( x, y );
         
         success = level.getEntity( pos ) == null
-            && level.getPhantom( pos ) == null
-            && level.getThing( pos ) == null;
+            && level.getPhantom( pos ) == null;
       } while ( !success );
       
-      final Mob mob = new Mob( RogueEntites.getData( "mob/" + monster ), dark );
+      final Mob mob = new Mob( RogueEntites.getData( Ident.fromSerial( "mob/" + monster ) ) );
       level.addEntity( mob, pos );
     }
   }
@@ -325,8 +320,8 @@ public final class LevelGenerator {
     for ( int y = 0; y < types.length; y++ ) {
       for ( int x = 0; x < types[ y ].length; x++ ) {
         final Point pos = new Point( x, y );
-        final String name = types[ y ][ x ].name;
-        level.setTile( pos, Tiles.create( name ) );
+        final Ident type = types[ y ][ x ].type;
+        level.setTile( pos, Tiles.create( type ) );
       }
     }
   }
@@ -337,10 +332,10 @@ public final class LevelGenerator {
     FLOOR( "floor" ),
     DOOR( "door" );
     
-    public final String name;
+    public final Ident type;
     
-    TileType( final String name ) {
-      this.name = name;
+    TileType( final String type ) {
+      this.type = Ident.fromSerial( "rogue/" + type );
     }
   }
 }

@@ -1,19 +1,23 @@
 package de.ducane.roguelike.screen;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
+import de.androbin.json.*;
 import de.androbin.rpg.*;
+import de.androbin.rpg.entity.*;
 import de.androbin.rpg.event.*;
-import de.androbin.rpg.event.Event;
 import de.androbin.rpg.gfx.*;
-import de.androbin.rpg.phantom.*;
+import de.androbin.rpg.gfx.sheet.*;
+import de.androbin.rpg.story.*;
 import de.androbin.rpg.tile.*;
 import de.androbin.screen.*;
 import de.androbin.screen.transit.*;
 import de.androbin.shell.input.*;
 import de.androbin.thread.*;
-import de.androbin.util.*;
-import de.ducane.roguelike.dark.*;
 import de.ducane.roguelike.entity.*;
+import de.ducane.roguelike.event.*;
+import de.ducane.roguelike.event.handler.*;
+import de.ducane.roguelike.gfx.*;
+import de.ducane.roguelike.gfx.dark.*;
 import de.ducane.roguelike.level.*;
 import de.ducane.roguelike.menu.*;
 import de.ducane.roguelike.menu.Menu;
@@ -22,7 +26,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.List;
-import org.json.simple.*;
 
 public final class PlayScreen extends RPGScreen {
   private final SmoothScreenManager<AWTTransition> screens;
@@ -42,9 +45,22 @@ public final class PlayScreen extends RPGScreen {
   private final LockedList<Menu> menus;
   private Point2D.Float menuOffset;
   
+  static {
+    Globals.init( "globals.json" );
+    
+    Tiles.register( "rogue", RogueTile::new );
+    Entities.register( "phantom", RoguePhantoms::create );
+    
+    Sheets.registerEntity( "mob", new MobLayout() );
+    Sheets.registerEntity( "player", new PlayerLayout() );
+    
+    Events.putBuilder( "downstairs", DownstairsEvent.BUILDER );
+    Events.putHandler( DownstairsEvent.class, new DownstairsEventHandler() );
+  }
+  
   public PlayScreen( final SmoothScreenManager<AWTTransition> screens,
       final float scale, final String name ) {
-    super( scale );
+    super( new StoryState( new StoryGraph() ), scale );
     
     this.screens = screens;
     
@@ -59,31 +75,22 @@ public final class PlayScreen extends RPGScreen {
     dark.width = getWidth();
     dark.height = getHeight();
     
-    Tiles.builder = data -> RogueTiles.create( data, dark );
-    Phantoms.builder = data -> RoguePhantoms.create( data, dark );
+    worldRenderer.setTileRenderer( new RogueTileRenderer( dark ) );
+    worldRenderer.setEntityRenderer( new RogueEntityRenderer( dark ) );
     
-    Events.BUILDERS.put( "downstairs", args0 -> Event.func( "downstairs", ( master, args1 ) -> {
-      final Entity entity = (Entity) args1.get( "entity" );
-      final Player player = getPlayer();
-      
-      if ( entity == player && !player.running ) {
-        requestNextFloor();
-      }
-    } ) );
-    
-    player = new Player( RogueEntites.getData( "player/Player" ), name );
+    player = new Player( RogueEntites.getData( Ident.fromSerial( "player/Player" ) ), name );
     camera.setFocus( Camera.focus( player ) );
     
     updateFloor();
   }
   
   @ Override
-  public Level createWorld( final Identifier id ) {
+  public Level createWorld( final Ident id ) {
     final int floor = Integer.parseInt( id.lastElement().split( "-" )[ 1 ] );
     final int index = Math.min( ( floor / 4 + 1 ), 5 );
     
     final String path = "level/level" + index + ".json";
-    final JSONObject data = (JSONObject) JSONUtil.parseJSON( path ).get();
+    final XObject data = JSONUtil.readJSON( path ).get().asObject();
     
     final LevelGenerator generator = new LevelGenerator();
     return generator.generate( id, data, this );
@@ -100,7 +107,7 @@ public final class PlayScreen extends RPGScreen {
       
       tileRoom = new Rectangle( x, y, width, height );
       
-      if ( tileRoom.contains( player.getPos() ) ) {
+      if ( tileRoom.contains( player.pos ) ) {
         return tileRoom;
       }
     }
@@ -225,7 +232,7 @@ public final class PlayScreen extends RPGScreen {
     }
     
     if ( attack ) {
-      getPlayer().attack.request( true );
+      getPlayer().attack.makeNext( true );
       attack = false;
     }
     
@@ -249,7 +256,7 @@ public final class PlayScreen extends RPGScreen {
   }
   
   public void updateFloor() {
-    final Identifier id = Identifier.fromSerial( "floor-" + floor );
+    final Ident id = Ident.fromSerial( "floor-" + floor );
     final Level level = (Level) getWorld( id );
     switchWorld( id, level.getUpStairsPos() );
     rooms = level.getRooms();
@@ -261,7 +268,7 @@ public final class PlayScreen extends RPGScreen {
     @ Override
     public void keyPressed( final int keycode ) {
       if ( keycode == KeyEvent.VK_SHIFT ) {
-        getPlayer().running = true;
+        getPlayer().setRunning( true );
       }
     }
     
@@ -269,7 +276,7 @@ public final class PlayScreen extends RPGScreen {
     public void keyReleased( final int keycode ) {
       switch ( keycode ) {
         case KeyEvent.VK_SHIFT:
-          getPlayer().running = false;
+          getPlayer().setRunning( false );
           break;
         case KeyEvent.VK_SPACE:
           attack = true;

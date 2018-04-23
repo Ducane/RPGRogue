@@ -1,8 +1,7 @@
 package de.ducane.roguelike.item;
 
-import de.androbin.util.*;
+import de.androbin.json.*;
 import java.util.*;
-import org.json.simple.*;
 
 public final class Items {
   private static final Map<String, Item> CACHE = new HashMap<>();
@@ -20,13 +19,12 @@ public final class Items {
   }
   
   private static Item create( final String name ) {
-    final JSONObject data = (JSONObject) JSONUtil.parseJSON( "item/" + name + ".json" )
-        .orElseGet( JSONObject::new );
+    final XObject data = JSONUtil.readJSON( "item/" + name + ".json" ).get().asObject();
     return create( name, data );
   }
   
-  private static Item create( final String name, final JSONObject data ) {
-    final String type = (String) data.get( "type" );
+  private static Item create( final String name, final XObject data ) {
+    final String type = data.get( "type" ).asString();
     final Item.Builder builder = BUILDERS.get( type );
     return builder.build( name, data );
   }

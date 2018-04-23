@@ -1,0 +1,4 @@
+{
+	"name": "downstairs",
+	"enter_event": "downstairs($entity)",
+}

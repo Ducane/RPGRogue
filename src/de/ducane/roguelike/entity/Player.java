@@ -14,17 +14,15 @@ public final class Player extends RogueEntity {
   public final LockedList<Item> inventory;
   public final Equipment equipment;
   
-  public boolean running;
+  private boolean running;
   
   public Player( final RogueEntityData data, final String name ) {
-    super( data );
+    super( data, 0 );
     
     this.name = name;
     
     inventory = new LockedList<>();
     equipment = new Equipment();
-    
-    renderer = new RogueEntityRenderer( this, data.animation );
     
     baseStats.attack = 3;
     baseStats.defense = 1;
@@ -35,7 +33,7 @@ public final class Player extends RogueEntity {
       final Level level = (Level) world;
       
       if ( !running ) {
-        final Rectangle extent = dir.inner( getBounds() );
+        final Rectangle extent = dir.first.inner( getBounds() );
         
         LoopUtil.forEach( extent, pos -> {
           final Item item = level.takeItem( pos );
@@ -121,6 +119,10 @@ public final class Player extends RogueEntity {
     return stats;
   }
   
+  public boolean isRunning() {
+    return running;
+  }
+  
   public void levelUp() {
     final Random random = ThreadLocalRandom.current();
     
@@ -130,11 +132,11 @@ public final class Player extends RogueEntity {
   }
   
   @ Override
-  public float moveSpeed() {
-    return running ? 6f : 2f;
+  protected void onDamage( final int damage, final Object source ) {
   }
   
-  @ Override
-  protected void onDamage( final int damage, final Object source ) {
+  public void setRunning( final boolean running ) {
+    this.running = running;
+    move.speed = running ? 6f : 2f;
   }
 }

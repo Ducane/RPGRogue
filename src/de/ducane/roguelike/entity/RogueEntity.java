@@ -1,6 +1,7 @@
 package de.ducane.roguelike.entity;
 
 import de.androbin.rpg.*;
+import de.androbin.rpg.entity.*;
 import java.awt.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -11,10 +12,11 @@ public abstract class RogueEntity extends Entity {
   
   protected final Stats baseStats;
   
-  public final Handle<Boolean, RogueEntity> attack;
-  public final Handle<Pair<Integer, Object>, Void> damage;
+  public final AttackHandle attack;
+  public final DamageHandle damage;
   
-  public RogueEntity( final RogueEntityData data ) {
+  public RogueEntity( final RogueEntityData data, final int id ) {
+    super( data, id );
     this.data = data;
     
     baseStats = new Stats( data.stats );
@@ -37,8 +39,8 @@ public abstract class RogueEntity extends Entity {
         totalDamage += damage.getCurrent().getKey();
       }
       
-      if ( damage.hasRequested() ) {
-        totalDamage += damage.getRequested().getKey();
+      if ( damage.hasNext() ) {
+        totalDamage += damage.getNext().getKey();
       }
       
       return baseStats.hp <= totalDamage;
@@ -48,20 +50,13 @@ public abstract class RogueEntity extends Entity {
   protected abstract void onDamage( final int damage, final Object source );
   
   @ Override
-  public void updateStrong( final RPGScreen master ) {
-    super.updateStrong( master );
-    attack.updateStrong( master );
-    damage.updateStrong( master );
+  public void update( final float delta ) {
+    super.update( delta );
+    attack.update( delta );
+    damage.update( delta );
   }
   
-  @ Override
-  public void updateWeak( final float delta ) {
-    super.updateWeak( delta );
-    attack.updateWeak( delta );
-    damage.updateWeak( delta );
-  }
-  
-  private final class AttackHandle extends Handle<Boolean, RogueEntity> {
+  public final class AttackHandle extends Handle<Boolean, RogueEntity> {
     private final RogueEntity entity = RogueEntity.this;
     
     @ Override
@@ -70,7 +65,7 @@ public abstract class RogueEntity extends Entity {
     }
     
     @ Override
-    protected RogueEntity doHandle( final RPGScreen screen, final Boolean arg ) {
+    protected RogueEntity doHandle( final Boolean arg ) {
       final RogueEntity target = getTarget();
       
       if ( target == null ) {
@@ -86,40 +81,40 @@ public abstract class RogueEntity extends Entity {
       final int maxDamage = minDamage + random.nextInt( stats.level() + 1 );
       
       final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
-      target.damage.request( new Pair<>( damage, entity ) );
+      target.damage.makeNext( new Pair<>( damage, entity ) );
       
       return target.isDead( false ) ? target : null;
     }
     
     private RogueEntity getTarget() {
-      return (RogueEntity) world.getEntity( getTargetPoint() );
+      return (RogueEntity) world.getEntity( true, getTargetPoint() );
     }
     
     private Point getTargetPoint() {
       if ( move.hasCurrent() ) {
-        return viewDir.from( viewDir.from( getPos() ) );
+        return orientation.from( orientation.from( pos ) );
       } else {
-        return viewDir.from( getPos() );
+        return orientation.from( pos );
       }
     }
   }
   
-  private final class DamageHandle extends Handle<Pair<Integer, Object>, Void> {
+  public final class DamageHandle extends Handle<Pair<Integer, Object>, Void> {
     public DamageHandle() {
       requestCallback = ( requested, success ) -> onDamage(
           requested.getKey(), requested.getValue() );
     }
     
     @ Override
-    protected Void doHandle( final RPGScreen screen, final Pair<Integer, Object> arg ) {
+    protected Void doHandle( final Pair<Integer, Object> arg ) {
       baseStats.hp = Math.max( baseStats.hp - arg.getKey(), 0 );
       return null;
     }
     
     @ Override
-    public void request( final Pair<Integer, Object> arg ) {
-      final int current = hasRequested() ? getRequested().getKey() : 0;
-      super.request( new Pair<>( current + arg.getKey(), arg.getValue() ) );
+    public void makeNext( final Pair<Integer, Object> arg ) {
+      final int current = hasNext() ? getNext().getKey() : 0;
+      super.makeNext( new Pair<>( current + arg.getKey(), arg.getValue() ) );
     }
   }
 }
