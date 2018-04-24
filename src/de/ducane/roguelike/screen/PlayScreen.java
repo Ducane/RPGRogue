@@ -227,12 +227,12 @@ public final class PlayScreen extends RPGScreen {
   
   @ Override
   public void update( final float delta ) {
-    if ( !menus.isEmpty() ) {
+    if ( !menus.isEmpty() || getPlayer().isDead( true ) ) {
       return;
     }
     
     if ( attack ) {
-      getPlayer().attack.makeNext( true );
+      getPlayer().attack.request( true );
       attack = false;
     }
     

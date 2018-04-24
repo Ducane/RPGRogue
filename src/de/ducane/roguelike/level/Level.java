@@ -1,7 +1,6 @@
 package de.ducane.roguelike.level;
 
 import de.androbin.rpg.*;
-import de.androbin.rpg.dir.*;
 import de.androbin.rpg.entity.*;
 import de.androbin.rpg.tile.*;
 import de.ducane.roguelike.entity.*;
@@ -65,10 +64,10 @@ public final class Level extends World {
   }
   
   public void moveMobs( final Entity target ) {
-    for ( final Entity entity : listEntities() ) {
-      if ( entity instanceof Mob && !entity.move.hasNext() ) {
-        final Mob mob = (Mob) entity;
-        mob.move.makeNext( new DirectionPair( mob.aim( target, true ) ) );
+    for ( final Agent agent : listAgents() ) {
+      if ( agent instanceof Mob ) {
+        final Mob mob = (Mob) agent;
+        mob.move.request( mob.aim( target, true ) );
       }
     }
   }
@@ -105,7 +104,9 @@ public final class Level extends World {
     }
     
     for ( final Entity entity : toRemove ) {
-      removeEntity( entity );
+      if ( entity != screen.player ) {
+        removeEntity( entity );
+      }
     }
   }
 }

@@ -42,14 +42,11 @@ public final class Mob extends RogueEntity {
   }
   
   @ Override
-  protected void onDamage( final int damage, final Object source ) {
-    if ( source instanceof Entity ) {
-      final Entity entity = (Entity) source;
-      orientation = aim( entity, false );
-      
-      if ( !isDead( false ) ) {
-        attack.makeNext( true );
-      }
+  protected void onDamage( final int damage, final Agent source ) {
+    orientation = aim( source, false );
+    
+    if ( !isDead( false ) ) {
+      attack.request( true );
     }
   }
   

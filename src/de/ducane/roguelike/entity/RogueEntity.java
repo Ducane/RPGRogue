@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import javafx.util.*;
 
-public abstract class RogueEntity extends Entity {
+public abstract class RogueEntity extends Agent {
   public final RogueEntityData data;
   
   protected final Stats baseStats;
@@ -33,21 +33,11 @@ public abstract class RogueEntity extends Entity {
     if ( decay ) {
       return baseStats.hp == 0;
     } else {
-      int totalDamage = 0;
-      
-      if ( damage.hasCurrent() ) {
-        totalDamage += damage.getCurrent().getKey();
-      }
-      
-      if ( damage.hasNext() ) {
-        totalDamage += damage.getNext().getKey();
-      }
-      
-      return baseStats.hp <= totalDamage;
+      return baseStats.hp <= damage.getTotal();
     }
   }
   
-  protected abstract void onDamage( final int damage, final Object source );
+  protected abstract void onDamage( final int damage, final Agent source );
   
   @ Override
   public void update( final float delta ) {
@@ -60,12 +50,7 @@ public abstract class RogueEntity extends Entity {
     private final RogueEntity entity = RogueEntity.this;
     
     @ Override
-    public boolean canHandle( final Boolean arg ) {
-      return getTargetPoint() != null;
-    }
-    
-    @ Override
-    protected RogueEntity doHandle( final Boolean arg ) {
+    protected RogueEntity finish( final Boolean arg ) {
       final RogueEntity target = getTarget();
       
       if ( target == null ) {
@@ -81,9 +66,13 @@ public abstract class RogueEntity extends Entity {
       final int maxDamage = minDamage + random.nextInt( stats.level() + 1 );
       
       final int damage = random.nextInt( maxDamage - minDamage + 1 ) + minDamage;
-      target.damage.makeNext( new Pair<>( damage, entity ) );
+      target.damage.request( new Pair<>( damage, entity ) );
       
       return target.isDead( false ) ? target : null;
+    }
+    
+    public void request( final boolean arg ) {
+      next = arg;
     }
     
     private RogueEntity getTarget() {
@@ -99,22 +88,35 @@ public abstract class RogueEntity extends Entity {
     }
   }
   
-  public final class DamageHandle extends Handle<Pair<Integer, Object>, Void> {
+  public final class DamageHandle extends Handle<Pair<Integer, Agent>, Void> {
     public DamageHandle() {
       requestCallback = ( requested, success ) -> onDamage(
           requested.getKey(), requested.getValue() );
     }
     
     @ Override
-    protected Void doHandle( final Pair<Integer, Object> arg ) {
+    protected Void finish( final Pair<Integer, Agent> arg ) {
       baseStats.hp = Math.max( baseStats.hp - arg.getKey(), 0 );
       return null;
     }
     
-    @ Override
-    public void makeNext( final Pair<Integer, Object> arg ) {
-      final int current = hasNext() ? getNext().getKey() : 0;
-      super.makeNext( new Pair<>( current + arg.getKey(), arg.getValue() ) );
+    public int getTotal() {
+      int total = 0;
+      
+      if ( current != null ) {
+        total += current.getKey();
+      }
+      
+      if ( next != null ) {
+        total += next.getKey();
+      }
+      
+      return total;
+    }
+    
+    public void request( final Pair<Integer, Agent> arg ) {
+      final int current = next == null ? 0 : next.getKey();
+      next = new Pair<>( current + arg.getKey(), arg.getValue() );
     }
   }
 }

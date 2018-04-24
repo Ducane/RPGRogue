@@ -27,7 +27,7 @@ public final class AWTUtil {
     for ( int i = 0; i < text.length(); i++ ) {
       widthLeft -= fm.charWidth( text.charAt( i ) );
       
-      if ( widthLeft <= 0 ) {
+      if ( i > 0 && widthLeft <= 0 ) {
         final int index = text.lastIndexOf( ' ', i );
         return index == -1 ? i : index;
       }

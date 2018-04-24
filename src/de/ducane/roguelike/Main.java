@@ -12,7 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public final class Main {
-  public static final boolean DEBUG = true;
+  public static final boolean DEBUG = false;
   
   private Main() {
   }
@@ -36,7 +36,7 @@ public final class Main {
       window.setVisible( true );
       
       if ( DEBUG ) {
-        screens.call( new PlayScreen( screens, 48f, "Herbert2000" ) );
+        screens.call( new PlayScreen( screens, 48f, "Kevin" ) );
       } else {
         screens.call( new IntroScreen( screens ) );
       }

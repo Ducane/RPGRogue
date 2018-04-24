@@ -1,14 +1,13 @@
 package de.ducane.roguelike.entity;
 
-import java.awt.*;
-import de.androbin.rpg.entity.*;
 import de.androbin.rpg.gfx.sheet.*;
+import java.awt.*;
 
-public final class PlayerLayout implements Sheet.Layout<Entity> {
+public final class PlayerLayout implements Sheet.Layout<Player> {
   @ Override
-  public Point locate( final Entity entity ) {
-    final int x = (int) ( entity.move.getModProgress() * 3 );
-    final int y = entity.orientation.ordinal();
+  public Point locate( final Player player ) {
+    final int x = (int) ( player.move.getModProgress() * 3 );
+    final int y = player.orientation.ordinal();
     
     return new Point( x, y );
   }

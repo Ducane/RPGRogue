@@ -1,7 +1,6 @@
 package de.ducane.roguelike.gfx;
 
 import static de.ducane.util.AWTUtil.*;
-import de.androbin.rpg.*;
 import de.androbin.rpg.dir.*;
 import de.androbin.rpg.entity.*;
 import de.androbin.rpg.gfx.*;
@@ -19,14 +18,14 @@ public class RogueEntityRenderer extends SimpleEntityRenderer<Entity> {
   }
   
   @ Override
-  public void render( final Graphics2D g0, final Entity entity,
+  public void render( final Graphics2D g0, final Entity entity0,
       final Point2D.Float pos, final float scale ) {
-    final Ident type = entity.data.type;
-    
-    if ( type.firstElement().equals( "phantom" ) ) {
-      super.render( g0, entity, pos, scale );
+    if ( !( entity0 instanceof RogueEntity ) ) {
+      super.render( g0, entity0, pos, scale );
       return;
     }
+    
+    final RogueEntity entity = (RogueEntity) entity0;
     
     Graphics2D g = g0;
     
@@ -39,7 +38,7 @@ public class RogueEntityRenderer extends SimpleEntityRenderer<Entity> {
     bounds.x *= scale;
     bounds.y *= scale;
     
-    final DamageHandle damage = ( (RogueEntity) entity ).damage;
+    final DamageHandle damage = entity.damage;
     
     if ( damage.hasCurrent() ) {
       final Direction dir = entity.orientation;

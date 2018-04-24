@@ -185,7 +185,7 @@ public final class MenuScreen extends BasicShell implements AWTGraphics {
             new AWTColorCrossfade( Color.BLACK, 0.5f, 1f ) );
         break;
       case 1:
-        screens.close();
+        System.exit( 0 );
         break;
     }
   }

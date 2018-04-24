@@ -1,6 +1,7 @@
 package de.ducane.roguelike.entity;
 
 import de.androbin.rpg.*;
+import de.androbin.rpg.entity.*;
 import de.androbin.thread.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
@@ -132,7 +133,7 @@ public final class Player extends RogueEntity {
   }
   
   @ Override
-  protected void onDamage( final int damage, final Object source ) {
+  protected void onDamage( final int damage, final Agent source ) {
   }
   
   public void setRunning( final boolean running ) {
