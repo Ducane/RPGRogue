@@ -33,7 +33,7 @@ public final class DescriptionMenu extends Menu {
     super.render( g, player );
     
     final LockedList<Item> inventory = player.inventory;
-    final Item item = inventory.get( parent.parent.selection );
+    final Item item = inventory.get( parent.parent.getDataIndex() );
     
     final FontMetrics fm = g.getFontMetrics();
     

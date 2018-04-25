@@ -36,7 +36,7 @@ public final class Main {
       window.setVisible( true );
       
       if ( DEBUG ) {
-        screens.call( new PlayScreen( screens, 48f, "Kevin" ) );
+        screens.call( new PlayScreen( 48f, "Kevin" ) );
       } else {
         screens.call( new IntroScreen( screens ) );
       }

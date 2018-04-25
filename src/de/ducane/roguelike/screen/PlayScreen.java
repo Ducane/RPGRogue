@@ -9,8 +9,6 @@ import de.androbin.rpg.gfx.*;
 import de.androbin.rpg.gfx.sheet.*;
 import de.androbin.rpg.story.*;
 import de.androbin.rpg.tile.*;
-import de.androbin.screen.*;
-import de.androbin.screen.transit.*;
 import de.androbin.shell.input.*;
 import de.androbin.thread.*;
 import de.ducane.roguelike.entity.*;
@@ -28,8 +26,6 @@ import java.awt.geom.*;
 import java.util.List;
 
 public final class PlayScreen extends RPGScreen {
-  private final SmoothScreenManager<AWTTransition> screens;
-  
   private int floor;
   private int requestedFloor;
   
@@ -58,11 +54,8 @@ public final class PlayScreen extends RPGScreen {
     Events.putHandler( DownstairsEvent.class, new DownstairsEventHandler() );
   }
   
-  public PlayScreen( final SmoothScreenManager<AWTTransition> screens,
-      final float scale, final String name ) {
+  public PlayScreen( final float scale, final String name ) {
     super( new StoryState( new StoryGraph() ), scale );
-    
-    this.screens = screens;
     
     addKeyInput( new PlayKeyInput() );
     addMouseInput( new PlayMouseInput() );
@@ -318,9 +311,7 @@ public final class PlayScreen extends RPGScreen {
         final Menu menu = menus.get( index );
         final Menu next = menu.onClick( p, getPlayer() );
         
-        if ( next == null ) {
-          screens.close();
-        } else if ( next == menu.parent ) {
+        if ( next == menu.parent ) {
           menus.remove( menus.size() - 1 );
         } else if ( next != menu ) {
           next.onResized( getWidth(), getHeight() );

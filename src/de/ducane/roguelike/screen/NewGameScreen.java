@@ -61,7 +61,7 @@ public final class NewGameScreen extends BasicShell implements AWTGraphics {
   }
   
   private void startGame() {
-    screens.fadeSwitchTo( new PlayScreen( screens, 48f, name.toString() ),
+    screens.fadeSwitchTo( new PlayScreen( 48f, name.toString() ),
         new AWTColorCrossfade( Color.BLACK, 0.5f, 1f ) );
   }
   
