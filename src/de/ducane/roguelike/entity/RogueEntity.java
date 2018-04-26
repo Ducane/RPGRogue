@@ -71,10 +71,6 @@ public abstract class RogueEntity extends Agent {
       return target.isDead( false ) ? target : null;
     }
     
-    public void request( final boolean arg ) {
-      next = arg;
-    }
-    
     private RogueEntity getTarget() {
       return (RogueEntity) world.getEntity( true, getTargetPoint() );
     }
@@ -114,9 +110,10 @@ public abstract class RogueEntity extends Agent {
       return total;
     }
     
+    @ Override
     public void request( final Pair<Integer, Agent> arg ) {
       final int current = next == null ? 0 : next.getKey();
-      next = new Pair<>( current + arg.getKey(), arg.getValue() );
+      super.request( new Pair<>( current + arg.getKey(), arg.getValue() ) );
     }
   }
 }

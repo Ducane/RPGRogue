@@ -27,14 +27,14 @@ public final class Mob extends RogueEntity {
     move.speed = 2f;
   }
   
-  public Direction aim( final Entity entity, final boolean moving ) {
+  public DirectionPair aim( final Entity entity, final boolean moving ) {
     final Point2D.Float pos = getFloatPos();
     final Point2D.Float pos2 = entity.getFloatPos();
     
     final float dx = pos2.x - pos.x;
     final float dy = pos2.y - pos.y;
     
-    return Directions.aim( dx, dy, dir -> !moving || move.canHandle( dir ) );
+    return Directions.aim( dx, dy );
   }
   
   public Item getItem() {

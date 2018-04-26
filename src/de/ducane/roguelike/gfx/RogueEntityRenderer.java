@@ -41,12 +41,12 @@ public class RogueEntityRenderer extends SimpleEntityRenderer<Entity> {
     final DamageHandle damage = entity.damage;
     
     if ( damage.hasCurrent() ) {
-      final Direction dir = entity.orientation;
+      final DirectionPair dir = entity.orientation;
       
       final float d = -0.25f * (float) Math.sin( damage.getModProgress() * Math.PI );
       
-      pos.x += d * dir.dx;
-      pos.y += d * dir.dy;
+      pos.x += d * dir.dx();
+      pos.y += d * dir.dy();
     }
     
     super.render( g, entity, pos, scale );
