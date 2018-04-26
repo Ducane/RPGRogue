@@ -76,17 +76,17 @@ public abstract class RogueEntity extends Agent {
     }
     
     private Point getTargetPoint() {
-      if ( move.hasCurrent() ) {
-        return orientation.from( orientation.from( pos ) );
-      } else {
+      if ( move.getCurrent() == null ) {
         return orientation.from( pos );
+      } else {
+        return orientation.from( pos, 2 );
       }
     }
   }
   
   public final class DamageHandle extends Handle<Pair<Integer, Agent>, Void> {
     public DamageHandle() {
-      requestCallback = ( requested, success ) -> onDamage(
+      onPrepare = ( requested, success ) -> onDamage(
           requested.getKey(), requested.getValue() );
     }
     
@@ -99,12 +99,12 @@ public abstract class RogueEntity extends Agent {
     public int getTotal() {
       int total = 0;
       
-      if ( current != null ) {
-        total += current.getKey();
+      if ( getCurrent() != null ) {
+        total += getCurrent().getKey();
       }
       
-      if ( next != null ) {
-        total += next.getKey();
+      if ( getNext() != null ) {
+        total += getNext().getKey();
       }
       
       return total;
@@ -112,7 +112,7 @@ public abstract class RogueEntity extends Agent {
     
     @ Override
     public void request( final Pair<Integer, Agent> arg ) {
-      final int current = next == null ? 0 : next.getKey();
+      final int current = getNext() == null ? 0 : getNext().getKey();
       super.request( new Pair<>( current + arg.getKey(), arg.getValue() ) );
     }
   }

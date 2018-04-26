@@ -14,7 +14,7 @@ public final class Mob extends RogueEntity {
   public Mob( final RogueEntityData data ) {
     super( data, 0 );
     
-    move.callback = ( dir, foo ) -> {
+    move.onHandle = dir -> {
       final Level level = (Level) world;
       final Rectangle extent = dir.first.inner( getBounds() );
       

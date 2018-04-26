@@ -30,7 +30,7 @@ public final class Player extends RogueEntity {
     baseStats.hp = 30;
     baseStats.maxHp = 30;
     
-    move.callback = ( dir, foo ) -> {
+    move.onHandle = dir -> {
       final Level level = (Level) world;
       
       if ( !running ) {
@@ -47,7 +47,9 @@ public final class Player extends RogueEntity {
       
       level.onPlayerMoved( this );
     };
-    attack.callback = ( foo, entity ) -> loot( entity );
+    attack.onFinish = ( foo, entity ) -> loot( entity );
+    
+    setRunning( false );
   }
   
   private void addExp( final int exp ) {

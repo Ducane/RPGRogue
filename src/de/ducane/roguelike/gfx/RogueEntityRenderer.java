@@ -40,10 +40,10 @@ public class RogueEntityRenderer extends SimpleEntityRenderer<Entity> {
     
     final DamageHandle damage = entity.damage;
     
-    if ( damage.hasCurrent() ) {
+    if ( damage.getCurrent() != null ) {
       final DirectionPair dir = entity.orientation;
       
-      final float d = -0.25f * (float) Math.sin( damage.getModProgress() * Math.PI );
+      final float d = -0.25f * (float) Math.sin( damage.getProgress() * Math.PI );
       
       pos.x += d * dir.dx();
       pos.y += d * dir.dy();
@@ -51,7 +51,7 @@ public class RogueEntityRenderer extends SimpleEntityRenderer<Entity> {
     
     super.render( g, entity, pos, scale );
     
-    if ( damage.hasCurrent() ) {
+    if ( damage.getCurrent() != null ) {
       g.setFont( new Font( "Determination Mono", Font.PLAIN, (int) ( scale * 0.6f ) ) );
       
       final int damageValue = damage.getCurrent().getKey();
@@ -63,7 +63,7 @@ public class RogueEntityRenderer extends SimpleEntityRenderer<Entity> {
       final float y = bounds.y + ( scale - fm.stringWidth( damageText ) ) * 0.5f;
       
       drawBorderedString( g, damageText, x, y - 0.5f * scale
-          * (float) Math.sin( damage.getModProgress() * Math.PI ),
+          * (float) Math.sin( damage.getProgress() * Math.PI ),
           scale * 0.05f, Color.BLACK, Color.WHITE );
     }
   }
