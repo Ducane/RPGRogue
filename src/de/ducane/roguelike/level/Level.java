@@ -75,7 +75,8 @@ public final class Level extends World {
   public void onPlayerMoved( final Player player ) {
     screen.onPlayerMoved();
     
-    final RoguePhantom phantom = getPhantom( player.pos );
+    final Point pos = player.getSpot().getPos();
+    final RoguePhantom phantom = getPhantom( pos );
     
     if ( phantom != null ) {
       phantom.onPlayerEntered( screen );

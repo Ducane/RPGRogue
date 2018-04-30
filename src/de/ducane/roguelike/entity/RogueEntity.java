@@ -72,10 +72,12 @@ public abstract class RogueEntity extends Agent {
     }
     
     private RogueEntity getTarget() {
-      return (RogueEntity) world.getEntity( true, getTargetPoint() );
+      return (RogueEntity) getSpot().world.getEntity( true, getTargetPoint() );
     }
     
     private Point getTargetPoint() {
+      final Point pos = getSpot().getPos();
+      
       if ( move.getCurrent() == null ) {
         return orientation.from( pos );
       } else {

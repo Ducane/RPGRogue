@@ -31,7 +31,7 @@ public final class Player extends RogueEntity {
     baseStats.maxHp = 30;
     
     move.onHandle = dir -> {
-      final Level level = (Level) world;
+      final Level level = (Level) getSpot().world;
       
       if ( !running ) {
         final Rectangle extent = dir.first.inner( getBounds() );

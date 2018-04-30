@@ -100,7 +100,9 @@ public final class PlayScreen extends RPGScreen {
       
       tileRoom = new Rectangle( x, y, width, height );
       
-      if ( tileRoom.contains( player.pos ) ) {
+      final Point pos = player.getSpot().getPos();
+      
+      if ( tileRoom.contains( pos ) ) {
         return tileRoom;
       }
     }

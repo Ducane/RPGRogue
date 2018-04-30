@@ -15,7 +15,7 @@ public final class Mob extends RogueEntity {
     super( data, 0 );
     
     move.onHandle = dir -> {
-      final Level level = (Level) world;
+      final Level level = (Level) getSpot().world;
       final Rectangle extent = dir.first.inner( getBounds() );
       
       LoopUtil.forEach( extent, pos -> {
