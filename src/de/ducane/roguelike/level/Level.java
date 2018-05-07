@@ -3,6 +3,7 @@ package de.ducane.roguelike.level;
 import de.androbin.rpg.*;
 import de.androbin.rpg.entity.*;
 import de.androbin.rpg.tile.*;
+import de.androbin.rpg.world.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.phantom.*;
@@ -35,16 +36,15 @@ public final class Level extends World {
   }
   
   public RoguePhantom getPhantom( final Point pos ) {
-    return (RoguePhantom) super.getEntity( false, pos );
+    return (RoguePhantom) entities.get( false, pos );
   }
   
   public RogueEntity getEntity( final Point pos ) {
-    return (RogueEntity) super.getEntity( true, pos );
+    return (RogueEntity) entities.get( true, pos );
   }
   
-  @ Override
   public RogueTile getTile( final Point pos ) {
-    return (RogueTile) super.getTile( pos );
+    return (RogueTile) tiles.get( pos );
   }
   
   public List<Rectangle> getRooms() {
@@ -64,7 +64,7 @@ public final class Level extends World {
   }
   
   public void moveMobs( final Entity target ) {
-    for ( final Agent agent : listAgents() ) {
+    for ( final Agent agent : entities.listAgents() ) {
       if ( agent instanceof Mob ) {
         final Mob mob = (Mob) agent;
         mob.move.request( mob.aim( target, true ) );
@@ -85,18 +85,18 @@ public final class Level extends World {
   
   protected void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
-    addEntity( Entities.create( Ident.fromSerial( "phantom/upstairs" ), 0 ), pos );
+    entities.add( Entities.create( Ident.fromSerial( "phantom/upstairs" ), 0 ), pos );
   }
   
   protected void setDownStairsPos( final Point pos ) {
     this.downStairsPos = pos;
-    setTile( pos, Tiles.create( Downstairs.TYPE ) );
+    tiles.set( pos, Tiles.create( Downstairs.TYPE ) );
   }
   
   public void update() {
     final List<Entity> toRemove = new ArrayList<>();
     
-    for ( final Entity entity : listEntities( true ) ) {
+    for ( final Entity entity : entities.list( true ) ) {
       final RogueEntity rogueEntity = (RogueEntity) entity;
       
       if ( rogueEntity.isDead( true ) ) {
@@ -106,7 +106,7 @@ public final class Level extends World {
     
     for ( final Entity entity : toRemove ) {
       if ( entity != screen.player ) {
-        removeEntity( entity );
+        entities.remove( entity );
       }
     }
   }

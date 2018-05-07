@@ -312,7 +312,7 @@ public final class LevelGenerator {
       } while ( !success );
       
       final Mob mob = new Mob( RogueEntites.getData( Ident.fromSerial( "mob/" + monster ) ) );
-      level.addEntity( mob, pos );
+      level.entities.add( mob, pos );
     }
   }
   
@@ -321,7 +321,7 @@ public final class LevelGenerator {
       for ( int x = 0; x < types[ y ].length; x++ ) {
         final Point pos = new Point( x, y );
         final Ident type = types[ y ][ x ].type;
-        level.setTile( pos, Tiles.create( type ) );
+        level.tiles.set( pos, Tiles.create( type ) );
       }
     }
   }
