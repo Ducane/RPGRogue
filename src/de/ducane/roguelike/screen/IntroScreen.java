@@ -36,7 +36,7 @@ public final class IntroScreen extends BasicShell implements AWTGraphics {
   public IntroScreen( final SmoothScreenManager<AWTTransition> screens ) {
     this.screens = screens;
     
-    addKeyInput( new IntroKeyInput() );
+    keyInputs.add( new IntroKeyInput() );
     
     charSpeed = TEXT_SPEED;
     stepwiseOutput = true;

@@ -40,9 +40,9 @@ public final class MenuScreen extends BasicShell implements AWTGraphics {
   public MenuScreen( final SmoothScreenManager<AWTTransition> screens ) {
     this.screens = screens;
     
-    addKeyInput( new MenuKeyInput() );
-    addMouseInput( new MenuMouseInput() );
-    addMouseMotionInput( new MenuMouseMotionInput() );
+    keyInputs.add( new MenuKeyInput() );
+    mouseInputs.add( new MenuMouseInput() );
+    mouseMotionInputs.add( new MenuMouseMotionInput() );
     
     this.rm = new SimpleResourceManager<>();
   }

@@ -1,21 +1,19 @@
 package de.ducane.roguelike.event.handler;
 
-import de.androbin.rpg.*;
 import de.androbin.rpg.entity.*;
 import de.androbin.rpg.event.*;
+import de.ducane.roguelike.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.event.*;
-import de.ducane.roguelike.screen.*;
 
-public final class DownstairsEventHandler implements Event.Handler<DownstairsEvent> {
+public final class DownstairsEventHandler implements Event.Handler<RogueMaster, DownstairsEvent> {
   @ Override
-  public void handle( final RPGScreen master, final DownstairsEvent event ) {
-    final PlayScreen screen = (PlayScreen) master;
+  public void handle( final RogueMaster master, final DownstairsEvent event ) {
     final Entity entity = event.entity;
-    final Player player = screen.getPlayer();
+    final Player player = master.getPlayer();
     
     if ( entity == player && !player.isRunning() ) {
-      screen.requestNextFloor();
+      master.nextFloor();
     }
   }
 }

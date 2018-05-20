@@ -1,9 +1,9 @@
 package de.ducane.roguelike.phantom;
 
 import de.androbin.rpg.entity.*;
+import de.ducane.roguelike.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
-import de.ducane.roguelike.screen.*;
 
 public final class Upstairs extends RoguePhantom {
   public Upstairs( final EntityData data, final int id ) {
@@ -11,12 +11,12 @@ public final class Upstairs extends RoguePhantom {
   }
   
   @ Override
-  public void onPlayerEntered( final PlayScreen screen ) {
-    final Player player = screen.getPlayer();
+  public void onPlayerEntered( final RogueMaster master ) {
+    final Player player = master.getPlayer();
     final Item amulet = Items.get( "AmuletOfYendor" );
     
     if ( player.inventory.contains( amulet ) ) {
-      screen.requestPreviousFloor();
+      master.previousFloor();
     }
   }
 }

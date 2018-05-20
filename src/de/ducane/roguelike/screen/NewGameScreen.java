@@ -21,9 +21,9 @@ public final class NewGameScreen extends BasicShell implements AWTGraphics {
   public NewGameScreen( final SmoothScreenManager<AWTTransition> screens ) {
     this.screens = screens;
     
-    addKeyInput( new NewGameKeyInput() );
-    addMouseInput( new NewGameMouseInput() );
-    addMouseMotionInput( new NewGameMouseMotionInput() );
+    keyInputs.add( new NewGameKeyInput() );
+    mouseInputs.add( new NewGameMouseInput() );
+    mouseMotionInputs.add( new NewGameMouseMotionInput() );
     
     name = new StringBuilder();
   }

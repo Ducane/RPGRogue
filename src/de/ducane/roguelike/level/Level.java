@@ -79,7 +79,7 @@ public final class Level extends World {
     final RoguePhantom phantom = getPhantom( pos );
     
     if ( phantom != null ) {
-      phantom.onPlayerEntered( screen );
+      phantom.onPlayerEntered( screen.master );
     }
   }
   
@@ -94,18 +94,10 @@ public final class Level extends World {
   }
   
   public void update() {
-    final List<Entity> toRemove = new ArrayList<>();
-    
     for ( final Entity entity : entities.list( true ) ) {
       final RogueEntity rogueEntity = (RogueEntity) entity;
       
-      if ( rogueEntity.isDead( true ) ) {
-        toRemove.add( rogueEntity );
-      }
-    }
-    
-    for ( final Entity entity : toRemove ) {
-      if ( entity != screen.player ) {
+      if ( rogueEntity.isDead( true ) && entity != screen.master.player ) {
         entities.remove( entity );
       }
     }
