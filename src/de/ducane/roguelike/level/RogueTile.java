@@ -4,10 +4,16 @@ import de.androbin.rpg.tile.*;
 import de.ducane.roguelike.item.*;
 
 public class RogueTile extends Tile {
+  private final TileData data;
   private Item item;
   
   public RogueTile( final TileData data ) {
-    super( data );
+    this.data = data;
+  }
+  
+  @ Override
+  public TileData getData() {
+    return data;
   }
   
   public Item getItem() {

@@ -1,6 +1,6 @@
 package de.ducane.roguelike.entity;
 
-import de.androbin.rpg.*;
+import de.androbin.mixin.dim.*;
 import de.androbin.rpg.dir.*;
 import de.androbin.rpg.entity.*;
 import de.ducane.roguelike.item.*;
@@ -11,8 +11,8 @@ import java.awt.geom.*;
 public final class Mob extends RogueEntity {
   private Item item;
   
-  public Mob( final RogueEntityData data ) {
-    super( data, 0 );
+  public Mob( final RogueEntityData data, final int id ) {
+    super( data, id );
     
     move.onHandle = dir -> {
       final Level level = (Level) getSpot().world;

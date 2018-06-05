@@ -4,7 +4,7 @@ import de.androbin.json.*;
 import java.awt.*;
 
 public final class Configuration {
-  private static final XObject CONFIG = JSONUtil.readJSON( "config.json" ).get().asObject();
+  private static final XObject CONFIG = XUtil.readJSON( "config.json" ).get().asObject();
   
   public static final class window_ {
     private static final XObject CONFIG_WINDOW = CONFIG.get( "window" ).asObject();

@@ -1,7 +1,7 @@
 package de.ducane.roguelike.level;
 
 import static de.androbin.gfx.util.GraphicsUtil.*;
-import de.androbin.rpg.*;
+import de.androbin.mixin.dim.*;
 import de.ducane.roguelike.gfx.dark.*;
 import java.awt.*;
 import java.awt.geom.*;
@@ -26,7 +26,7 @@ public final class MiniMap {
       
       Color color;
       
-      switch ( tile.data.name ) {
+      switch ( tile.getData().name ) {
         case "granite":
           color = new Color( 0.8f, 0.8f, 0.8f, 0.7f );
           break;

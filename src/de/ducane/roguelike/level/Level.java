@@ -94,12 +94,18 @@ public final class Level extends World {
   }
   
   public void update() {
-    for ( final Entity entity : entities.list( true ) ) {
-      final RogueEntity rogueEntity = (RogueEntity) entity;
+    final List<Agent> dead = new ArrayList<>();
+    
+    for ( final Agent agent : entities.listAgents() ) {
+      final RogueEntity rogueEntity = (RogueEntity) agent;
       
-      if ( rogueEntity.isDead( true ) && entity != screen.master.player ) {
-        entities.remove( entity );
+      if ( rogueEntity.isDead( true ) && agent != screen.master.getPlayer() ) {
+        dead.add( agent );
       }
+    }
+    
+    for ( final Agent agent : dead ) {
+      entities.remove( agent );
     }
   }
 }

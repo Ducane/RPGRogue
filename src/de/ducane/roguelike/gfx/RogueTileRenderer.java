@@ -21,7 +21,7 @@ public final class RogueTileRenderer extends SimpleTileRenderer<Tile> {
       final Point2D.Float pos, final float scale ) {
     Graphics2D g = g0;
     
-    if ( tile.data.type.equals( Downstairs.TYPE ) ) {
+    if ( tile.getData().type.equals( Downstairs.TYPE ) ) {
       render( g, Downstairs.MOCK, pos, scale );
       g = dark.clip( g0 );
     }

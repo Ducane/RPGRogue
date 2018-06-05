@@ -1,6 +1,6 @@
 package de.ducane.roguelike.entity;
 
-import de.androbin.rpg.*;
+import de.androbin.mixin.dim.*;
 import de.androbin.rpg.entity.*;
 import de.androbin.thread.*;
 import de.ducane.roguelike.item.*;

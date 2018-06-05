@@ -2,8 +2,9 @@ package de.ducane.roguelike.event;
 
 import de.androbin.rpg.entity.*;
 import de.androbin.rpg.event.*;
+import java.util.logging.*;
 
-public final class DownstairsEvent extends Event {
+public final class DownstairsEvent implements Event {
   public static final Event.Builder BUILDER = args -> {
     final Entity entity = (Entity) args[ 0 ];
     return new DownstairsEvent( entity );
@@ -16,7 +17,7 @@ public final class DownstairsEvent extends Event {
   }
   
   @ Override
-  public String getMessage() {
-    return null;
+  public void log( final Logger logger ) {
+    logger.info( "downstairs" );
   }
 }

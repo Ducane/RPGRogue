@@ -16,13 +16,18 @@ public abstract class RogueEntity extends Agent {
   public final DamageHandle damage;
   
   public RogueEntity( final RogueEntityData data, final int id ) {
-    super( data, id );
+    super( id );
     this.data = data;
     
     baseStats = new Stats( data.stats );
     
     attack = new AttackHandle();
     damage = new DamageHandle();
+  }
+  
+  @ Override
+  public RogueEntityData getData() {
+    return data;
   }
   
   public Stats getStats() {
@@ -37,7 +42,7 @@ public abstract class RogueEntity extends Agent {
     }
   }
   
-  protected abstract void onDamage( final int damage, final Agent source );
+  protected abstract void onDamage( int damage, Agent source );
   
   @ Override
   public void update( final float delta ) {

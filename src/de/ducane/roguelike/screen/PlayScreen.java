@@ -5,6 +5,7 @@ import de.androbin.json.*;
 import de.androbin.rpg.*;
 import de.androbin.rpg.entity.*;
 import de.androbin.rpg.event.*;
+import de.androbin.rpg.gfx.*;
 import de.androbin.rpg.gfx.sheet.*;
 import de.androbin.rpg.story.*;
 import de.androbin.rpg.tile.*;
@@ -44,12 +45,17 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
     Globals.init( "globals.json" );
     
     Tiles.register( "rogue", RogueTile::new );
-    Entities.register( "phantom", RoguePhantoms::create );
     
-    Sheets.registerEntity( "mob", new MobLayout() );
-    Sheets.registerEntity( "player", new PlayerLayout() );
+    Entities.register( "phantom/upstairs", Upstairs::new );
+    Entities.register( "rogue/mob", Mob::new );
+    
+    Entities.registerData( "rogue", RogueEntityData::new );
+    
+    Sheets.registerEntity( "rogue/mob", new MobLayout() );
+    Sheets.registerEntity( "rogue/player", new PlayerLayout() );
     
     Events.putBuilder( "downstairs", DownstairsEvent.BUILDER );
+    
     Events.putHandler( DownstairsEvent.class, new DownstairsEventHandler() );
   }
   
@@ -68,10 +74,11 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
     dark.width = getWidth();
     dark.height = getHeight();
     
-    worldRenderer.setTileRenderer( new RogueTileRenderer( dark ) );
-    worldRenderer.setEntityRenderer( new RogueEntityRenderer( dark ) );
+    Renderers.registerEntity( "rogue", new RogueEntityRenderer( dark ) );
+    Renderers.registerTile( "rogue", new RogueTileRenderer( dark ) );
     
-    master.player = new Player( RogueEntites.getData( Ident.fromSerial( "player/Player" ) ), name );
+    master.player = new Player( Entities.getData( Ident.fromSerial( "rogue/player/Player" ) ),
+        name );
     master.camera.setFocus( master.player::getFloatPos );
     
     updateFloor();
@@ -82,7 +89,7 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
     final int index = Math.min( ( floor / 4 + 1 ), 5 );
     
     final String path = "level/level" + index + ".json";
-    final XObject data = JSONUtil.readJSON( path ).get().asObject();
+    final XObject data = XUtil.readJSON( path ).get().asObject();
     
     final LevelGenerator generator = new LevelGenerator();
     return generator.generate( id, data, this );
@@ -150,21 +157,17 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
   }
   
   private void renderMenus( final Graphics2D g ) {
-    final Point2D.Float pos = new Point2D.Float();
+    final AffineTransform savedTransform = g.getTransform();
     g.translate( menuOffset.x, menuOffset.y );
-    pos.x += menuOffset.x;
-    pos.y += menuOffset.y;
     
     menus.forEach( menu -> {
       menu.render( g, master.getPlayer() );
       
       final Point2D.Float offset = menu.getOffset();
       g.translate( offset.x, offset.y );
-      pos.x += offset.x;
-      pos.y += offset.y;
     } );
     
-    g.translate( -pos.x, -pos.y );
+    g.setTransform( savedTransform );
   }
   
   private void renderStats( final Graphics2D g ) {
@@ -236,7 +239,14 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
   public void updateFloor() {
     final Ident id = Ident.fromSerial( "floor-" + floor );
     final Level level = (Level) master.getWorld( id );
-    master.switchWorld( id, level.getUpStairsPos() );
+    
+    if ( master.world != null ) {
+      master.world.entities.remove( master.player );
+    }
+    
+    master.world = level;
+    master.world.entities.add( master.player, level.getUpStairsPos() );
+    
     rooms = level.getRooms();
     room = currentRoom();
     updateDark();

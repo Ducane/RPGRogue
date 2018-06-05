@@ -3,6 +3,7 @@ package de.ducane.roguelike.level;
 import static de.androbin.collection.util.ObjectCollectionUtil.*;
 import de.androbin.json.*;
 import de.androbin.rpg.*;
+import de.androbin.rpg.entity.*;
 import de.androbin.rpg.tile.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.item.*;
@@ -241,7 +242,7 @@ public final class LevelGenerator {
         final int y = random.nextInt( level.size.height );
         
         tile = level.getTile( new Point( x, y ) );
-      } while ( !tile.data.passable );
+      } while ( !tile.getData().passable );
       
       final Set<String> keySet = droprates.keySet();
       final String[] keyArray = keySet.toArray( new String[ keySet.size() ] );
@@ -276,7 +277,7 @@ public final class LevelGenerator {
       final int x = random.nextInt( level.size.width );
       final int y = random.nextInt( level.size.height );
       up = new Point( x, y );
-    } while ( !"granite".equals( level.getTile( up ).data.name )
+    } while ( !"granite".equals( level.getTile( up ).getData().name )
         || level.getTile( up ).getItem() != null );
     
     level.setUpStairsPos( up );
@@ -287,7 +288,7 @@ public final class LevelGenerator {
       final int x = random.nextInt( level.size.width );
       final int y = random.nextInt( level.size.height );
       down = new Point( x, y );
-    } while ( !"granite".equals( level.getTile( down ).data.name )
+    } while ( !"granite".equals( level.getTile( down ).getData().name )
         || level.getTile( down ).getItem() != null || down.equals( up ) );
     
     level.setDownStairsPos( down );
@@ -310,8 +311,8 @@ public final class LevelGenerator {
         success = level.getEntity( pos ) == null
             && level.getPhantom( pos ) == null;
       } while ( !success );
-      
-      final Mob mob = new Mob( RogueEntites.getData( Ident.fromSerial( "mob/" + monster ) ) );
+
+      final Mob mob = Entities.create( Ident.fromSerial( "rogue/mob/" + monster ), 0 );
       level.entities.add( mob, pos );
     }
   }

@@ -2,7 +2,6 @@ package de.ducane.roguelike.gfx;
 
 import static de.ducane.util.AWTUtil.*;
 import de.androbin.rpg.dir.*;
-import de.androbin.rpg.entity.*;
 import de.androbin.rpg.gfx.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.entity.RogueEntity.*;
@@ -10,7 +9,7 @@ import de.ducane.roguelike.gfx.dark.*;
 import java.awt.*;
 import java.awt.geom.*;
 
-public class RogueEntityRenderer extends SimpleEntityRenderer<Entity> {
+public final class RogueEntityRenderer extends SimpleEntityRenderer<RogueEntity> {
   private final MovingDark dark;
   
   public RogueEntityRenderer( final MovingDark dark ) {
@@ -18,18 +17,11 @@ public class RogueEntityRenderer extends SimpleEntityRenderer<Entity> {
   }
   
   @ Override
-  public void render( final Graphics2D g0, final Entity entity0,
-      final Point2D.Float pos, final float scale ) {
-    if ( !( entity0 instanceof RogueEntity ) ) {
-      super.render( g0, entity0, pos, scale );
-      return;
-    }
-    
-    final RogueEntity entity = (RogueEntity) entity0;
-    
+  public void render( final Graphics2D g0, final RogueEntity entity,
+      final Point2D.Float pos, final Rectangle2D.Float view, final float scale ) {
     Graphics2D g = g0;
     
-    if ( entity.data.type.firstElement().equals( "mob" ) ) {
+    if ( entity.data.type.toString().startsWith( "rogue/mob" ) ) {
       g = dark.clip( g0 );
     }
     
@@ -49,7 +41,7 @@ public class RogueEntityRenderer extends SimpleEntityRenderer<Entity> {
       pos.y += d * dir.dy();
     }
     
-    super.render( g, entity, pos, scale );
+    super.render( g, entity, pos, view, scale );
     
     if ( damage.getCurrent() != null ) {
       g.setFont( new Font( "Determination Mono", Font.PLAIN, (int) ( scale * 0.6f ) ) );

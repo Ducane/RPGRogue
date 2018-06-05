@@ -19,7 +19,7 @@ public final class Items {
   }
   
   private static Item create( final String name ) {
-    final XObject data = JSONUtil.readJSON( "item/" + name + ".json" ).get().asObject();
+    final XObject data = XUtil.readJSON( "item/" + name + ".json" ).get().asObject();
     return create( name, data );
   }
   
