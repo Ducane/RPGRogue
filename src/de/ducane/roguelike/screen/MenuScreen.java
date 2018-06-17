@@ -14,7 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 
-public final class MenuScreen extends BasicShell implements AWTGraphics {
+public final class MenuScreen extends AbstractShell implements AWTGraphics {
   private final SmoothScreenManager<AWTTransition> screens;
   
   private final ResourceManager<String> rm;
@@ -40,9 +40,10 @@ public final class MenuScreen extends BasicShell implements AWTGraphics {
   public MenuScreen( final SmoothScreenManager<AWTTransition> screens ) {
     this.screens = screens;
     
-    keyInputs.add( new MenuKeyInput() );
-    mouseInputs.add( new MenuMouseInput() );
-    mouseMotionInputs.add( new MenuMouseMotionInput() );
+    final Inputs inputs = getInputs();
+    inputs.keyboard = new MenuKeyInput();
+    inputs.mouse = new MenuMouseInput();
+    inputs.mouseMotion = new MenuMouseMotionInput();
     
     this.rm = new SimpleResourceManager<>();
   }

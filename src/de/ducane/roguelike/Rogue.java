@@ -3,28 +3,65 @@ package de.ducane.roguelike;
 import static de.ducane.roguelike.Configuration.window_.*;
 import static de.ducane.util.FontUtil.*;
 import de.androbin.gfx.*;
+import de.androbin.rpg.*;
+import de.androbin.rpg.entity.*;
+import de.androbin.rpg.event.*;
+import de.androbin.rpg.gfx.sheet.*;
+import de.androbin.rpg.tile.*;
 import de.androbin.screen.*;
 import de.androbin.screen.transit.*;
 import de.androbin.shell.env.*;
+import de.ducane.roguelike.entity.*;
+import de.ducane.roguelike.event.*;
+import de.ducane.roguelike.event.handler.*;
+import de.ducane.roguelike.level.*;
+import de.ducane.roguelike.phantom.*;
 import de.ducane.roguelike.screen.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.List;
 import javax.swing.*;
 
-public final class Main {
-  public static final boolean DEBUG = false;
+public final class Rogue {
+  public static boolean debug = false;
   
-  private Main() {
+  private Rogue() {
   }
   
-  public static void main( final String[] args ) {
+  public static void init() {
+    Globals.init( "globals.json" );
+    
+    Tiles.register( "rogue", RogueTile::new );
+    
+    Entities.register( "phantom/upstairs", Upstairs::new );
+    Entities.register( "rogue/mob", Mob::new );
+    
+    Entities.registerData( "rogue", RogueEntityData::new );
+    
+    Sheets.registerEntity( "rogue/mob", new SimpleAgentLayout() );
+    Sheets.registerEntity( "rogue/player", new BetterAgentLayout() );
+    
+    Events.putBuilder( "downstairs", DownstairsEvent.BUILDER );
+    
+    Events.putHandler( DownstairsEvent.class, new DownstairsEventHandler() );
+  }
+  
+  public static void main( final String[] args )
+      throws InvocationTargetException, InterruptedException {
+    final List<String> argsList = Arrays.asList( args );
+    debug = argsList.contains( "debug" );
+    
     final SmoothScreenManager<AWTTransition> screens = new AWTScreenManager();
     final AWTEnv env = new AWTEnv( screens, FPS );
     env.start( TITLE );
     
+    init();
+    
     final CustomPane canvas = env.canvas;
     
-    SwingUtilities.invokeLater( () -> {
+    SwingUtilities.invokeAndWait( () -> {
       installFonts();
       
       final JFrame window = new JFrame( TITLE );
@@ -34,12 +71,6 @@ public final class Main {
       window.setLocationRelativeTo( null );
       window.setContentPane( canvas );
       window.setVisible( true );
-      
-      if ( DEBUG ) {
-        screens.call( new PlayScreen( 48f, "Kevin" ) );
-      } else {
-        screens.call( new IntroScreen( screens ) );
-      }
       
       window.addWindowListener( new WindowAdapter() {
         @ Override
@@ -67,6 +98,14 @@ public final class Main {
           canvas.requestFocusInWindow();
         }
       } );
+    } );
+    
+    SwingUtilities.invokeAndWait( () -> {
+      if ( debug ) {
+        screens.call( new PlayScreen( "Kevin" ) );
+      } else {
+        screens.call( new IntroScreen( screens ) );
+      }
     } );
   }
   

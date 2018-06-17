@@ -17,16 +17,16 @@ public final class RogueTileRenderer extends SimpleTileRenderer<Tile> {
   }
   
   @ Override
-  public void render( final Graphics2D g0, final Tile tile,
+  public void render( final Graphics2D g0, final Tile tile, final Point spot,
       final Point2D.Float pos, final float scale ) {
     Graphics2D g = g0;
     
     if ( tile.getData().type.equals( Downstairs.TYPE ) ) {
-      render( g, Downstairs.MOCK, pos, scale );
+      render( g, Downstairs.MOCK, spot, pos, scale );
       g = dark.clip( g0 );
     }
     
-    super.render( g, tile, pos, scale );
+    super.render( g, tile, spot, pos, scale );
     
     final Item item = ( (RogueTile) tile ).getItem();
     

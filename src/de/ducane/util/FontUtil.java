@@ -3,24 +3,25 @@ package de.ducane.util;
 import de.androbin.io.*;
 import java.awt.*;
 import java.io.*;
-import java.net.*;
+import java.nio.file.*;
 
 public final class FontUtil {
   private FontUtil() {
   }
   
   public static boolean installFont( final GraphicsEnvironment ge, final String path ) {
-    final URL res = DynamicClassLoader.get().getResource( "font/" + path );
+    final Path file = DynamicClassLoader.getPath( "font/" + path );
     
-    if ( res == null ) {
+    if ( file == null ) {
       return false;
     }
     
-    try ( final InputStream stream = res.openStream() ) {
+    try ( final InputStream stream = Files.newInputStream( file ) ) {
       ge.registerFont( Font.createFont( Font.TRUETYPE_FONT, stream ) );
-      return true;
     } catch ( final FontFormatException | IOException e ) {
       return false;
     }
+    
+    return true;
   }
 }

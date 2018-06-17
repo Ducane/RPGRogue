@@ -16,7 +16,7 @@ import java.awt.image.*;
 import java.util.*;
 import java.util.List;
 
-public final class IntroScreen extends BasicShell implements AWTGraphics {
+public final class IntroScreen extends AbstractShell implements AWTGraphics {
   private final SmoothScreenManager<AWTTransition> screens;
   
   private final BufferedImage[] images;
@@ -36,7 +36,7 @@ public final class IntroScreen extends BasicShell implements AWTGraphics {
   public IntroScreen( final SmoothScreenManager<AWTTransition> screens ) {
     this.screens = screens;
     
-    keyInputs.add( new IntroKeyInput() );
+    getInputs().keyboard = new IntroKeyInput();
     
     charSpeed = TEXT_SPEED;
     stepwiseOutput = true;

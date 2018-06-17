@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 
-public final class NewGameScreen extends BasicShell implements AWTGraphics {
+public final class NewGameScreen extends AbstractShell implements AWTGraphics {
   private final SmoothScreenManager<AWTTransition> screens;
   
   private final StringBuilder name;
@@ -21,9 +21,10 @@ public final class NewGameScreen extends BasicShell implements AWTGraphics {
   public NewGameScreen( final SmoothScreenManager<AWTTransition> screens ) {
     this.screens = screens;
     
-    keyInputs.add( new NewGameKeyInput() );
-    mouseInputs.add( new NewGameMouseInput() );
-    mouseMotionInputs.add( new NewGameMouseMotionInput() );
+    final Inputs inputs = getInputs();
+    inputs.keyboard = new NewGameKeyInput();
+    inputs.mouse = new NewGameMouseInput();
+    inputs.mouseMotion = new NewGameMouseMotionInput();
     
     name = new StringBuilder();
   }
@@ -61,12 +62,8 @@ public final class NewGameScreen extends BasicShell implements AWTGraphics {
   }
   
   private void startGame() {
-    screens.fadeSwitchTo( new PlayScreen( 48f, name.toString() ),
+    screens.fadeSwitchTo( new PlayScreen( name.toString() ),
         new AWTColorCrossfade( Color.BLACK, 0.5f, 1f ) );
-  }
-  
-  @ Override
-  public void update( final float delta ) {
   }
   
   private final class NewGameKeyInput implements KeyInput {

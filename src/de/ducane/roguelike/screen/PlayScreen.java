@@ -4,23 +4,19 @@ import static de.androbin.gfx.util.GraphicsUtil.*;
 import de.androbin.json.*;
 import de.androbin.rpg.*;
 import de.androbin.rpg.entity.*;
-import de.androbin.rpg.event.*;
 import de.androbin.rpg.gfx.*;
-import de.androbin.rpg.gfx.sheet.*;
+import de.androbin.rpg.overlay.*;
 import de.androbin.rpg.story.*;
-import de.androbin.rpg.tile.*;
+import de.androbin.shell.*;
 import de.androbin.shell.input.*;
 import de.androbin.thread.*;
 import de.ducane.roguelike.*;
 import de.ducane.roguelike.entity.*;
-import de.ducane.roguelike.event.*;
-import de.ducane.roguelike.event.handler.*;
 import de.ducane.roguelike.gfx.*;
 import de.ducane.roguelike.gfx.dark.*;
 import de.ducane.roguelike.level.*;
 import de.ducane.roguelike.menu.*;
 import de.ducane.roguelike.menu.Menu;
-import de.ducane.roguelike.phantom.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
@@ -41,33 +37,14 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
   private final LockedList<Menu> menus;
   private Point2D.Float menuOffset;
   
-  static {
-    Globals.init( "globals.json" );
-    
-    Tiles.register( "rogue", RogueTile::new );
-    
-    Entities.register( "phantom/upstairs", Upstairs::new );
-    Entities.register( "rogue/mob", Mob::new );
-    
-    Entities.registerData( "rogue", RogueEntityData::new );
-    
-    Sheets.registerEntity( "rogue/mob", new MobLayout() );
-    Sheets.registerEntity( "rogue/player", new PlayerLayout() );
-    
-    Events.putBuilder( "downstairs", DownstairsEvent.BUILDER );
-    
-    Events.putHandler( DownstairsEvent.class, new DownstairsEventHandler() );
-  }
-  
-  public PlayScreen( final float scale, final String name ) {
+  public PlayScreen( final String name ) {
     master = new RogueMaster( this::createWorld, new StoryState( new StoryGraph() ) );
-    this.scale = scale;
-    
-    keyInputs.add( new PlayKeyInput() );
-    mouseInputs.add( new PlayMouseInput() );
-    mouseMotionInputs.add( new PlayMouseMotionInput() );
+    master.addOverlay( new MoveInputOverlay( master::getPlayer ) );
+    master.addOverlay( new RogueOverlay() );
     
     menus = new LockedList<>();
+    
+    scale = 48f;
     
     dark = new MovingDark( new Color( 0f, 0f, 0f, 0.8f ), scale );
     dark.pos = this::getDarkPos;
@@ -77,9 +54,9 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
     Renderers.registerEntity( "rogue", new RogueEntityRenderer( dark ) );
     Renderers.registerTile( "rogue", new RogueTileRenderer( dark ) );
     
-    master.player = new Player( Entities.getData( Ident.fromSerial( "rogue/player/Player" ) ),
-        name );
-    master.camera.setFocus( master.player::getFloatPos );
+    master.setPlayer( new Player( Entities.getData( Ident.fromSerial( "rogue/player/Player" ) ),
+        name ) );
+    master.camera.setFocus( master.getPlayer()::getFloatPos );
     
     updateFloor();
   }
@@ -96,6 +73,7 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
   }
   
   private Rectangle currentRoom() {
+    final Point pos = master.getPlayer().getSpot().getPos();
     Rectangle tileRoom = null;
     
     for ( final Rectangle room : rooms ) {
@@ -106,8 +84,6 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
       
       tileRoom = new Rectangle( x, y, width, height );
       
-      final Point pos = master.player.getSpot().getPos();
-      
       if ( tileRoom.contains( pos ) ) {
         return tileRoom;
       }
@@ -117,7 +93,7 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
   }
   
   private Point2D.Float getDarkPos() {
-    final Point2D.Float pos = master.player.getFloatPos();
+    final Point2D.Float pos = master.getPlayer().getFloatPos();
     return room == null
         ? new Point2D.Float( pos.x + 0.5f, pos.y + 0.5f )
         : new Point2D.Float( room.x, room.y );
@@ -239,20 +215,29 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
   public void updateFloor() {
     final Ident id = Ident.fromSerial( "floor-" + floor );
     final Level level = (Level) master.getWorld( id );
+    final Player player = master.getPlayer();
     
     if ( master.world != null ) {
-      master.world.entities.remove( master.player );
+      master.world.entities.remove( player );
     }
     
     master.world = level;
-    master.world.entities.add( master.player, level.getUpStairsPos() );
+    master.world.entities.add( player, level.getUpStairsPos() );
     
     rooms = level.getRooms();
     room = currentRoom();
     updateDark();
   }
   
-  private final class PlayKeyInput implements KeyInput {
+  private final class RogueOverlay extends AbstractShell
+      implements KeyInput, MouseInput, MouseMotionInput, Overlay {
+    public RogueOverlay() {
+      final Inputs inputs = getInputs();
+      inputs.keyboard = this;
+      inputs.mouse = this;
+      inputs.mouseMotion = this;
+    }
+    
     @ Override
     public void keyPressed( final int keycode ) {
       if ( keycode == KeyEvent.VK_SHIFT ) {
@@ -281,9 +266,7 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
           break;
       }
     }
-  }
-  
-  private final class PlayMouseInput implements MouseInput {
+    
     @ Override
     public void mousePressed( final int x, final int y, final int button ) {
       if ( menus.isEmpty() ) {
@@ -316,9 +299,7 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
         menus.remove( menus.size() - 1 );
       }
     }
-  }
-  
-  private final class PlayMouseMotionInput implements MouseMotionInput {
+    
     @ Override
     public void mouseMoved( final int x, final int y ) {
       if ( menus.isEmpty() ) {
@@ -339,6 +320,10 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
       
       final Menu menu = menus.get( index );
       menu.onHover( p );
+    }
+    
+    @ Override
+    protected void onResized( final int width, final int height ) {
     }
   }
 }
