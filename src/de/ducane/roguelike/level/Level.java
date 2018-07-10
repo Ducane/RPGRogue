@@ -85,7 +85,7 @@ public final class Level extends World {
   
   protected void setUpStairsPos( final Point pos ) {
     this.upStairsPos = pos;
-    entities.add( Entities.create( Ident.fromSerial( "phantom/upstairs" ), 0 ), pos );
+    entities.add( Entities.create( Ident.parse( "phantom/upstairs" ), 0 ), pos );
   }
   
   protected void setDownStairsPos( final Point pos ) {

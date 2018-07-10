@@ -312,7 +312,7 @@ public final class LevelGenerator {
             && level.getPhantom( pos ) == null;
       } while ( !success );
 
-      final Mob mob = Entities.create( Ident.fromSerial( "rogue/mob/" + monster ), 0 );
+      final Mob mob = Entities.create( Ident.parse( "rogue/mob/" + monster ), 0 );
       level.entities.add( mob, pos );
     }
   }
@@ -336,7 +336,7 @@ public final class LevelGenerator {
     public final Ident type;
     
     TileType( final String type ) {
-      this.type = Ident.fromSerial( "rogue/" + type );
+      this.type = Ident.parse( "rogue/" + type );
     }
   }
 }

@@ -54,7 +54,7 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
     Renderers.registerEntity( "rogue", new RogueEntityRenderer( dark ) );
     Renderers.registerTile( "rogue", new RogueTileRenderer( dark ) );
     
-    master.setPlayer( new Player( Entities.getData( Ident.fromSerial( "rogue/player/Player" ) ),
+    master.setPlayer( new Player( Entities.getData( Ident.parse( "rogue/player/Player" ) ),
         name ) );
     master.camera.setFocus( master.getPlayer()::getFloatPos );
     
@@ -213,7 +213,7 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
   }
   
   public void updateFloor() {
-    final Ident id = Ident.fromSerial( "floor-" + floor );
+    final Ident id = Ident.parse( "floor-" + floor );
     final Level level = (Level) master.getWorld( id );
     final Player player = master.getPlayer();
     

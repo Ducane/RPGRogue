@@ -25,11 +25,6 @@ public final class RogueEntityRenderer extends SimpleEntityRenderer<RogueEntity>
       g = dark.clip( g0 );
     }
     
-    final Rectangle2D.Float bounds = getBounds( entity );
-    
-    bounds.x *= scale;
-    bounds.y *= scale;
-    
     final DamageHandle damage = entity.damage;
     
     if ( damage.getCurrent() != null ) {
@@ -51,8 +46,9 @@ public final class RogueEntityRenderer extends SimpleEntityRenderer<RogueEntity>
       
       final FontMetrics fm = g.getFontMetrics();
       
-      final float x = bounds.x + ( scale - fm.stringWidth( damageText ) ) * 0.5f;
-      final float y = bounds.y + ( scale - fm.stringWidth( damageText ) ) * 0.5f;
+      final Rectangle2D.Float bounds = getBounds( entity );
+      final float x = (float) bounds.getCenterX() * scale - fm.stringWidth( damageText ) * 0.5f;
+      final float y = (float) bounds.getCenterY() * scale - fm.stringWidth( damageText ) * 0.5f;
       
       drawBorderedString( g, damageText, x, y - 0.5f * scale
           * (float) Math.sin( damage.getProgress() * Math.PI ),
