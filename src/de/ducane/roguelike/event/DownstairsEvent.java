@@ -6,7 +6,7 @@ import java.util.logging.*;
 
 public final class DownstairsEvent implements Event {
   public static final Event.Builder BUILDER = args -> {
-    final Entity entity = (Entity) args[ 0 ];
+    final Entity entity = (Entity) args[ 0 ].raw();
     return new DownstairsEvent( entity );
   };
   
