@@ -1,4 +1,4 @@
 {
 	"name": "downstairs",
-	"enter_event": "downstairs($entity)",
+	"enter_event": ["downstairs", "$entity"],
 }
