@@ -1,12 +1,12 @@
 package de.ducane.roguelike.entity;
 
-import de.androbin.mixin.dim.*;
 import de.androbin.rpg.dir.*;
 import de.androbin.rpg.entity.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
 import java.awt.*;
 import java.awt.geom.*;
+import java.util.List;
 
 public final class Mob extends RogueEntity {
   private Item item;
@@ -16,9 +16,9 @@ public final class Mob extends RogueEntity {
     
     move.onHandle = dir -> {
       final Level level = (Level) getSpot().world;
-      final Rectangle extent = dir.first.inner( getBounds() );
+      final List<Point> inner = getBounds().inner( dir.first );
       
-      LoopUtil.forEach( extent, pos -> {
+      inner.forEach( pos -> {
         if ( item == null ) {
           item = level.takeItem( pos );
         }
@@ -28,11 +28,11 @@ public final class Mob extends RogueEntity {
   }
   
   public DirectionPair aim( final Entity entity, final boolean moving ) {
-    final Point2D.Float pos = getFloatPos();
-    final Point2D.Float pos2 = entity.getFloatPos();
+    final Point2D.Float src = getFloatBounds().center();
+    final Point2D.Float dst = entity.getFloatBounds().center();
     
-    final float dx = pos2.x - pos.x;
-    final float dy = pos2.y - pos.y;
+    final float dx = dst.x - src.x;
+    final float dy = dst.y - src.y;
     
     return Directions.aim( dx, dy );
   }

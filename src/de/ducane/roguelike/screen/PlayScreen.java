@@ -56,7 +56,7 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
     
     master.setPlayer( new Player( Entities.getData( Ident.parse( "rogue/player/Player" ) ),
         name ) );
-    master.camera.setFocus( master.getPlayer()::getFloatPos );
+    master.camera.setFocus( () -> master.getPlayer().getFloatBounds().center() );
     
     updateFloor();
   }
@@ -93,9 +93,9 @@ public final class PlayScreen extends RPGScreen<RogueMaster> {
   }
   
   private Point2D.Float getDarkPos() {
-    final Point2D.Float pos = master.getPlayer().getFloatPos();
+    final Point2D.Float pos = master.getPlayer().getFloatBounds().center();
     return room == null
-        ? new Point2D.Float( pos.x + 0.5f, pos.y + 0.5f )
+        ? new Point2D.Float( pos.x, pos.y )
         : new Point2D.Float( room.x, room.y );
   }
   

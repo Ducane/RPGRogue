@@ -45,8 +45,8 @@ public abstract class RogueEntity extends Agent {
   protected abstract void onDamage( int damage, Agent source );
   
   @ Override
-  public void update( final float delta ) {
-    super.update( delta );
+  public void update( final float delta, final boolean passive ) {
+    super.update( delta, passive );
     attack.update( delta );
     damage.update( delta );
   }
