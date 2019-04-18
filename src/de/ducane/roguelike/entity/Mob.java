@@ -1,7 +1,7 @@
 package de.ducane.roguelike.entity;
 
-import de.androbin.rpg.dir.*;
 import de.androbin.rpg.entity.*;
+import de.androbin.rpg.space.*;
 import de.ducane.roguelike.item.*;
 import de.ducane.roguelike.level.*;
 import java.awt.*;

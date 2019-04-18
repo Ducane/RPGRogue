@@ -1,8 +1,8 @@
 package de.ducane.roguelike.gfx;
 
 import static de.ducane.util.AWTUtil.*;
-import de.androbin.rpg.dir.*;
 import de.androbin.rpg.gfx.*;
+import de.androbin.rpg.space.*;
 import de.ducane.roguelike.entity.*;
 import de.ducane.roguelike.entity.RogueEntity.*;
 import de.ducane.roguelike.gfx.dark.*;
